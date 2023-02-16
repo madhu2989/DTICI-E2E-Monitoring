@@ -1,0 +1,94 @@
+﻿jobs:
+  - job: BuildAngularApp
+    displayName: 'Build Angular Application'
+
+    steps:
+    - task: NodeTool@0
+      displayName: 'Use Node 14.x'
+      inputs:
+        versionSpec: 18.x
+        checkLatest: true
+
+    - task: Npm@1
+      displayName: '[NPM] Clean up Cache'
+      inputs:
+        command: custom
+        workingDir: Providence-main/Daimler.Providence.Frontend
+        verbose: false
+        customCommand: 'cache clean --force'
+
+    - task: Npm@1
+      displayName: '[NPM] Install packages'
+      inputs:
+        workingDir: Providence-main/Daimler.Providence.Frontend
+        verbose: false
+      continueOnError: true
+
+    - task: SonarQubePrepare@5
+      displayName: 'Sonarqube Analysis task'
+      inputs:
+        SonarQube: $(SONARQUBE_SERVICE_CONNECTION)
+        scannerMode: CLI
+        configMode: manual
+        cliProjectKey: $(SONARQUBE_PROJECT_KEY)_$(Build.Repository.Id)
+        cliProjectName: $(SONARQUBE_PROJECT)
+        cliSources: Providence-main/Daimler.Providence.Frontend
+        enabled: true
+
+    - task: Npm@1
+      displayName: Build
+      inputs:
+        command: custom
+        workingDir: Providence-main/Daimler.Providence.Frontend
+        verbose: false
+        customCommand: 'run build'
+
+    - task: SonarQubeAnalyze@4
+      displayName: 'Run SonarQube code analysis'
+      enabled: true
+
+    - task: SonarQubePublish@4
+      displayName: 'Publish SonarQube Quality Gate Result'   
+      enabled: true
+
+    - task: synopsys-detect.synopsys-detect.synopsys-detect-task.SynopsysDetectTask@8
+      displayName: 'Run Blackduck Scan'
+      inputs:
+        BlackDuckService: $(BLACKDUCK_ServiceConnection)
+        DetectArguments: |
+         --detect.project.name="$(BLACKDUCK-PROJECT)"
+         --detect.project.version.name="Providence-UI"
+         --detect.project.codelocation.unmap=true
+         --blackduck.timeout=36000
+         --detect.yarn.prod.only=true
+         --detect.npm.include.dev.dependencies=false
+         --logging.level.com.synopsys.integration="DEBUG"
+
+    - task: DownloadSecureFile@1
+      displayName: 'Download secure file'
+      inputs:
+        secureFile: $(COVERITY_AUTH_FILE)
+        retryCount: 5
+
+    - task: Bash@3
+      displayName: 'Change User access to Secure File'
+      inputs:
+        targetType: 'inline'
+        script: |        
+          chmod u+rw $(Agent.TempDirectory)/$(COVERITY_AUTH_FILE)de
+          chmod go-rwx $(Agent.TempDirectory)/$(COVERITY_AUTH_FILE)
+
+    - powershell: |
+        cov-configure --javascript --config e2emon_coverityconf.xml
+        write-host "performing coverity scan on e2e monitoring ui"   
+        write-host "********** coverity capture ************"
+        cov-build --config e2emon_coverityconf.xml --dir $(build.repository.localpath)\idir --no-command　--fs-capture-search $(Build.Repository.LocalPath)/Providence-main/Daimler.Providence.Frontend
+        cov-capture --dir $(Build.Repository.LocalPath)\idir --project-dir $(Build.Repository.LocalPath)
+        write-host "********** coverity analyze ************"
+        cov-analyze --config e2emon_coverityconf.xml --dir $(build.repository.localpath)\idir --aggressiveness-level high
+        write-host "********** coverity commit *************"
+        cov-commit-defects --config e2emon_coverityconf.xml --dir $(build.repository.localpath)\idir --url 'https://cov-connect.daimler.com' --stream 'FrameworkFrontEnd-Master' --auth-key-file $(Agent.tempdirectory)/$(COVERITY_AUTH_FILE)
+      displayName: 'Run Coverity Scan'
+      failOnStderr: false
+     
+

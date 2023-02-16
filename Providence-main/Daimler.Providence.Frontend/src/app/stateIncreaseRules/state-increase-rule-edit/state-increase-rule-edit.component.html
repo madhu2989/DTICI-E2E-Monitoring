@@ -1,0 +1,73 @@
+<ngx-loading [show]="showloadingIndicator" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+<h1 mat-dialog-title>State Increase Rule</h1>
+<mat-dialog-content>
+  <form #inputFieldsForm="ngForm">
+    <div fxLayout="column" fxFlex="100">
+      <div style="margin: 0px 25px;">
+        <div fxLayout="column">
+          <mat-form-field>
+            <input matInput placeholder="Title" name="name" [(ngModel)]="currentStateIncreaseRule.name" 
+              required>
+            <mat-error>Please enter a title for your state increase rule</mat-error>
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput placeholder="Description" name="description" [(ngModel)]="currentStateIncreaseRule.description" required>
+            <mat-error>Please enter a short description</mat-error>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-select matInput placeholder="Environment Name" name="environmentSubscriptionId"
+              [(ngModel)]="currentStateIncreaseRule.environmentSubscriptionId" required (selectionChange)=enableComponents()>
+              <mat-option *ngFor="let environment of environments" value="{{environment.subscriptionId}}">{{environment.name}}</mat-option>
+            </mat-select>
+            <mat-error>Please select an environment</mat-error>
+          </mat-form-field>
+          <form [formGroup]='componentIdForm'>
+            <mat-form-field style="width: 100%">
+              <input matInput placeholder="Component Id" [matAutocomplete]="autoCompId" formControlName='userInputComponentId' required>
+              <mat-error>Please select a component id</mat-error>
+            </mat-form-field>
+            <mat-autocomplete #autoCompId="matAutocomplete" autoActiveFirstOption>
+              <mat-option style="font-size: 13px;" *ngFor="let compId of filteredComponentIds | async" [value]="compId">
+                  <div title="{{compId}}">{{ compId }} </div>
+              </mat-option>
+            </mat-autocomplete>
+          </form>
+          <form [formGroup]='checkIdForm'>
+            <mat-form-field style="width: 100%">
+              <input matInput placeholder="Check Id" [matAutocomplete]="autoCheckId" formControlName='userInputCheckId' required>
+              <mat-error>Please select a check id</mat-error>
+            </mat-form-field>
+            <mat-autocomplete #autoCheckId="matAutocomplete" autoActiveFirstOption>
+              <mat-option style="font-size: 13px;" *ngFor="let element of filteredCheckIds | async" [value]="element">
+                <div>{{ element }}</div>
+              </mat-option>
+            </mat-autocomplete>
+          </form>
+          <mat-form-field>
+            <input matInput placeholder="Alert Name" name="alertName" [(ngModel)]="currentStateIncreaseRule.alertName">
+          </mat-form-field>
+          
+          <mat-checkbox [(ngModel)]="currentStateIncreaseRule.isActive" name="frequencyCheck">Activate this Rule</mat-checkbox>
+          <div style="margin-top: 10px;">
+            <div fxFlex="15" fxLayoutAlign="left center">
+              Trigger Time:
+            </div>
+            <div fxFlex="70">
+              <mat-slider thumbLabel [displayWith]="formatLabel" name="triggerTime" tickInterval="1" step="1" min="1"
+                max="720" [(ngModel)]="currentStateIncreaseRule.triggerTime" class="slider"></mat-slider>
+            </div>
+            <div fxFlex="15" fxLayoutAlign="left center">
+              {{currentStateIncreaseRule.triggerTime}} min
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+</mat-dialog-content>
+<mat-dialog-actions fxLayout="row" fxLayoutAlign="center">
+  <button mat-button (click)="onSaveClick()" [disabled]="!currentStateIncreaseRule.name || !currentStateIncreaseRule.environmentSubscriptionId || !this.currentStateIncreaseRule.description 
+    || !this.checkIdForm.get('userInputCheckId').value || !this.componentIdForm.get('userInputComponentId').value">Save</button>
+  <button mat-button (click)="onCancelClick()">Cancel</button>
+</mat-dialog-actions>

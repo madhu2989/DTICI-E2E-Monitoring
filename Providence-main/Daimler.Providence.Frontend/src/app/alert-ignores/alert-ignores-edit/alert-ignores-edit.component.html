@@ -1,0 +1,53 @@
+<ngx-loading [show]="showloadingIndicator" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+<h1 mat-dialog-title style="margin-bottom: 0px;">Ignore alert</h1>
+<mat-dialog-content style="overflow: hidden">
+  <form #inputFieldsForm="ngForm">
+    <div fxLayout="column" class="checkerInput" fxFlex="100">
+      <div style="margin: 15px">
+          <div fxLayout="column">
+            <mat-form-field style="margin-top: 3px;">
+              <input matInput placeholder="Name" name="name" [(ngModel)]="currentAlertIgnore.name" required maxlength="500">
+              <mat-error>Please enter alert ignore name</mat-error>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-select matInput placeholder="Environment Name" name="subscriptionId" [(ngModel)]="currentAlertIgnore.environmentSubscriptionId" required>
+                <mat-option *ngFor="let environment of environments" value="{{environment.subscriptionId}}">{{environment.name}}</mat-option>        
+              </mat-select>
+              <mat-error>Please select the environment name</mat-error>
+            </mat-form-field>
+            <div fxLayout="row" fxLayoutAlign="left center">
+              <div class="expDateItem">Expiration Date: </div>
+              <mat-form-field class="expDateItem">
+                <input matInput [matDatepicker]="picker" placeholder="Choose a date" [(ngModel)]="expDate" name="expDate" required>
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+                <mat-error>Please choose an expiration date.</mat-error>                
+              </mat-form-field>
+              <form [formGroup]="expTimeFormGroup">
+              <mat-form-field>
+                <input matInput name="expTime" placeholder="Specify the time" formControlName="expTimeCtrl">
+                <mat-error>Please specify the expiration time in the format: hh:mm</mat-error>
+                <mat-hint>For example: 12:33</mat-hint>
+              </mat-form-field>
+            </form>
+            </div>
+          </div>
+      </div>
+      <div style="margin: 15px; margin-top: 0px; font-size: 14px">
+        <div style="font-size: 16px; margin-bottom: 5px">
+        {{filterCriteriaText}}
+        </div>
+        <div style="color: #ff5722; margin-bottom: 5px; font-size: 10px" *ngIf="!minimumFilterCount">Please specify at least one filter</div>
+        <div fxLayout="column">
+          <ag-grid-angular style="width: 100%; min-height: 250px !important;" class="ag-theme-material" [gridOptions]="gridOptions" [enableSorting]="true" [rowSelection]="rowSelection">
+          </ag-grid-angular>
+        </div>
+      </div>
+    </div>
+  </form>
+
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onSaveClick()" [disabled]="!currentAlertIgnore.name || !currentAlertIgnore.environmentSubscriptionId || !minimumFilterCount || !expDate  || formControlExpTime.hasError('pattern')">Save</button>
+  <button mat-button (click)="onCancelClick()">Cancel</button>
+</mat-dialog-actions>

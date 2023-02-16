@@ -1,0 +1,29 @@
+﻿parameters:
+  - name: EnvName
+    default: Build
+  - name: PoolName
+    default: ''
+stages:
+  - stage: '${{ parameters.EnvName }}'
+    pool:
+        name: '${{ parameters.PoolName }}'
+    jobs:
+      - job: '${{ parameters.EnvName }}'
+        displayName: Publish Templates
+        steps:          
+          - task: CopyFiles@2
+            displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)'
+            inputs:
+              SourceFolder: Providence-main/Daimler.Providence.Infrastructure
+              Contents: |
+                !.vs
+                **
+              TargetFolder: $(Build.ArtifactStagingDirectory)/src
+              CleanTargetFolder: true
+              OverWrite: true
+
+          - task: PublishBuildArtifacts@1
+            displayName: Publish Build Artifacts
+            inputs:
+              pathtoPublish: $(Build.ArtifactStagingDirectory)
+              artifactName: Artifacts

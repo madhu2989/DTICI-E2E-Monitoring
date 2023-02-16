@@ -1,0 +1,8 @@
+# Stuttgart Crew 1 2022
+#https://github.com/hadolint/hadolint
+
+steps:
+  - script: |
+      docker run --rm -i hadolint/hadolint < Dockerfile 
+    displayName: Run HaDoLint over E2E Dockerfile 
+    continueOnError: true

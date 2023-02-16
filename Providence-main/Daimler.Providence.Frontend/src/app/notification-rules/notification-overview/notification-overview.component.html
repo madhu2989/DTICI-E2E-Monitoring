@@ -1,0 +1,10 @@
+<div>
+  <app-crud-toolbar [toolBarTitle]="toolBarTitle" [toolBarSubTitle]="toolBarSubTitle" [settingsButtonVisible]="settingsButtonVisible"
+    [deleteButtonVisible]="deleteButtonVisible" [deleteButtonActive]="true" [editButtonVisible]="editButtonVisible" [editButtonActive]="editButtonActive" [addButtonVisible]="addButtonVisible"
+    [addButtonActive]="addButtonActive" (add)="openCreateDialog($event)" (delete)="deleteNotificationRule()" (edit)="openEditDialog()"></app-crud-toolbar>
+
+  <ag-grid-angular #agGrid class="ag-theme-material" [rowData]="rowData" [columnDefs]="columnDefs" [enableSorting]="true"
+    [enableColResize]="true" [rowSelection]="rowSelection" [gridOptions]="gridOptions" (gridReady)="onGridReady($event)" [floatingFilter]="true">
+  </ag-grid-angular>
+  <ngx-loading [show]="showloadingIndicator" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+</div>

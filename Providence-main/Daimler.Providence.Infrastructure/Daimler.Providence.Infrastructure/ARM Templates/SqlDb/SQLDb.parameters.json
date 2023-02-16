@@ -1,0 +1,70 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "IsPublicAccessEnabled": {
+      "value": ""
+    },
+    "Location": {
+      "value": ""
+    },
+    "MinimalTlsVersion": {
+      "value": ""
+    },
+    "RestrictOutboundNetworkAccess": {
+      "value": ""
+    },
+    "SQL_Admin_Login": {
+      "value": ""
+    },
+    "SQL_Server_Name": {
+      "value": ""
+    },
+    "SQL_Database_Name": {
+      "value": ""
+    },
+    "Subscription_Id": {
+      "value": ""
+    },
+    "SQL_Admin_Password": {
+      "value": ""
+    },
+    "VNet_Name": {
+      "value": ""
+    },
+    "Subnet_Name": {
+      "value": ""
+    },
+    "Vnet_ResourceGroup_Name": {
+      "value": ""
+    },
+    "Vnet_SubscriptionId_Id": {
+      "value": ""
+    },
+    "MSI_Id": {
+      "value": ""
+    },
+    "MSI_Administrator_Type": {
+      "value": ""
+    },
+    "MSI_Principal_Type": {
+      "value": ""
+    },
+    "MSI_Login": {
+      "value": ""
+    },
+    "MSI_SID": {
+      "value": ""
+    },
+    "MSI_Tenant_Id": {
+      "value": ""
+    },
+    "MSI_AzureADOnlyAuthentication": {
+      "value": null
+    },
+    "MSI_ResourceGroup_Name": {
+      "value": ""
+    },
+    "MSI_ID_PrincipleId": {"value": ""}
+  }
+}

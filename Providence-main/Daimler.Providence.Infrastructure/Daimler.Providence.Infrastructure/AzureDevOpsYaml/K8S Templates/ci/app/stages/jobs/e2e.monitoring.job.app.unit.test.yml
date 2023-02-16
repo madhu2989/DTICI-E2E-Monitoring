@@ -1,0 +1,14 @@
+jobs:
+  - job: stream_build_test
+    pool: $(poolEu)
+    displayName: 'Unit Test'
+    steps:
+      # - script: Get-Content -path build.sbt -Raw -replace '#{AZURE_PASSWORD}#','$(AZURE_PASSWORD)'
+      #- script: sed -i 's/#{AZURE_PASSWORD}#/$(AZURE_PASSWORD)/g' build.sbt
+      #  displayName: "set azure artifacts credentials"
+
+      - script: make build javaHome="$JAVA_HOME_11_X64"
+        displayName: "Build"
+
+      - script: make test javaHome="$JAVA_HOME_11_X64" --always-make
+        displayName: "Test"

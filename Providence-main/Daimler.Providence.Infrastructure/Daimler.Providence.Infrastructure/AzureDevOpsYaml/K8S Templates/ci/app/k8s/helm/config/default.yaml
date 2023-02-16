@@ -1,0 +1,39 @@
+
+environment: "#{vars.Environment}#"
+
+
+backendAppName: "#{vars.E2E_MONITORING_SERVICE_APP_NAME}#"
+backendComponentName: "#{vars.COMPONENT_NAME}#"
+
+backendImage: "#{vars.E2EMonitoringBackendImageName}#"
+  
+
+frontendAppName: "#{vars.E2E_MONITORING_UI_APP_NAME}#"
+frontendComponentName: "#{vars.COMPONENT_NAME_UI}#"
+
+frontendImage: "#{vars.E2EMonitoringFrontEndImageName}#"
+
+containerPort:
+  backendPort: 8080
+  frontendPort: 9050
+
+replicas:
+  min: #{vars.MinReplicas}#
+  max: #{vars.MaxReplicas}#
+
+resources:
+  requests:
+    memory: "1Gi"
+    cpu: "200m"
+  limits:
+    memory: "1Gi"
+    cpu: "1"
+
+podIdentity:
+  bindingName: "#{vars.PodIdentityBindingName}#"
+  msiResourceName: "#{vars.ManagedIdentityName}#"
+  msiResourceGroupName: "#{vars.ManagedIdentityResourceGroup}#"
+  msiSubscriptionId: "#{vars.SubscriptionIdCsg}#"
+
+env:
+  APP_CONFIGURATION_PREFIX: "#{vars.APP_CONFIGURATION_PREFIX}#"

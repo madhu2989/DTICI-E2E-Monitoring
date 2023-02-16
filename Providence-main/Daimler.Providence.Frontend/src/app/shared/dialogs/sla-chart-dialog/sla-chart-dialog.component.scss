@@ -1,0 +1,26 @@
+@import '../../../../assets/styles/globals.scss';
+
+.ok-square {
+    margin-left: 2rem;
+    &:before {
+        @include square($color-ok-green, 1rem);
+    }
+}
+
+.warn-square {
+    margin-left: 2rem;
+    &:before {
+        @include square($color-warn-orange, 1rem);
+    }
+}
+
+.error-square {
+    margin-left: 2rem;
+    &:before {
+        @include square($color-error-red, 1rem);
+    }
+}
+
+text {
+    fill: white;
+}

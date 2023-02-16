@@ -1,0 +1,34 @@
+
+  .breadcrumb {
+    color: white;
+    padding: 13px 13px 0 23px;
+    background-color: rgb(34, 44, 50);
+    padding-bottom: 12px;
+    padding-left: 10px;
+    position: fixed;
+    top: 58px;
+    z-index: 9999;
+	  width: 100%;
+  }
+
+  .breadcrumb-seperator {
+    margin: 0 8px;
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
+  .breadcrumb-item {
+    cursor: pointer;
+    }
+
+  .breadcrumb-home {
+    font-size: 16px;
+    height: 16px; 
+    width: 16px;
+  }
+
+  .breadcrumb-icon {
+    font-size: 14px;
+    height: 14px; 
+    width: 14px;
+    margin-right: 6px;
+  }

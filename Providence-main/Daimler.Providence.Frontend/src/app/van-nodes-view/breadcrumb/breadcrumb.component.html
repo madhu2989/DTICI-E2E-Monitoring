@@ -1,0 +1,15 @@
+<div *ngIf="breadcrumbs && breadcrumbs.length > 0" class="breadcrumb" fxLayout="row" fxLayoutAlign="start center">
+    <mat-icon *ngIf="breadcrumbs.length > 0" class="breadcrumb-item breadcrumb-home" (click)="redirect('/')" aria-label="Home">home</mat-icon>
+    <div *ngFor="let breadcrumb of breadcrumbs" class="breadcrumb-item">
+        <div class="text-medium" (click)="redirect(breadcrumb.url)" [matTooltip]="breadcrumb.tooltip" matTooltipPosition="below"
+            fxLayout="row" fxLayoutAlign="start center">
+            <span class="breadcrumb-seperator">&gt;</span>
+            <mat-icon class="breadcrumb-icon">
+                {{breadcrumb.icon}}
+            </mat-icon>
+            {{ breadcrumb.label }}
+        </div>
+
+    </div>
+
+</div>

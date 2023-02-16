@@ -1,0 +1,42 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "Storage_Account_Name": {
+      "value": ""
+    },
+    "Location": {
+      "value": ""
+    },
+    "VNet_Name_Polaris": {
+      "value": ""
+    },
+    "Subnet_Name_Polaris": {
+      "value": ""
+    },
+    "Vnet_ResourceGroup_Name_Polaris": {
+      "value": ""
+    },
+    "Vnet_SubscriptionId_Id_Polaris": {
+      "value": ""
+    },
+    "VNet_Name_e2e": {
+      "value": ""
+    },
+    "Subnet_Name_e2e": {
+      "value": ""
+    },
+    "Built_In_Role_ID": {
+      "value": "ba92f5b4-2d11-453d-a403-e96b0029c9fe"
+    },
+    "Principal_Id": {
+      "value": ""
+    },
+    "Subscription_Id": {
+      "value": ""
+    },
+    "EventHubContainer": {
+      "value": ""
+    }
+  }
+}

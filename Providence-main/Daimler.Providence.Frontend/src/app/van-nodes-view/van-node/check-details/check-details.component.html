@@ -1,0 +1,227 @@
+<div fxLayout="row">
+    <h1 mat-dialog-title style="word-break: break-all;" fxFlex="90">State change of {{data.nodeData ? data.nodeData.getNodeTitle() : ""}} '{{data.nodeData ? data.nodeData.name : ""}}'
+
+    </h1>
+
+    <mat-icon (click)="fullScreen(isFullScreen)" aria-label="fullscreen" style="font-size: 30px;height: 30px; width: 30px; text-align: right; cursor: pointer;"
+        fxFlex="10">{{fullScreenIcon}}</mat-icon>
+
+</div>
+<mat-divider></mat-divider>
+<mat-dialog-content>
+    <mat-horizontal-stepper>
+        <mat-step>
+        <ng-template matStepLabel>Overview</ng-template>
+            <mat-grid-list cols="10" rowHeight="30px" fxflex role="list" *ngIf="data.historyData">
+                <div *ngIf="data.historyData.state">
+                    <mat-grid-tile role="listitem" colspan="2">
+                        <div class="tile-content">New state:</div>
+                    </mat-grid-tile>
+                    <mat-grid-tile role="listitem" colspan="8">
+                        <div class="tile-content hover_class">{{data.historyData.state}}
+
+                            <mat-icon style="font-size: 14px;height: 14px; width: 14px;" (click)="copyText(data.historyData.state)" aria-label="Info">file_copy</mat-icon>
+
+                        </div>
+                    </mat-grid-tile>
+                </div>
+                <div *ngIf="data.historyData.sourceTimestamp">
+                    <mat-grid-tile role="listitem" colspan="2">
+                        <div class="tile-content">Timestamp UTC:</div>
+                    </mat-grid-tile>
+                    <mat-grid-tile role="listitem" colspan="8">
+                        <div class="tile-content hover_class">{{data.historyData.sourceTimestamp}}
+                            <mat-icon style="font-size: 14px;height: 14px; width: 14px;" (click)="copyText(data.historyData.sourceTimestamp)" aria-label="Info">file_copy</mat-icon>
+                        </div>
+                    </mat-grid-tile>
+                </div>
+                <div *ngIf="data.historyData.sourceTimestamp">
+                    <mat-grid-tile role="listitem" colspan="2">
+                        <div class="tile-content">Timestamp Localtime:</div>
+                    </mat-grid-tile>
+                    <mat-grid-tile role="listitem" colspan="8">
+                        <div class="tile-content hover_class">{{data.historyData.sourceTimestamp | date :'yyyy-MM-ddTHH:mm:ss.SSS'}}
+                            <mat-icon style="font-size: 14px;height: 14px; width: 14px;" (click)="copyText(sourceTimestampLocal)" aria-label="Info">file_copy</mat-icon>
+                        </div>
+                    </mat-grid-tile>
+                </div>
+            </mat-grid-list>
+            <mat-grid-list cols="10" rowHeight="36px" role="list" *ngIf="data.historyData">
+                <div>
+                    <div *ngIf="data.nodeCheck">
+                        <mat-grid-tile role="listitem" colspan="2">
+                            <div class="tile-content" fxFlexAlign="stretch">Check:</div>
+                        </mat-grid-tile>
+                        <mat-grid-tile role="listitem" colspan="8">
+                            <div class="tile-content hover_class" fxFlexAlign="stretch">{{data.nodeCheck.name ? data.nodeCheck.name : ''}} {{data.historyData.triggeredByAlertName ? data.historyData.triggeredByAlertName
+                                : ''}}
+                                <mat-icon style="font-size: 14px;height: 14px; width: 14px;" (click)="copyText(data.nodeCheck.name + data.historyData.triggeredByAlertName)"
+                                    aria-label="Info">file_copy</mat-icon>
+                            </div>
+                        </mat-grid-tile>
+                    </div>
+
+                    <div *ngIf="data.nodeCheck">
+                        <mat-grid-tile role="listitem" colspan="2">
+                            <div class="tile-content" fxFlexAlign="stretch">Check description:</div>
+                        </mat-grid-tile>
+                        <mat-grid-tile role="listitem" colspan="8">
+                            <div class="tile-content hover_class" fxFlexAlign="stretch">{{data.nodeCheck.description ? data.nodeCheck.description : ''}}
+                                <mat-icon style="font-size: 14px;height: 14px; width: 14px;" (click)="copyText(data.nodeCheck.description)" aria-label="Info">file_copy</mat-icon>
+                            </div>
+                        </mat-grid-tile>
+                    </div>
+
+                    <div *ngIf="false">
+                        <mat-grid-tile role="listitem" colspan="2">
+                            <div class="tile-content" fxFlexAlign="start">VSTS Link:</div>
+                        </mat-grid-tile>
+                        <mat-grid-tile role="listitem" colspan="8">
+                            <div class="tile-content" fxFlexAlign="start">
+                                <a mat-button href="{{data.nodeCheck.vstsLink}}" target="_blank"  rel="noopener">Open
+                                    <mat-icon style="font-size: 16px;height: 16px; width: 16px;" aria-label="url">call_made</mat-icon>
+                                </a>
+                            </div>
+                        </mat-grid-tile>
+                    </div>
+
+                    <mat-grid-tile role="listitem" colspan="2" *ngIf="data.historyData.triggerName">
+                        <div class="tile-content" fxFlexAlign="stretch">Affected component:</div>
+                    </mat-grid-tile>
+                    <mat-grid-tile role="listitem" colspan="8" *ngIf="data.historyData.triggerName">
+                        <div class="tile-content hover_class" fxFlexAlign="stretch">{{data.historyData.triggerName}}
+                            <mat-icon style="font-size: 14px;height: 14px; width: 14px;" (click)="copyText(data.historyData.triggerName)" aria-label="Info">file_copy</mat-icon>
+                        </div>
+                    </mat-grid-tile>
+
+                    <mat-grid-tile role="listitem" colspan="2" *ngIf="data.historyData.triggeredByElementId">
+                        <div class="tile-content" fxFlexAlign="stretch">Affected component ID:</div>
+                    </mat-grid-tile>
+                    <mat-grid-tile role="listitem" colspan="8" *ngIf="data.historyData.triggeredByElementId">
+                        <div class="tile-content hover_class" fxFlexAlign="stretch">{{data.historyData.triggeredByElementId}}
+                            <mat-icon style="font-size: 14px;height: 14px; width: 14px;" (click)="copyText(data.historyData.triggeredByElementId)" aria-label="Info">file_copy</mat-icon>
+                        </div>
+                    </mat-grid-tile>
+
+                    <mat-grid-tile role="listitem" colspan="2" *ngIf="data.historyData.recordId">
+                        <div class="tile-content" fxFlexAlign="stretch">Record ID:</div>
+                    </mat-grid-tile>
+                    <mat-grid-tile class="hover_class" role="listitem" colspan="8" *ngIf="data.historyData.recordId">
+                        <div class="tile-content hover_class" fxFlexAlign="stretch">{{data.historyData.recordId}}
+                            <mat-icon style="font-size: 14px;height: 14px; width: 14px;" (click)="copyText(data.historyData.recordId)" aria-label="Info">file_copy</mat-icon>
+                        </div>
+                    </mat-grid-tile>
+
+                    <mat-grid-tile role="listitem" colspan="10" *ngIf="loading">
+                        <ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+                    </mat-grid-tile>
+                </div>
+            </mat-grid-list>
+
+            <div fxLayout="column" *ngIf="extendedHistoryData">
+                <div class="row-element" fxLayout="row" *ngIf="extendedHistoryData && extendedHistoryData.Description">
+                    <div fxFlex="20" class="row-element-key">
+                        Alert Description:
+                    </div>
+                    <div class="hover_class" fxFlex="80" fxLayout="row">
+                        <div class="row-element-value" (click)="openJsonViewDialog('Alert Description', extendedHistoryData.Description);$event.stopPropagation();">
+                            {{extendedHistoryData.Description}}
+                        </div>
+                        <div fxFlexAlign="center">
+                            <mat-icon class="copy-icon" (click)="copyText(extendedHistoryData.Description);$event.stopPropagation();" aria-label="Info">file_copy</mat-icon>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row-element" fxLayout="row" *ngIf="extendedHistoryData && extendedHistoryData.CustomField1">
+                    <div fxFlex="20" class="row-element-key">
+                        Custom field 1:
+                    </div>
+                    <div class="hover_class" fxFlex="80" fxLayout="row">
+                        <div [innerHTML]="extendedHistoryData.CustomField1" class="row-element-value" (click)="openJsonViewDialog('Custom field 1', extendedHistoryData.CustomField1);$event.stopPropagation();">
+                            
+                        </div>
+                        <div fxFlexAlign="center">
+                            <mat-icon class="copy-icon" (click)="copyText(extendedHistoryData.CustomField1);$event.stopPropagation();" aria-label="Info">file_copy</mat-icon>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row-element" fxLayout="row" *ngIf="extendedHistoryData && extendedHistoryData.CustomField2">
+                    <div fxFlex="20" class="row-element-key">
+                        Custom field 2:
+                    </div>
+                    <div class="hover_class" fxFlex="80" fxLayout="row">
+                        <div [innerHTML]="extendedHistoryData.CustomField2" class="row-element-value" (click)="openJsonViewDialog('Custom field 2', extendedHistoryData.CustomField2);$event.stopPropagation();">
+                            
+                        </div>
+                        <div fxFlexAlign="center">
+                            <mat-icon class="copy-icon" (click)="copyText(extendedHistoryData.CustomField2);$event.stopPropagation();" aria-label="Info">file_copy</mat-icon>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row-element" fxLayout="row" *ngIf="extendedHistoryData && extendedHistoryData.CustomField3">
+                    <div fxFlex="20" class="row-element-key">
+                        Custom field 3:
+                    </div>
+                    <div class="hover_class" fxFlex="80" fxLayout="row">
+                        <div [innerHTML]="extendedHistoryData.CustomField3" class="row-element-value" (click)="openJsonViewDialog('Custom field 3', extendedHistoryData.CustomField3);$event.stopPropagation();">
+                            
+                        </div>
+                        <div fxFlexAlign="center">
+                            <mat-icon class="copy-icon" (click)="copyText(extendedHistoryData.CustomField3);$event.stopPropagation();" aria-label="Info">file_copy</mat-icon>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row-element" fxLayout="row" *ngIf="extendedHistoryData && extendedHistoryData.CustomField4">
+                    <div fxFlex="20" class="row-element-key">
+                        Custom field 4:
+                    </div>
+                    <div class="hover_class" fxFlex="80" fxLayout="row">
+                        <div  [innerHTML]="extendedHistoryData.CustomField4" class="row-element-value" (click)="openJsonViewDialog('Custom field 4', extendedHistoryData.CustomField4);$event.stopPropagation();">
+                            
+                        </div>
+                        <div fxFlexAlign="center">
+                            <mat-icon class="copy-icon" (click)="copyText(extendedHistoryData.CustomField4);$event.stopPropagation();" aria-label="Info">file_copy</mat-icon>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row-element" fxLayout="row" *ngIf="extendedHistoryData && extendedHistoryData.CustomField5">
+                    <div fxFlex="20" class="row-element-key">
+                        Custom field 5:
+                    </div>
+                    <div class="hover_class" fxFlex="80" fxLayout="row">
+                        <div [innerHTML]="extendedHistoryData.CustomField5" class="row-element-value" (click)="openJsonViewDialog('Custom field 5', extendedHistoryData.CustomField5);$event.stopPropagation();">
+                            
+                        </div>
+                        <div fxFlexAlign="center">
+                            <mat-icon class="copy-icon" (click)="copyText(extendedHistoryData.CustomField5);$event.stopPropagation();" aria-label="Info">file_copy</mat-icon>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </mat-step>
+        <mat-step>
+            <ng-template matStepLabel>Comments</ng-template>
+            <div>
+                <app-crud-toolbar style="margin-top: 0px" [toolBarTitle]="toolBarTitle" [settingsButtonVisible]="settingsButtonVisible"
+                    [deleteButtonVisible]="deleteButtonVisible" [deleteButtonActive]="true" [editButtonVisible]="editButtonVisible" [editButtonActive]="editButtonActive" [addButtonVisible]="addButtonVisible"
+                    [addButtonActive]="addButtonActive" (add)="openCreateDialog($event)" (delete)="deleteAlertComment()" (edit)="openEditDialog()"></app-crud-toolbar>
+                
+                <ag-grid-angular #agGrid class="ag-theme-material" [rowData]="rowData" [columnDefs]="columnDefs" [enableSorting]="true"
+                    [enableColResize]="true" [rowSelection]="rowSelection" [gridOptions]="gridOptions" (gridReady)="onGridReady($event)" [floatingFilter]="true">
+                </ag-grid-angular>
+            </div>
+        </mat-step>
+    </mat-horizontal-stepper>
+
+</mat-dialog-content>
+<mat-dialog-actions align="center">
+    <button mat-button (click)="showDetails()" *ngIf="showDetailsButton">Show details</button>
+    <button *ngIf="!settingsService.isCurrentUserOnlyViewer" mat-button (click)="onIgnoreClick()">Ignore</button>
+    <button mat-button cdkFocusInitial [mat-dialog-close] (click)="onCloseClick()">Close</button>
+</mat-dialog-actions>

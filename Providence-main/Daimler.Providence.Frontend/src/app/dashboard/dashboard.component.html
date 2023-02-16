@@ -1,0 +1,23 @@
+<div style="margin-bottom: 4px;">
+  <ngx-loading [show]="showloadingIndicator" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+  <div fxFlex fxLayoutAlign="center center" class="text-large" style="height: calc(100vh - 100px); color:rgba(255,255,255, 0.4);"
+    *ngIf="!showloadingIndicator && (!environmentNameList || environmentNameList.length === 0)">
+    <div *ngIf="vanEnvironmentInfoLoaded">You don't have any environments yet</div>
+    <div *ngIf="vanEnvironmentInfoFailed">Environments could not be loaded</div>
+    <div *ngIf="vanEnvironmentInfoCancelled">Environments were not loaded because the request was cancelled</div>
+  </div>
+  <div fxLayout="row wrap" fxLayoutAlign="start stretch">
+    <div *ngFor="let environmentName of environmentNameList" fxLayout="column" fxLayoutAlign="center center">
+      <div *ngIf="settingsService.editModeActive" class="editControls">
+        <button mat-mini-fab (click)="onEditButtonPress(environmentName);">
+          <mat-icon aria-label="Edit element">edit</mat-icon>
+        </button>
+        <button mat-mini-fab (click)="onDeleteButtonPress(environmentName);">
+          <mat-icon aria-label="Delete element">delete</mat-icon>
+        </button>
+      </div>
+      <app-van-environment [vanEnvironmentName]="environmentName"></app-van-environment>
+    </div>
+  </div>
+  <app-dashboard-edit (add)="addNewElement()"></app-dashboard-edit>
+</div>

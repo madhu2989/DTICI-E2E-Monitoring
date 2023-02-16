@@ -1,0 +1,49 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "ActionGroupName": {
+      "defaultValue": "Demo-ActionGroup-Test",
+      "type": "String"
+    },
+    "ResourceId": {
+      "defaultValue": "", ///subscriptions/8900235a-4634-414a-9ca6-0b391bac3eef/resourceGroups/csg-weu-dev-e2e-mon-shared/providers/Microsoft.Logic/workflows/demo-providence
+      "type": "String"
+    },
+    "CallbackUrl": {
+      "defaultValue": "", ///https://prod-84.westeurope.logic.azure.com:443/workflows/dd1f3b2b57844d569715b1cd2270aea6/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=QQSL84ZAA2YRkDeZnWEtEGnXn4DeJm15-VuJCu8ZWM0,
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "microsoft.insights/actionGroups",
+      "apiVersion": "2021-09-01",
+      "name": "[parameters('ActionGroupName')]",
+      "location": "Global",
+      "properties": {
+        "groupShortName": "DemoUPTAKE",
+        "enabled": true,
+        "emailReceivers": [],
+        "smsReceivers": [],
+        "webhookReceivers": [],
+        "eventHubReceivers": [],
+        "itsmReceivers": [],
+        "azureAppPushReceivers": [],
+        "automationRunbookReceivers": [],
+        "voiceReceivers": [],
+        "logicAppReceivers": [
+          {
+            "name": "Logic-App-Reciever",
+            "resourceId": "[parameters('ResourceId')]",
+            "callbackUrl": "[parameters('CallbackUrl')]",
+            "useCommonAlertSchema": false
+          }
+        ],
+        "azureFunctionReceivers": [],
+        "armRoleReceivers": []
+      }
+    }
+  ]
+}

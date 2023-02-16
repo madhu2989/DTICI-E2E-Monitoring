@@ -1,0 +1,23 @@
+variables:  
+  - name: AzureGroupSId    
+    value: 20ea0a3f-4aeb-42e6-9de9-2666f4d1c529  
+  - name: K8sNamespace    
+    value: stg-e2e-mon  
+  - name: objectId    
+    value: f9f889a8-9990-4dd2-8d2f-226742d4c009  
+  - name: resourceGroupName    
+    value: csg-cne2-stg-e2e-mon  
+  - name: resourceGroupNamemsi    
+    value: csg-cne2-stg-e2e-mon-msi  
+  - name: ServiceConnection    
+    value: csg-azure-cn-staging-e2e-monitoring  
+  - name: SubNetName    
+    value: polaris-k8s  
+  - name: subscriptionId    
+    value: e89715f7-2fe8-48fd-a034-3f99ed93da5a  
+  - name: TenantId    
+    value: 5b09bf9a-a60b-46f7-a92c-1a72a845c331  
+  - name: VNetName    
+    value: vnet-cne2-stg   
+  - name: VNetResourceGroupName    
+    value: csg-cne2-staging-network

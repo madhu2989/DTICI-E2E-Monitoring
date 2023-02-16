@@ -1,0 +1,125 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "nsg_name": {
+      "type": "String"
+    },
+    "Location": {
+      "type": "string"
+    },
+    "SecurityRuleEHName": {
+      "type": "string"
+    },
+    "SecurityRuleSAName": {
+      "type": "string"
+    },
+    "LocationPrefix": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "EventHubAddressPrefix": "[concat('EventHub.',parameters('LocationPrefix'))]",
+    "StorageAccountAddressPrefix": "[concat('Storage.',parameters('LocationPrefix'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+      "apiVersion": "2022-01-01",
+      "name": "[concat(parameters('nsg_name'), '/', parameters('SecurityRuleEHName'))]",
+      //"dependsOn": [
+      //  "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsg_name'))]"
+      //],
+      "properties": {
+        "description": "Allow Function App To Event Hub",
+        "protocol": "TCP",
+        "sourcePortRange": "*",
+        "destinationPortRange": "443",
+        "sourceAddressPrefix": "10.0.0.0/24",
+        "destinationAddressPrefix": "[variables('EventHubAddressPrefix')]",
+        "access": "Allow",
+        "priority": 110,
+        "direction": "Outbound",
+        "sourcePortRanges": [],
+        "destinationPortRanges": [],
+        "sourceAddressPrefixes": [],
+        "destinationAddressPrefixes": []
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+      "apiVersion": "2022-01-01",
+      "name": "[concat(parameters('nsg_name'), '/', parameters('SecurityRuleSAName'))]",
+      //"dependsOn": [
+      //  "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsg_name'))]"
+      //],
+      "properties": {
+        "protocol": "*",
+        "sourcePortRange": "*",
+        "destinationPortRange": "*",
+        "sourceAddressPrefix": "10.0.0.0/24",
+        "destinationAddressPrefix": "[variables('StorageAccountAddressPrefix')]",
+        "access": "Allow",
+        "priority": 120,
+        "direction": "Outbound",
+        "sourcePortRanges": [],
+        "destinationPortRanges": [],
+        "sourceAddressPrefixes": [],
+        "destinationAddressPrefixes": []
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2022-01-01",
+      "name": "[parameters('nsg_name')]",
+      "location": "[parameters('Location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('nsg_name'), parameters('SecurityRuleEHName'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('nsg_name'), parameters('SecurityRuleSAName'))]"
+      ],
+      "properties": {
+        "securityRules": [
+          {
+            "name": "[parameters('SecurityRuleEHName')]",
+            "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('nsg_name'), parameters('SecurityRuleEHName'))]",
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "properties": {
+              "description": "Allow Function App To Event Hub",
+              "protocol": "TCP",
+              "sourcePortRange": "*",
+              "destinationPortRange": "443",
+              "sourceAddressPrefix": "10.0.0.0/24",
+              "destinationAddressPrefix": "[variables('EventHubAddressPrefix')]",
+              "access": "Allow",
+              "priority": 110,
+              "direction": "Outbound",
+              "sourcePortRanges": [],
+              "destinationPortRanges": [],
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          },
+          {
+            "name": "[parameters('SecurityRuleSAName')]",
+            "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('nsg_name'), parameters('SecurityRuleSAName'))]",
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "properties": {
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "10.0.0.0/24",
+              "destinationAddressPrefix": "[variables('StorageAccountAddressPrefix')]",
+              "access": "Allow",
+              "priority": 120,
+              "direction": "Outbound",
+              "sourcePortRanges": [],
+              "destinationPortRanges": [],
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

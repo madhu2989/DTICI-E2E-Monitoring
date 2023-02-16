@@ -1,0 +1,59 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "projectResourcePrefix": { "type": "string" },
+    "projectEnvironment": { "type": "string" },
+    "providenceEventHubName": { "type": "string" },
+    "providenceEventHubConnectionString": { "type": "securestring" },
+    "providenceEventHubSubscriptionID": { "type": "string" },
+    "logicApp_NameSuffix": { "type": "string" }
+  },
+  "variables": {
+    "API_Connection_EventHub_Write": "[concat(parameters('projectResourcePrefix'),'-api-logicapp-eventhub-W-',parameters('logicApp_NameSuffix'))]",
+    "API_Connection_EventHub_Write_DisplayName": "[concat('W access to Providence EventHub ',parameters('providenceEventHubName'))]",
+
+    "storageAccountName": "[concat(parameters('projectResourcePrefix'), 'monhs', substring(uniqueString(resourceGroup().id),0,4), parameters('projectEnvironment'))]",
+    "API_Connection_StorageAccount_RW": "[concat(parameters('projectResourcePrefix'), '-api-logicapp-storage-RW-', parameters('projectEnvironment'))]",
+    "API_Connection_StorageAccount_RW_DisplayName": "[concat('RW access to storage account ', variables('StorageAccountName'))]"
+  },
+  "resources": [
+    {
+      "comments": "API connection to EventHub",
+      "type": "Microsoft.Web/connections",
+      "name": "[variables('API_Connection_EventHub_Write')]",
+      "apiVersion": "2016-06-01",
+      "location": "[resourceGroup().location]",
+      "scale": null,
+      "tags": { "displayName": "API Connection Providence EventHub WRITE" },
+      "properties": {
+        "displayName": "[concat(variables('API_Connection_EventHub_Write_DisplayName'))]",
+        "parameterValues": {
+          "connectionString": "[parameters('providenceEventHubConnectionString')]"
+        },
+        "api": {
+          "id": "[concat('/subscriptions/', parameters('providenceEventHubSubscriptionID'), '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/eventhubs')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "[variables('API_Connection_StorageAccount_RW')]",
+      "location": "[resourceGroup().location]",
+      "tags": { "displayName": "API Connection Storage Account RW" },
+      "properties": {
+        "api": {
+          "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/', 'azureblob')]"
+        },
+        "displayName": "[variables('API_Connection_StorageAccount_RW_DisplayName')]",
+        "parameterValues": {
+          "accountName": "[variables('storageAccountName')]",
+          "accessKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]"
+        }
+      }
+    }
+  ],
+  "outputs": {
+  }
+}

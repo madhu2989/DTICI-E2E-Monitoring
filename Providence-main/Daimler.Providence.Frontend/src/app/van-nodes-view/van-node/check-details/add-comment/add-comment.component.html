@@ -1,0 +1,29 @@
+<ngx-loading [show]="showloadingIndicator" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+<div fxLayout="row">
+    <h1 mat-dialog-title style="word-break: break-all;" fxFlex="90">Alert Comment
+
+    </h1>
+</div>
+<mat-divider></mat-divider>
+<mat-dialog-content>
+  <form class="commentForm">
+    <mat-form-field class="progressLvl">
+      <mat-label>Service Progress Level</mat-label>
+      <mat-select [(ngModel)]="currentAlertComment.state" name="progressState">
+        <mat-option value="NONE">NONE</mat-option>
+        <mat-option value="OPEN">OPEN</mat-option>
+        <mat-option value="IN PROGRESS">IN PROGRESS</mat-option>
+        <mat-option value="DONE">DONE</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field class="commentField">
+      <textarea matInput placeholder="Leave a comment" maxlength="300" style="height: 60px" [(ngModel)]="currentAlertComment.comment" 
+      name="comment" required></textarea>
+      <mat-error>Please add a comment</mat-error>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="center">
+    <button mat-button (click)="onSaveClick()" [disabled]="!currentAlertComment.comment">Save</button>
+    <button mat-button cdkFocusInitial [mat-dialog-close] (click)="onCloseClick()">Close</button>
+</mat-dialog-actions>

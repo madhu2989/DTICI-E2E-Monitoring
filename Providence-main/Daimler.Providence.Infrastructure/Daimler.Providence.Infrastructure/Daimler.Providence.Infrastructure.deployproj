@@ -1,0 +1,160 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|AnyCPU">
+      <Configuration>Debug</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|AnyCPU">
+      <Configuration>Release</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>40c68960-8b51-4f60-870b-ce352e8323f9</ProjectGuid>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetFrameworkIdentifier>Deployment</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>1.0</TargetFrameworkVersion>
+    <PrepareForBuildDependsOn>
+    </PrepareForBuildDependsOn>
+  </PropertyGroup>
+  <Import Condition=" Exists('Deployment.targets') " Project="Deployment.targets" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
+  <!-- vertag<:>start tokens<:>maj.min -->
+  <Import Condition=" Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Deployment\1.1\DeploymentProject.targets') " Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Deployment\1.1\DeploymentProject.targets" />
+  <!-- vertag<:>end -->
+  <ItemGroup>
+    <None Include="AzureDevOpsYaml\Deployment\ActionGroup Deployment\e2e.monitoring.app.actiongroup.pipeline.yml" />
+    <None Include="AzureDevOpsYaml\Deployment\FunctionApp Service Deployment\app.functionappservice.build.job.yml" />
+    <None Include="AzureDevOpsYaml\Deployment\FunctionApp Service Deployment\app.functionappservice.yml" />
+    <None Include="AzureDevOpsYaml\Deployment\FunctionApp Service Deployment\InitializeFunctionAppServiceVariables.ps1" />
+    <None Include="AzureDevOpsYaml\Deployment\Infra Deployment\e2e.monitoring.app.infra.deploy.yml" />
+    <None Include="AzureDevOpsYaml\Deployment\Infra Deployment\e2e.monitoring.app.infra.pipeline.yml" />
+    <None Include="AzureDevOpsYaml\Deployment\Infra Deployment\InitializeVariables.ps1" />
+    <None Include="AzureDevOpsYaml\Deployment\Infra Deployment\setinfrapipelinevariables.ps1" />
+    <None Include="ARM Templates\ActionGroup\Action Group Scripts\CreateActionGroup_FuncApp.ps1" />
+    <None Include="ARM Templates\ActionGroup\Action Group Scripts\createActionGroup_EmailReceiver.ps1" />
+    <None Include="ARM Templates\ActionGroup\ActionGroup.json" />
+    <None Include="ARM Templates\ActionGroup\Action Group Scripts\CreateActionGroup.ps1" />
+    <None Include="ARM Templates\ActionGroup\ActionGroup.parameters.json" />
+    <None Include="ARM Templates\AlertRules\Alert Scripts\CreateAlert-MetricAlertWithTwoCondition.ps1" />
+    <None Include="ARM Templates\AlertRules\Alert Scripts\CreateAlert-MetricRules.ps1" />
+    <None Include="ARM Templates\AlertRules\Alert Scripts\CreateAlert-ScheduledQuery.ps1" />
+    <None Include="ARM Templates\AlertRules\MetricAlertTwoCondition\MetricRule.json" />
+    <None Include="ARM Templates\AlertRules\MetricAlertTwoCondition\MetricRule.parameters.json" />
+    <None Include="ARM Templates\AlertRules\MetricAlert\MetricRule.json" />
+    <None Include="ARM Templates\AlertRules\MetricAlert\MetricRule.parameters.json" />
+    <None Include="ARM Templates\AlertRules\ScheduledQuery\ScheduledQueryRule.json" />
+    <None Include="ARM Templates\AlertRules\ScheduledQuery\ScheduledQueryRule.parameters.json" />
+    <None Include="ARM Templates\AppServicePlan\AppServicePlan.json" />
+    <None Include="ARM Templates\AppInsight\AppInsight.json" />
+    <None Include="ARM Templates\AppInsight\AppInsight.parameters.json" />
+    <None Include="ARM Templates\AppInsight\China\AppInsight\AppInsight.json" />
+    <None Include="ARM Templates\AppInsight\China\AppInsight\AppInsight.parameters.json" />
+    <None Include="ARM Templates\AppServicePlan\AppServicePlan.parameters.json" />
+    <None Include="ARM Templates\EventHub\ParseOutput.ps1" />
+    <None Include="ARM Templates\EventHub\EventHub.json" />
+    <None Include="ARM Templates\EventHub\EventHub.parameters.json" />
+    <None Include="ARM Templates\Function App\FunctionApp.json" />
+    <None Include="ARM Templates\Function App\FunctionApp.parameters.json" />
+    <None Include="ARM Templates\KeyVault\KeyVault.json" />
+    <None Include="ARM Templates\KeyVault\KeyVault.parameters.json" />
+    <None Include="ARM Templates\NSGWithoutSecurityRules\NSG.json" />
+    <None Include="ARM Templates\NSGWithoutSecurityRules\NSG.parameters.json" />
+    <None Include="ARM Templates\NSG\NSG.json" />
+    <None Include="ARM Templates\NSG\NSG.parameters.json" />
+    <None Include="ARM Templates\SqlDb\SQLDbVA.json" />
+    <None Include="ARM Templates\SqlDb\SQLDbVA.parameters.json" />
+    <None Include="ARM Templates\VNWithoutSubnet\VN.json" />
+    <None Include="ARM Templates\VNWithoutSubnet\VN.parameters.json" />
+    <None Include="ARM Templates\VN\VN.json" />
+    <None Include="ARM Templates\VN\VN.parameters.json" />
+    <None Include="ARM Templates\LogAnalytics\LogAnalytics.json" />
+    <None Include="ARM Templates\LogAnalytics\LogAnalytics.parameters.json" />
+    <None Include="ARM Templates\MSI\MSI.json" />
+    <None Include="ARM Templates\MSI\MSI.parameters.json" />
+    <None Include="ARM Templates\SqlDb\SQLDb.json" />
+    <None Include="ARM Templates\SqlDb\SQLDb.parameters.json" />
+    <None Include="ARM Templates\StorageAccount\StorageAccount.json" />
+    <None Include="ARM Templates\StorageAccount\StorageAccount.parameters.json" />
+    <None Include="AzureDevOpsYaml\Alerts-Deployment\Pki\pkialerts.build.pipeline.yml" />
+    <None Include="AzureDevOpsYaml\Alerts-Deployment\Pki\pkialerts.DEV.deploy.pipeline.yml" />
+    <None Include="AzureDevOpsYaml\Alerts-Deployment\Pki\pkialerts.pipeline.yml" />
+    <None Include="AzureDevOpsYaml\Alerts-Deployment\Pki\pkialerts.STG.deploy.pipeline.yml" />
+    <None Include="AzureDevOpsYaml\Azure_Build_Pipeline.yml" />
+    <None Include="AzureDevOpsYaml\Build\app.service.build.appService.stage.yml" />
+    <None Include="AzureDevOpsYaml\Delete_Images.yml" />
+    <None Include="AzureDevOpsYaml\Azure_Scan_Pipeline.yml" />
+    <None Include="AzureDevOpsYaml\Build\app.service.scan.stage.yml" />
+    <None Include="AzureDevOpsYaml\Build\app.service.build.stage.yml" />
+    <None Include="AzureDevOpsYaml\Build\Stages\Jobs\app.service.functionapp.build.job.yml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\stages\jobs\e2e.monitoring.backend.scan.job.yml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\stages\jobs\e2e.monitoring.frontend.scan.job.yml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\k8s\helm\config\default.yaml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\k8s\helm\e2e-mon-backend\Chart.yaml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\k8s\helm\e2e-mon-backend\templates\configmap.yaml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\k8s\helm\e2e-mon-backend\templates\aadpodidentity.yaml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\k8s\helm\e2e-mon-backend\templates\autoscaling.yml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\k8s\helm\e2e-mon-backend\templates\deployment.yaml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\k8s\helm\e2e-mon-backend\templates\ingress.yaml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\k8s\helm\e2e-mon-backend\templates\networkpolicy.yaml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\k8s\helm\e2e-mon-backend\templates\secret.yaml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\k8s\helm\e2e-mon-backend\templates\service.yaml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\k8s\helm\e2emonfrontend\Chart.yaml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\k8s\helm\e2emonfrontend\templates\configmap.yaml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\k8s\helm\e2emonfrontend\templates\aadpodidentity.yaml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\k8s\helm\e2emonfrontend\templates\autoscaling.yml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\k8s\helm\e2emonfrontend\templates\deployment.yaml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\k8s\helm\e2emonfrontend\templates\ingress.yaml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\k8s\helm\e2emonfrontend\templates\networkpolicy.yaml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\k8s\helm\e2emonfrontend\templates\secret.yaml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\k8s\helm\e2emonfrontend\templates\service.yaml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\scripts\e2e-monitoring-deploy\add-tag-for-acr-cleanup.ps1" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\scripts\e2e-monitoring-deploy\k8s-deploy-app.sh" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\scripts\e2e-monitoring-deploy\set-db-vars.ps1" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\e2e.monitoring.app.pipeline.yml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\stages\jobs\e2e.monitoring.job.app.deploy-csg.yml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\stages\jobs\e2e.monitoring.job.app.docker.build-csg.yml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\stages\jobs\e2e.monitoring.job.app.unit.test.yml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\stages\jobs\e2e.monitoring.jobs.template-csg.yml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\stages\e2e.monitoring.stage.build.yml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\stages\steps\e2e.monitoring.step.app.k8s.yml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\stages\steps\e2e.monitoring.step.appconfig.settings.yml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\stages\steps\e2e.monitoring.step.docker-lint.yml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\app\stages\steps\e2e.monitoring.step.replace-token.yml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\shared\scripts\Delete_Tagged_Images.ps1" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\shared\scripts\Delete_Untagged_Images.ps1" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\shared\scripts\get-k8s-credentials.sh" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\shared\scripts\remove-k8s-credentials.sh" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\shared\steps\step-common-template-csg.yml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\shared\variables\azureDevOpsVars.yml" />
+    <None Include="AzureDevOpsYaml\K8S Templates\ci\shared\variables\setvariables.ps1" />
+    <None Include="AzureDevOpsYaml\Tests\run_postmantests.yml" />
+    <None Include="AzureDevOpsYaml\VariableGroup\ActionGroup\ActionGroup-Variables-Prod_EU.yml" />
+    <None Include="AzureDevOpsYaml\VariableGroup\ActionGroup\ActionGroup-Variables-Prod_JP.yml" />
+    <None Include="AzureDevOpsYaml\VariableGroup\ActionGroup\ActionGroup-Variables-Prod_US.yml" />
+    <None Include="AzureDevOpsYaml\VariableGroup\ActionGroup\ActionGroup-Variables-STG_CN - Copy.yml" />
+    <None Include="AzureDevOpsYaml\VariableGroup\ActionGroup\ActionGroup-Variables-Prod_CN.yml" />
+    <None Include="AzureDevOpsYaml\VariableGroup\ActionGroup\ActionGroup-Variables-STG_EU.yml" />
+    <None Include="AzureDevOpsYaml\VariableGroup\ActionGroup\ActionGroup-Variables-DEV_EU.yml" />
+    <None Include="AzureDevOpsYaml\VariableGroup\E2E-STG-CN-Infra-Variable-Group.yml" />
+    <None Include="AzureDevOpsYaml\VariableGroup\E2E-PROD-JPE-Infra-Variable-Group.yml" />
+    <None Include="AzureDevOpsYaml\VariableGroup\E2E-STG-WEU-Infra-Variable-Group.yml" />
+    <None Include="AzureDevOpsYaml\VariableGroup\E2E-PROD-WEU-Infra-Variable-Group.yml" />
+    <None Include="AzureDevOpsYaml\VariableGroup\E2E-PROD-US-Infra-Variable-Group.yml" />
+    <None Include="AzureDevOpsYaml\VariableGroup\E2E-PROD-CN-Infra-Variable-Group.yml" />
+    <None Include="AzureDevOpsYaml\VariableGroup\E2E-DEV-WEU-Infra-Variable-Group.yml" />
+    <None Include="AzureDevOpsYaml\VariableGroup\E2E-BASE-Infra-Variable-Group.yml" />
+    <None Include="Common\Common-Azure.ps1" />
+    <None Include="ARM Templates\SqlDb\Scripts\CreateDatabaseFirewallRules.ps1" />
+    <None Include="ARM Templates\KeyVault\Scripts\CreateDefaultSecrets.ps1" />
+    <None Include="Deployment.targets">
+      <Visible>False</Visible>
+    </None>
+    <None Include="ARM Templates\KeyVault\Scripts\CreateSecrets.ps1" />
+    <None Include="ARM Templates\KeyVault\Scripts\CreateDeploymentSecrets.ps1" />
+    <None Include="ARM Templates\KeyVault\Scripts\CreateKeyVault.ps1" />
+  </ItemGroup>
+  <Target Name="GetReferenceAssemblyPaths" />
+</Project>

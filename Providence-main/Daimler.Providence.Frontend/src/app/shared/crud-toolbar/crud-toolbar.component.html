@@ -1,0 +1,31 @@
+<mat-toolbar class="crud-toolbar" color="primary">
+
+  <div>
+    <span class="text-large ">{{toolBarTitle}}</span>
+    <span class="crud-subtitle text-small">{{toolBarSubTitle}}</span>
+  </div>
+  <span class="crud-toolbar-spacer"></span>
+  <div fxLayout="row">
+    <button matTooltip="Settings" mat-mini-fab class="crud-toolbar-button" (click)="onSettingsButtonClicked()" *ngIf="settingsButtonVisible"
+      [disabled]="!settingsButtonActive">
+      <mat-icon>settings</mat-icon>
+    </button>
+    <div matTooltip="Delete" [matTooltipShowDelay]="500">
+      <button mat-mini-fab class="crud-toolbar-button" (click)="deleteDialog()" *ngIf="deleteButtonVisible" [disabled]="!deleteButtonActive">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+    <div matTooltip="Edit" [matTooltipShowDelay]="500">
+      <button mat-mini-fab class="crud-toolbar-button" (click)="onEditButtonClicked()" *ngIf="editButtonVisible" [disabled]="!editButtonActive">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+    <div matTooltip="Add new" [matTooltipShowDelay]="500">
+      <button matTooltip="Add new" mat-mini-fab class="crud-toolbar-button" [matTooltipShowDelay]="500" *ngIf="addButtonVisible"
+        [disabled]="!addButtonActive" (click)="addDialog()">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+  </div>
+
+</mat-toolbar>

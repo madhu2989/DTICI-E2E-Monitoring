@@ -1,0 +1,12 @@
+<mat-slide-toggle *ngIf="editModeAvailable" [(ngModel)]="settingsService.editModeActive" class="editModeToggle"  [color]="accent">
+  Edit mode
+</mat-slide-toggle>
+<button *ngIf="settingsService.editModeActive && isAddButtonVisible"  mat-fab class="editModeAddButton" (click)="addButtonPressed();">
+  <mat-icon aria-label="Add icon">add</mat-icon>
+</button>
+<button *ngIf="settingsService.editModeActive && isAddExistingComponentButtonVisible"  mat-fab class="editModeAddExistingComponentButton"
+  (click)="addExistingComponentButtonPressed();">
+  <mat-icon aria-label="Add Component icon">extension</mat-icon>
+  <div class="editModeAddExistingComponentPlusText">+</div>
+</button>
+<div class="editModeVersionText" >{{settingsService.version}}</div>

@@ -1,0 +1,105 @@
+# Pipeline file structure: https://docs.microsoft.com/en-us/azure/devops/pipelines/yaml-schema
+# Task List: https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks
+
+#name: '1.0$(rev:.r)'
+
+trigger: none
+
+
+parameters:
+- name: inputEnvironment
+  displayName: Environment
+  type: string
+  values:
+   - DEV_EU
+   - STG_EU
+   - PROD_EU
+   - PROD_JP
+   - PROD_US
+   - STG_CH
+   - PROD_CH
+- name: pool
+  displayName: AgentPool
+  type: string
+  values:
+    - CSG Linux
+    - CSG China Linux
+- name: serviceConnection
+  displayName: Service Connection
+  type: string
+  values:
+  - csg-azure-dev-eu-e2e-monitoring
+  - csg-azure-stg-eu-e2e-monitoring
+  - csg-azure-prod-eu-e2e-monitoring
+  - csg-azure-prod-jp-e2e-monitoring
+  - csg-azure-prod-us-e2e-monitoring
+  - csg-azure-cn-staging-e2e-monitoring
+  - csg-azure-cn-prod-e2e-monitoring
+
+variables:
+   - template: ../VariableGroup/ActionGroup/Alert-Variables-${{parameters.inputEnvironment}}.yml
+
+stages:
+  - stage: "Deploy_ActionGroup"
+    displayName: Action group deployment
+    pool:
+      name: "${{ parameters.pool }}"
+    jobs:
+      #- job:
+      - deployment: Action_group_deployment_job
+        environment: Dev-Infra
+        displayName: ${{ parameters.inputEnvironment }} Action Group Deployment
+        strategy:
+          runOnce:
+            deploy:
+              steps: 
+                  - checkout: self
+                  - task: PowerShell@2
+                    displayName: "Setup Infra Pipeline Variables"
+                    name: initInfra
+                    inputs:
+                      targetType: 'inline'
+                      script: |
+                        if( '${{ parameters.inputEnvironment }}' -eq 'DEV_EU')
+                        {
+                          $functionApp = "csg-dev-func-e2e-weu"
+                        } 
+                        elseif( '${{ parameters.inputEnvironment }}' -eq 'STG_EU') 
+                        {
+                          $functionApp = "csg-stg-func-e2e-weu"
+                        }
+                        elseif( '${{ parameters.inputEnvironment }}' -eq 'PROD_EU') 
+                        {
+                          $functionApp = "csg-prod-e2e-mon-func-weu"
+                        }
+                        elseif( '${{ parameters.inputEnvironment }}' -eq 'PROD_JP') 
+                        {
+                          $functionApp = "csg-prod-e2e-mon-func-jpe"
+                        }
+                        elseif( '${{ parameters.inputEnvironment }}' -eq 'PROD_US') 
+                        {
+                          $functionApp = "csg-prod-e2e-mon-func-eus2"
+                        }
+                        elseif( '${{ parameters.inputEnvironment }}' -eq 'STG_CH') 
+                        {
+                          $functionApp = ""
+                        }
+                        elseif( '${{ parameters.inputEnvironment }}' -eq 'PROD_CH') 
+                        {
+                          $functionApp = ""
+                        }
+                        else
+                        {
+                          $functionApp = "csg-dev-func-e2e-weu"
+                        }
+                        Write-Host 'The function app is ' $functionApp  
+                        Write-Output "##vso[task.setvariable variable=functionAppOut;isOutput=true]$functionApp" 
+                  
+                  - task: AzurePowerShell@5
+                    displayName: 'Deploy ${{parameters.inputEnvironment}} Action Group'
+                    inputs:
+                      azureSubscription: '${{parameters.serviceConnection}}'
+                      ScriptPath: '$(System.DefaultWorkingDirectory)/Providence-main/Daimler.Providence.Infrastructure/Daimler.Providence.Infrastructure/ARM Templates/ActionGroup/Action Group Scripts/CreateActionGroup_FuncApp.ps1'
+                      ScriptArguments: "-ResourceGroupName $(ActionGroupResourceGroupName) -Location $(Location) -ActionGroupName $(ActionGroupName) -FunctionAppName `$(initInfra.functionAppOut) -ResourceGroupNameOfFuncApp $(FAResourceGroupName) -FunctionName 'AlertProcessor' -DisplayName `${{parameters.inputEnvironment}}-AG01"
+                      FailOnStandardError: true
+                      azurePowerShellVersion: LatestVersion

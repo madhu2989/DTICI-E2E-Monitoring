@@ -1,0 +1,5 @@
+apiVersion: v2
+name: e2emonfrontend
+description: A Helm chart library for the E2E Moinitoring Frontend Appllication
+version: 1.0.0
+engine: gotpl

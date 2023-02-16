@@ -1,0 +1,150 @@
+trigger: none
+
+parameters:
+- name: environment
+  displayName: Environment
+  type: string
+  values:
+   - DEV-WEU
+   - STG-WEU
+   - PROD-WEU
+   - PROD-JPE
+   - PROD-US
+   - STG-CHINA
+   - PROD-CHINA
+  default: DEV-WEU
+- name: appServicePlan
+  displayName: 'Create App service plan?'
+  type: boolean
+  default: false
+- name: nsgWithoutRules
+  displayName: 'Create NSG without rules?'
+  type: boolean
+  default: false
+- name: nsgDeploy
+  displayName: 'Create NSG deployment?'
+  type: boolean
+  default: false
+- name: vnetWithoutSubnet
+  displayName: 'Create Vnet without subnet?'
+  type: boolean
+  default: false
+- name: vnetDeploy
+  displayName: Create VNet deployment task?
+  type: boolean
+  default: false 
+- name: keyvaultDeploy
+  displayName: Create Keyvault deployment ? 
+  type: boolean
+  default: false
+- name: createSecrets
+  displayName: Create Secrets? 
+  type: boolean
+  default: false
+- name: createCredsInSecrets
+  displayName: Create Creds in Secrets? 
+  type: boolean
+  default: false  
+- name: createLogAnalytics
+  type: boolean
+  displayName: Create Log LogAnalytics? 
+  default: false
+- name: createEventHub
+  displayName: Create Event Hub ?
+  default: false
+  type: boolean  
+- name: retriveLogAnalysticsResourceId
+  displayName: Retrieve LogAnalytics ResourceId ? 
+  type: boolean
+  default: false
+- name: createAppInsights
+  type: boolean
+  default: false
+  displayName: Create App insights? 
+- name: createStorageAccount
+  type: boolean
+  default: false
+  displayName: Create Storage account ? 
+- name: createFunctionApp
+  type: boolean
+  default: false
+  displayName: Create Function App ? 
+- name: createGrafanaFunctionApp
+  type: boolean
+  default: false
+  displayName: Create Grafana Function App ? 
+- name: createSqlServer
+  type: boolean
+  default: false
+  displayName: Create SQL Server ? 
+- name: storageAccountVA
+  type: boolean
+  default: false
+  displayName: Assign SQL Storage VA role ? 
+- name: sqlServerVA
+  type: boolean
+  default: false
+  displayName: Assign SQL Vulnerability Assessment ? 
+- name: createSQLTables
+  type: boolean
+  default: false
+  displayName: Create SQL Tables ? 
+- name: createSQLInitData
+  type: boolean
+  default: false
+  displayName: Create Init Data for SQL ?   
+- name: createMsiSid
+  type: boolean
+  default: false
+  displayName: Create MSI Sid for SQL ? 
+- name: assignMsiUserAsAdmin
+  type: boolean
+  default: false
+  displayName: Assign MSI as Admin? 
+- name: assignMsiUserForStoredProc
+  type: boolean
+  default: false
+  displayName: Assign MSI user to exec StoredProc ?  
+
+variables:
+   - template: ../../VariableGroup/E2E-BASE-Infra-Variable-Group.yml
+   - template: ../../VariableGroup/E2E-${{parameters.environment}}-Infra-Variable-Group.yml
+   - name : rootPath
+     value : '$(System.DefaultWorkingDirectory)/Providence-main/Daimler.Providence.Infrastructure/Daimler.Providence.Infrastructure/ARM Templates'
+   - name: pool
+     ${{ if or(eq(parameters.environment, 'STG-CHINA'), eq(parameters.environment, 'PROD-CHINA')) }}:
+      value : 'CSG China Linux'
+     ${{else}}:
+      value : 'CSG Linux'  
+
+
+
+stages:
+  - template: e2e.monitoring.app.infra.deploy.yml
+    parameters:
+      envName: ${{ parameters.environment }}
+      appServicePlan: ${{ parameters.appServicePlan }}
+      nsgWithoutRules: ${{ parameters.nsgWithoutRules}}
+      nsgDeploy: ${{ parameters.nsgDeploy }}
+      vnetWithoutSubnet: ${{ parameters.vnetWithoutSubnet}}
+      vnetDeploy: ${{parameters.vnetDeploy}}
+      keyvaultDeploy: ${{parameters.keyvaultDeploy}}
+      createSecrets: ${{ parameters.createSecrets}}
+      createCredsInSecrets: ${{ parameters.createCredsInSecrets }}
+      createLogAnalytics : ${{ parameters.createLogAnalytics }}
+      createEventHub: ${{ parameters.createEventHub }}
+      retriveLogAnalysticsResourceId: ${{ parameters.retriveLogAnalysticsResourceId }}
+      createAppInsights: ${{ parameters.createAppInsights}}
+      createStorageAccount: ${{ parameters.createStorageAccount }}
+      createFunctionApp: ${{ parameters.createFunctionApp }}
+      createSqlServer: ${{ parameters.createSqlServer}}
+      storageAccountVA: ${{ parameters.storageAccountVA }}
+      sqlServerVA: ${{parameters.sqlServerVA}}
+      createSQLTables: ${{parameters.createSQLTables}}
+      createSQLInitData: ${{ parameters.createSQLInitData}}
+      createMsiSid: ${{ parameters.createMsiSid}}
+      assignMsiUserAsAdmin: ${{parameters.assignMsiUserAsAdmin}}
+      assignMsiUserForStoredProc: ${{parameters.assignMsiUserForStoredProc}}
+      createGrafanaFunctionApp: ${{parameters.createGrafanaFunctionApp}}
+
+      

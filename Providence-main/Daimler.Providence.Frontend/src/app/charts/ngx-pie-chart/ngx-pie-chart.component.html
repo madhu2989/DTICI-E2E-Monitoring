@@ -1,0 +1,10 @@
+<div id="van-pie-chart" fxLayout="row" fxLayoutAlign="center center">
+  <div class="chart-legend" *ngIf="legendFlag">
+    <app-charts-legend [results]="results"></app-charts-legend>
+  </div>
+  <div class="pie-chart">
+    <ngx-charts-pie-chart [results]="results" [legend]="legend" [doughnut]="doughnut" [view]="view" [scheme]="colorScheme" [arcWidth]="arcWidth"
+      [labels]="labels" [animations]="animations">
+    </ngx-charts-pie-chart>
+  </div>
+</div>

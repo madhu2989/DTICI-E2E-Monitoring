@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.frontendAppName }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.frontendAppName }}
+      component: {{ .Values.frontendComponentName }}
+{{ if .Values.replicas.min }}
+  replicas: {{ .Values.replicas.min }}
+{{ end }}
+  minReadySeconds: 20
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.frontendAppName }}
+        component: {{ .Values.frontendComponentName }}
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        rollme: {{ randAlphaNum 5 | quote }} # forces helm deployment even though nothing changed
+
+    spec:
+      #serviceAccountName: "#{vars.E2E_MONITORING_SERVICE_UI_ACC_NAME}#"
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsUser: 1000
+        supplementalGroups: [ 1000 ]
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+
+      containers:
+        - name: {{ .Values.frontendAppName }}
+          image: {{ .Values.frontendImage }} 
+          env:
+          {{- range $key, $val := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+          {{- end }}
+          resources: {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            runAsUser: 1000
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /usr/share/nginx/html/assets/
+              name: assets
+            - name: cache
+              mountPath: /var/cache/nginx
+            - name: run
+              mountPath: /run
+            - name: config-volume
+              mountPath: /html/assets/environment/environment.json
+              subPath: environment.json
+          ports:
+            - name: http
+              containerPort: {{ .Values.containerPort.frontendPort }}
+              protocol: TCP
+      volumes:
+        - emptyDir: {}
+          name: tmp
+        - emptyDir: {}
+          name: assets 
+        - name: cache
+          emptyDir: {}
+        - name: run
+          emptyDir: {}
+        - name: config-volume
+          configMap:
+            name: frontend-config

@@ -1,0 +1,55 @@
+<mat-accordion style="margin: 25px;">
+  <mat-expansion-panel [(expanded)]="panelOpenState">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Filter Logs
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <div fxLayout="row" fxLayoutAlign="left center" style="margin-top: 10px;">
+      <div fxFlex="5" class="dateItem">Start Date: </div> 
+      <mat-form-field fxFlex="15" class="dateItem">
+        <input matInput [matDatepicker]="startPicker" placeholder="Choose a date" [(ngModel)]="startDate" name="startDate" required>
+        <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+        <mat-datepicker #startPicker></mat-datepicker>
+        <mat-error>Please choose a start date.</mat-error>                
+      </mat-form-field>
+      <form fxFlex="30" [formGroup]="startTimeFormGroup">
+        <mat-form-field>
+          <input matInput name="startTime" placeholder="Start time" formControlName="startTimeCtrl">
+          <mat-error>Please specify the start time in the format: hh:mm</mat-error>
+          <mat-hint>For example: 12:33</mat-hint>
+        </mat-form-field>
+      </form>
+    </div>
+      <div fxLayout="row" fxLayoutAlign="left center">
+        <div fxFlex="5" class="dateItem">End Date: </div>
+        <mat-form-field fxFlex="15" class="dateItem">
+          <input matInput [matDatepicker]="endPicker" placeholder="Choose a date" [(ngModel)]="endDate" name="endDate" required>
+          <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+          <mat-datepicker #endPicker></mat-datepicker>
+          <mat-error>Please choose an end date.</mat-error>                
+        </mat-form-field>
+        <form fxFlex="30" [formGroup]="endTimeFormGroup">
+          <mat-form-field>
+            <input matInput name="endTime" placeholder="End time" formControlName="endTimeCtrl">
+            <mat-error>Please specify the expiration time in the format: hh:mm</mat-error>
+            <mat-hint>For example: 12:33</mat-hint>
+          </mat-form-field>
+        </form>
+      </div>
+    <button mat-button (click)="applyFilter(true)" style="margin-top: 10px;" [disabled]="!validate()">Apply Changes</button>
+    <button mat-button (click)="applyFilter(false)" style="margin-top: 10px;">Clear Filter</button>
+  </mat-expansion-panel>
+</mat-accordion>
+
+<div>
+  <app-crud-toolbar [toolBarTitle]="toolBarTitle" [toolBarSubTitle]="toolBarSubTitle" [settingsButtonVisible]="settingsButtonVisible"
+    [deleteButtonVisible]="deleteButtonVisible" [deleteButtonActive]="true" [editButtonVisible]="editButtonVisible" [editButtonActive]="editButtonActive" [addButtonVisible]="addButtonVisible"
+    [addButtonActive]="addButtonActive"></app-crud-toolbar>
+
+  <ag-grid-angular #agGrid class="ag-theme-material" [rowData]="rowData" [columnDefs]="columnDefs" [enableSorting]="true"
+    [enableColResize]="true" [rowSelection]="rowSelection" [gridOptions]="gridOptions" (gridReady)="onGridReady($event)" [floatingFilter]="true">
+  </ag-grid-angular>
+  <ngx-loading [show]="showloadingIndicator" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+</div>

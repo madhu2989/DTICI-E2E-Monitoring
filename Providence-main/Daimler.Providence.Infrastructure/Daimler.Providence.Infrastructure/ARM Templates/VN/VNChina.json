@@ -1,0 +1,132 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnet_name": {
+      "type": "String"
+    },
+    "subnet_name": {
+      "type": "String"
+    },
+    "nsg_name": {
+      "type": "String"
+    },
+    "Location": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "NSG_ResourceId": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsg_name'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2022-01-01",
+      "name": "[parameters('vnet_name')]",
+      "location": "[parameters('Location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnet_name'),  parameters('subnet_name'))]"
+      ],
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.3.0.0/16"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('subnet_name')]",
+            "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnet_name'), parameters('subnet_name'))]",
+            "properties": {
+              "addressPrefix": "10.3.0.0/24",
+              "networkSecurityGroup": {
+                "id": "[variables('NSG_ResourceId')]"
+              },
+              "serviceEndpoints": [
+                {
+                  "service": "Microsoft.Sql",
+                  "locations": [
+                    "[parameters('Location')]"
+                  ]
+                },
+                {
+                  "service": "Microsoft.Storage",
+                  "locations": [
+                    "[parameters('Location')]"
+                  ]
+                },
+                {
+                  "service": "Microsoft.EventHub",
+                  "locations": [
+                    "*"
+                  ]
+                }
+              ],
+              "delegations": [
+                {
+                  "name": "Microsoft.Web.serverFarms",
+                  "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnet_name'), parameters('subnet_name')), '/delegations/Microsoft.Web.serverFarms')]",
+                  "properties": {
+                    "serviceName": "Microsoft.Web/serverFarms"
+                  },
+                  "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
+                }
+              ],
+              "privateEndpointNetworkPolicies": "Enabled",
+              "privateLinkServiceNetworkPolicies": "Enabled"
+            },
+            "type": "Microsoft.Network/virtualNetworks/subnets"
+          }
+        ],
+        "virtualNetworkPeerings": [],
+        "enableDdosProtection": false
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2022-01-01",
+      "name": "[concat(parameters('vnet_name'), '/', parameters('subnet_name'))]",
+      //"dependsOn": [
+      //  "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnet_name'))]"
+      //],
+      "properties": {
+        "addressPrefix": "10.0.0.0/24",
+        "networkSecurityGroup": {
+          "id": "[variables('NSG_ResourceId')]"
+        },
+        "serviceEndpoints": [
+          {
+            "service": "Microsoft.Sql",
+            "locations": [
+              "[parameters('Location')]"
+            ]
+          },
+          {
+            "service": "Microsoft.Storage",
+            "locations": [
+              "[parameters('Location')]"
+            ]
+          },
+          {
+            "service": "Microsoft.EventHub",
+            "locations": [
+              "*"
+            ]
+          }
+        ],
+        "delegations": [
+          {
+            "name": "Microsoft.Web.serverFarms",
+            "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnet_name'), parameters('subnet_name')), '/delegations/Microsoft.Web.serverFarms')]",
+            "properties": {
+              "serviceName": "Microsoft.Web/serverFarms"
+            },
+            "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
+          }
+        ],
+        "privateEndpointNetworkPolicies": "Enabled",
+        "privateLinkServiceNetworkPolicies": "Enabled"
+      }
+    }
+  ]
+}

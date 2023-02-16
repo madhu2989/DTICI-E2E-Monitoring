@@ -1,0 +1,12 @@
+---
+apiVersion: aadpodidentity.k8s.io/v1
+kind: AzureIdentityBinding
+metadata:
+  name: e2e-backend
+  labels:
+      msi.azure.k8s.io/name: {{ .Values.podIdentity.msiResourceName }} #identityname csg-weu-dev-e2e-msi
+      msi.azure.k8s.io/resourcegroup: {{ .Values.podIdentity.msiResourceGroupName }}  #csg-weu-dev-e2e-mon-msi
+      msi.azure.k8s.io/subscription: {{ .Values.podIdentity.msiSubscriptionId }}  #8900235a-4634-414a-9ca6-0b391bac3eef
+spec:
+  # do not set azureIdentity here as this is done by azure-msi-operator
+  selector: {{ .Values.podIdentity.bindingName }} #e2ebackend-csg-weu-dev-e2e-msi-binding

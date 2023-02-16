@@ -1,0 +1,122 @@
+jobs:
+  - job: BuildWebApp
+    variables:
+        BuildConfiguration: 'Release'
+        solution: '**/*.sln'
+        BuildPlatform: 'Any CPU'
+       
+    steps:
+    - task: UseDotNet@2
+      displayName: 'Use DotNet Version 6.0.x'
+      inputs:
+        version: '6.0.x'
+    
+    - task: NugetToolInstaller@1
+      displayName: 'Use Nuget'
+      inputs:
+        versionSpec: 6.3.0
+
+    #- task: NuGetCommand@2
+    #  displayName: '[NuGet] Restore packages for Daimler.Providence.Backend.sln'
+    #  inputs:
+    #    restoreSolution: Providence-main/Daimler.Providence.Backend/Daimler.Providence.Backend.sln
+    #    vstsFeed: 'https://api.nuget.org/v3/index.json'
+        
+    # - task: UseDotNet@2
+    #   displayName: "Use .NET Core sdk"
+    #   inputs:
+    #    packageType: sdk
+    #    version: 6.0.x
+
+    - task: DotNetCoreCLI@2
+      displayName: '[DotNetCoreCLI] Clean Daimler.Providence.Backend.sln'
+      inputs:
+        command: 'custom'
+        projects: |
+          Providence-main/Daimler.Providence.Backend/Daimler.Providence.Service/Daimler.Providence.Service.csproj
+          Providence-main/Daimler.Providence.Backend/Daimler.Providence.Database/Daimler.Providence.Database.csproj 
+          Providence-main/Daimler.Providence.Backend/Daimler.Providence.Tests/Daimler.Providence.Tests.csproj 
+        custom: 'clean'
+        
+    - task: SonarQubePrepare@5
+      displayName: 'Sonarqube Analysis task'
+      inputs:
+       SonarQube: $(SONARQUBE_SERVICE_CONNECTION)
+       scannerMode: MSBuild
+       configMode: manual
+       ProjectKey: $(SONARQUBE_PROJECT_KEY)_$(Build.Repository.Id)
+       ProjectName: $(SONARQUBE_PROJECT_API)
+       projectVersion: $(Build.BuildNumber)
+       cliSources: Providence-main/Daimler.Providence.Backend
+       enabled: true
+
+    - task: DotNetCoreCLI@2
+      displayName: '[DotNetCoreCLI] Build Daimler.Providence.Backend.sln'
+      inputs:
+        command: 'build'
+        projects: |
+          Providence-main/Daimler.Providence.Backend/Daimler.Providence.Service/Daimler.Providence.Service.csproj
+          Providence-main/Daimler.Providence.Backend/Daimler.Providence.Database/Daimler.Providence.Database.csproj 
+          Providence-main/Daimler.Providence.Backend/Daimler.Providence.Tests/Daimler.Providence.Tests.csproj 
+        versioningScheme: 'byPrereleaseNumber'
+        majorVersion: '1'
+        minorVersion: '0'
+        patchVersion: '0'
+        arguments: '--configuration $(BuildConfiguration)'
+
+    #- task: DotNetCoreCLI@2
+    #  displayName: '[Test] Run UnitTests'
+    #  inputs:
+    #    command: 'test'
+    #    projects: |
+    #      Providence-main/Daimler.Providence.Backend/Daimler.Providence.Service/Daimler.Providence.Service.csproj
+    #      Providence-main/Daimler.Providence.Backend/Daimler.Providence.Database/Daimler.Providence.Database.csproj 
+    #      Providence-main/Daimler.Providence.Backend/Daimler.Providence.Tests/Daimler.Providence.Tests.csproj 
+    #    arguments: '--configuration $(BuildConfiguration)'
+    #    continueOnError: true
+        
+    - task: SonarQubeAnalyze@4
+      displayName: 'Run SonarQube code analysis'
+      enabled: true
+
+    - task: SonarQubePublish@4
+      displayName: 'Publish SonarQube Quality Gate Result'   
+      enabled: true
+
+    - task: synopsys-detect.synopsys-detect.synopsys-detect-task.SynopsysDetectTask@8
+      displayName: 'Run Blackduck Scan'
+      inputs:
+        BlackDuckService: $(BLACKDUCK_ServiceConnection)
+        DetectArguments: |
+         --detect.project.name="$(BLACKDUCK-PROJECT)"
+         --detect.project.version.name="Providence-API"
+         --detect.project.codelocation.unmap=true
+         --blackduck.timeout=36000
+         --detect.yarn.prod.only=true
+         --detect.npm.include.dev.dependencies=false
+         --logging.level.com.synopsys.integration="DEBUG"
+
+    - task: DownloadSecureFile@1
+      displayName: 'Download secure file'
+      inputs:
+        secureFile: $(COVERITY_AUTH_FILE)
+        retryCount: 5
+
+    - task: Bash@3
+      displayName: 'Change User access to Secure File'
+      inputs:
+        targetType: 'inline'
+        script: |        
+          chmod u+rw $(Agent.TempDirectory)/$(COVERITY_AUTH_FILE)
+          chmod go-rwx $(Agent.TempDirectory)/$(COVERITY_AUTH_FILE)
+
+    - powershell: |
+        cov-configure --cs --config e2emon_coverityconf.xml
+        cov-build --config e2emon_coverityconf.xml --dir $(Build.Repository.LocalPath)\idir dotnet build $(Build.Repository.LocalPath)\Providence-main\Daimler.Providence.Backend\Daimler.Providence.Backend.sln /t:Rebuild 
+        cov-capture --dir $(Build.Repository.LocalPath)\idir --project-dir $(Build.Repository.LocalPath)
+        cov-analyze --config e2emon_coverityconf.xml --dir $(Build.Repository.LocalPath)\idir --aggressiveness-level high
+        cov-commit-defects --config e2emon_coverityconf.xml --dir $(Build.Repository.LocalPath)\idir --url 'https://cov-connect.daimler.com' --stream 'FrameworkAPI-Master' --auth-key-file $(Agent.TempDirectory)/$(COVERITY_AUTH_FILE)
+      displayName: "Run Coverity Scan"
+      failOnStderr: false
+
+

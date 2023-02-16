@@ -1,0 +1,56 @@
+<mat-toolbar class="crud-toolbar" color="primary">
+  <div>
+    <span class="text-large ">SLA Thresholds</span>
+    <span class="crud-subtitle text-small">Configure the params for the SLA Threshold Reports</span>
+  </div>
+  
+  </mat-toolbar>
+
+  <div style="margin: 20px;">
+  <form style="width: 20%">
+    <div fxLayout="row" fxFlex="150">
+        <mat-form-field>
+          <mat-select matInput placeholder="Environment Name" name="subscriptionId" required [(ngModel)]="environmentSubscriptionId" (selectionChange)="disabled();getSLAThreshold()">
+            <mat-option *ngFor="let environment of environments" value="{{environment.subscriptionId}}">{{environment.name}}</mat-option>        
+          </mat-select>
+          <mat-error>Please select the environment name</mat-error>
+        </mat-form-field>
+    </div>
+  </form>
+
+  <div style="margin: 45px 0px 15px 0px">
+    <span class="text-medium ">SLA Settings</span>
+  </div>
+  <form style="width: 20%" [formGroup]="dialogFormGroup">
+    <div fxLayout="column" fxFlex="100">
+        <mat-form-field>
+          <mat-select matInput placeholder="Source" name="slaSource" [(ngModel)]="thresholdSource" formControlName="sourceFormControl" required>
+            <mat-option value="errorWarning">Error + Warning</mat-option>        
+            <mat-option value="error">Error</mat-option>        
+          </mat-select>
+          <mat-error>Please select the source name</mat-error>
+        </mat-form-field>
+        <form  style="width: 5%" fxLayout="row" [formGroup]="warningFormGroup">
+          
+          <mat-form-field>
+            <input matInput type="number" min="0" max="100" placeholder="Threshold Warning" name="thresholdWarning" formControlName="warningFormControl" required >
+            <mat-error *ngIf="warningFormControl.hasError('required') || warningFormControl.hasError('min') || warningFormControl.hasError('max')">Please enter a valid percentage between 0 and 100</mat-error>
+            <mat-error *ngIf="warningFormControl.hasError('warningBiggerError')">The Warning value must be higher than the Error</mat-error>
+          </mat-form-field>
+          <div fxLayoutAlign="left center" style="margin-right: 30px">%</div>
+          <mat-form-field>
+            <input matInput type="number" min="0" max="100" placeholder="Threshold Error" name="thresholdError" formControlName="errorFormControl" required >
+            <mat-error *ngIf="errorFormControl.hasError('required') || errorFormControl.hasError('min') || errorFormControl.hasError('max')">Please enter a valid percentage between 0 and 100</mat-error>
+          </mat-form-field> 
+        
+          <div fxLayoutAlign="left center" style="margin-right: 30px">%</div>
+        
+        </form>
+    </div>
+  </form>
+</div>
+<div fxLayout="row">
+<button mat-raised-button (click)="setSLAThreshold()" style="margin: 10px 0 0 20px;" [disabled]="!validateSave()">Save SLA Threshold</button>
+<button mat-raised-button (click)="deleteSLAThreshold()" style="margin: 10px 0 0 20px;" [disabled]="!validateDelete()">Delete SLA Threshold</button>
+</div>
+<ngx-loading [show]="showloadingIndicator" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>

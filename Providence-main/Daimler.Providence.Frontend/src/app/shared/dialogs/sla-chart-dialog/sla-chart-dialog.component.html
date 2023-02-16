@@ -1,0 +1,59 @@
+<h2 style="margin-bottom: 0px;">SLA report</h2>
+<h4 style="margin-bottom: 0px; word-wrap: break-word; white-space: normal">{{data.data.elementId}}</h4>
+<div mat-dialog-content>
+  <div *ngIf="data.type === 'pieChart'" fxLayout="row" style="margin-bottom: 30px; margin-top: 20px">
+    <svg id="pieChartSVG" *ngIf="data.type === 'pieChart'" viewBox="0 0 64 64" style="width: 300px; border-radius: 50%; transform: rotate(-90deg);" shape-rendering="geometricPrecision">
+     <circle r="25%" cx="50%" cy="50%" style="fill: none; stroke-width: 32" [style.stroke]="getPieChartBackgroundColor()" shape-rendering="geometricPrecision"/> 
+     <circle r="25%" cx="50%" cy="50%" style="fill: none; stroke: #1b5e20; stroke-width: 33" [style.background]="getPieChartBackgroundColor()" [style.stroke-dasharray]="getpieChartStrokeDashArray()" shape-rendering="geometricPrecision"/> 
+    </svg>
+    <div fxLayout="column" fxLayoutAlign="start">
+      <div class="ok-square">{{okValue}}% Ok</div>
+      <div class="warn-square" *ngIf="isWarning">{{nokValue}}% Warning</div>
+      <div class="error-square" *ngIf="isError">{{nokValue}}% Error</div>
+    </div>
+  </div>
+
+  <div *ngIf="data.type === 'lineChart'" fxLayout="row" style="margin-bottom: 30px;">
+    <svg style="width: 420px; height: 270px;">
+        <g class="grid x-grid" id="xGrid" style="fill: white">
+        <line x1="40" x2="40" y1="50" y2="225"></line>
+      </g>
+      <g class="grid y-grid" id="yGrid" style="fill: white; stroke-width: 2px;">
+        <line x1="40" x2="370" y1="225" y2="225"></line>
+      </g>
+      <g class="labels y-labels">
+        <text x="0" y="58">100%</text>
+        <text x="0" y="93">80%</text>
+        <text x="0" y="128">60%</text>
+        <text x="0" y="163">40%</text>
+        <text x="0" y="198">20%</text>
+      </g>
+      <g>
+        <line x1="40" [attr.y1]="warningThresholdCoordinateY" x2="370" [attr.y2]="warningThresholdCoordinateY" stroke-width="1" stroke="#ff6600" stroke-dasharray="2,2" 
+              matTooltip="{{data.data.warningThreshold}}%" />
+        <line x1="40" [attr.y1]="errorThresholdCoordinateY" x2="370" [attr.y2]="errorThresholdCoordinateY" stroke-width="1" stroke="#ff0000" stroke-dasharray="2,2"
+              matTooltip="{{data.data.errorThreshold}}%" />
+      </g>
+      <g>
+        <polyline x="10" y="10" fill="none" stroke="#0074d9" stroke-width="1" [attr.points]="setLineChartPoints()"/>
+      </g>
+      <g *ngFor="let datapoint of setLineChartPoints()">
+        <circle [attr.cx]="getLineChartDataPoint(datapoint, 0)" [attr.cy]="getLineChartDataPoint(datapoint, 1)" r="4" style="fill: #0074d9;" matTooltip="{{getTooltipForDataPoint(setLineChartPoints().indexOf(datapoint))}}"></circle>
+      </g>
+      <g>
+        <text x="0" y="255">{{getFormattedDate(data.data.startDate)}}</text>
+        <text x="310" y="255">{{getFormattedDate(data.data.endDate)}}</text>
+        <text x="195" y="255">Date</text>
+      </g>
+    </svg>
+    <div fxLayout="column" fxLayoutAlign="start">
+      <div style="color: #0074d9;">Data</div>
+      <div style="color: #ff6600;">Warning</div>
+      <div style="color: #ff0000;">Error</div>
+    </div>
+  </div>
+</div>
+
+<div mat-dialog-actions fxLayoutAlign="center" fxAlign="row">
+  <button mat-button  [mat-dialog-close]>Close</button>
+</div>

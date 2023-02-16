@@ -1,0 +1,54 @@
+﻿
+parameters:
+ - name: "pool"
+   default: "CSG Linux"
+ - name: 'Environment'
+   type: string
+   default: 'DEV'
+   values:
+    - DEV
+    - STG
+    - PROD
+ - name: 'Location'
+   type: string
+   default: 'EU'
+   values:
+    - EU
+    - CN
+    - US
+    - JP  
+
+variables:
+ - group: "Alert-Base-Variables"
+ - group: "PKI-Alert-Variables-${{ parameters.Environment }}-${{ parameters.Location }}"
+ - name: rootPath
+   value: '$(System.DefaultWorkingDirectory)/Providence-main/Daimler.Providence.Infrastructure/Daimler.Providence.Infrastructure/ARM Templates/AlertRules/Alert Scripts'
+ - name: ServiceConnection
+   ${{ if and(eq(parameters.environment, 'DEV'), eq(parameters.Location, 'EU')) }}:       
+    value: csg-azure-dev-eu-e2e-monitoring
+   ${{ elseif and(eq(parameters.environment, 'STG'), eq(parameters.Location, 'EU'))}}:       
+    value: csg-azure-stg-eu-e2e-monitoring  
+   ${{ elseif and(eq(parameters.environment, 'PROD'), eq(parameters.Location, 'EU'))}}:
+     value : 'csg-azure-prod-eu-e2e-monitoring'  
+   ${{ elseif and(eq(parameters.environment, 'PROD'), eq(parameters.Location, 'US'))}}:
+     value : 'csg-azure-prod-us-e2e-monitoring'  
+   ${{ elseif and(eq(parameters.environment, 'PROD'), eq(parameters.Location, 'JP'))}}:
+     value : 'csg-azure-prod-jp-e2e-monitoring'  
+   ${{ elseif and(eq(parameters.environment, 'STG'), eq(parameters.Location, 'CN'))}}:
+     value : 'csg-azure-cn-staging-e2e-monitoring'  
+   ${{ elseif and(eq(parameters.environment, 'PROD'), eq(parameters.Location, 'CN'))}}:
+     value : 'csg-azure-cn-prod-e2e-monitoring'
+
+stages:
+ - template: pkialerts.build.pipeline.yml
+   parameters:
+    EnvName: Build
+    PoolName: ${{ parameters.pool }}
+
+ - template: ${{ parameters.Environment }}/pkialerts.${{ parameters.Environment }}.${{ parameters.Location }}.deploy.pipeline.yml
+   parameters:
+     EnvName: ${{ parameters.Environment }}
+     poolName: ${{ parameters.pool }}
+     ServiceConnection: $(ServiceConnection)
+     Location: ${{ parameters.Location }}
+     rootPath: '$(Pipeline.Workspace)/Artifacts/src/Daimler.Providence.Infrastructure/ARM Templates/AlertRules/Alert Scripts'

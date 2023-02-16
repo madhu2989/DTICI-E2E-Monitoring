@@ -1,0 +1,55 @@
+
+  <mat-card class="dashboardCard van-environment-title" style="height: 440.59px !important" (click)="redirect(environment.name);$event.stopPropagation();">
+    <mat-card-header>
+      <mat-card-title fxFlex style="height: 31px">
+        <span style="font-size: 22px">{{environment.name}}</span>
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content style="margin: 0px;">
+
+      <div class="tile-separator-horizontal"></div>
+      <div ngFlex class="tile-service-section" style="height: 114px;">
+
+        <div class="tile-service-section-content">
+          <div fxLayout="column" class="element-title">services</div>
+          <div *ngIf="serviceList && serviceList.length > 0">
+
+            <div *ngFor="let service of serviceList">
+
+              <div fxLayout="row" fxLayoutAlign="space-between center" (click)="redirectToService(environment.name, service);$event.stopPropagation();"
+                [ngClass]="{
+                'service-link-with-pointer': service.getChildNodes() && service.getChildNodes().length > 0,
+                'service-link-without-pointer': service.getChildNodes().length === 0
+              }">
+                <div>{{service.name}}</div>
+                <div class='warn-square serviceCount' [ngClass]="{
+                  'ok-square': service.state.state === 'OK',
+                  'warn-square': service.state.state === 'WARNING',
+                  'error-square': service.state.state === 'ERROR'
+                }">
+                  {{service.state.state}} </div>
+
+              </div>
+            </div>
+            <span *ngIf="childElementCount > 3">...</span>
+          </div>
+        </div>
+      </div>
+      <div class="tile-separator-horizontal"></div>
+
+      <div style="height: 200px">
+        <app-ngx-pie-chart [envName]="environment.name"></app-ngx-pie-chart>
+      </div>
+
+      <div fxLayout="row" fxLayoutAlign="flex-end">
+        <div matTooltip="{{getHeartBeatTooltip()}}" [ngClass]="{
+                'ok-tooltip': (environment.logSystemState === 'OK'),
+                'error-tooltip': (environment.logSystemState === 'ERROR')
+              }">
+              Heartbeat 
+          </div>
+      </div>
+
+    </mat-card-content>
+  </mat-card>

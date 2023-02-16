@@ -1,0 +1,76 @@
+@import '../../assets/styles/globals.scss';
+
+
+.wiki-container {
+  background-color: $wiki-content-background;
+  color: black;
+  position: absolute;
+  top: 5rem;
+  bottom: 4rem;
+  left: 0;
+  right: 0;
+}
+
+.wiki-sidenav {
+  display: flex;
+  align-items: flex-start;
+  width: 16rem;
+  padding-top: 5rem;
+}
+
+
+.wiki-header {
+  position: fixed;
+  z-index: 3;
+  top: 0;
+  left: 0;
+  height: 5rem;
+  font-size: 1.8rem;
+  font-weight: 600;
+  background-color: $wiki-black;
+
+
+  a:link, a {
+    color: $wiki-black;
+    
+  }
+
+  
+
+
+}
+
+.home-icon {
+  padding-right: 0.5rem;
+}
+
+.wiki-home-button {
+  display: flex;
+  &:hover {
+  /*  background-color: $wiki-black-hover; */
+  }
+
+  padding: 1rem 0.2rem;
+  cursor: pointer;
+}
+
+.wiki-sidenav-footer {
+  position: fixed;
+  bottom: 0;
+  z-index: 3;
+}
+
+.wiki-content {
+  margin: 3rem;
+  max-width: 60rem;
+}
+
+.wiki-content-footer {
+  position: fixed;
+  bottom: 0;
+  z-index: 3;
+  border-top: 0.01rem solid $wiki-grey;
+  background-color: $wiki-content-background;
+}
+
+

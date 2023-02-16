@@ -1,0 +1,338 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "Storage_Account_Name": {
+      "defaultValue": "",
+      "type": "String"
+    },
+    "Location": {
+      "type": "String"
+    },
+    "VNet_Name_Polaris": {
+      "type": "string"
+    },
+    "Subnet_Name_Polaris": {
+      "type": "string"
+    },
+    "Vnet_ResourceGroup_Name_Polaris": {
+      "type": "string"
+    },
+    "Vnet_SubscriptionId_Id_Polaris": {
+      "type": "string"
+    },
+    "VNet_Name_e2e": {
+      "type": "string"
+    },
+    "Subnet_Name_e2e": {
+      "type": "string"
+    },
+    "Built_In_Role_ID": {
+      "type": "string",
+      "metadata": {
+        "description": "Built-in role to assign"
+      }
+    },
+    "Principal_Id": {
+      "type": "string",
+      "metadata": {
+        "description": "Role Principal Id"
+      }
+    },
+    "EventHubContainer": {
+      "type": "string"
+    },
+    "Subscription_Id": {
+      "type": "string",
+      "metadata": {
+        "description": "Subscription Id"
+      }
+    }
+  },
+  "variables": {
+    "StorageAccount_ResourceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('Storage_Account_Name'))]",
+    "Built_In_Role_Type": "[concat('/subscriptions/', parameters('Subscription_Id'), '/providers/Microsoft.Authorization/roleDefinitions/',  parameters('Built_In_Role_ID'))]",
+    "Virtual_Network_Subnet_Id_Polaris": "[concat(resourceId(parameters('Vnet_SubscriptionId_Id_Polaris'),parameters('Vnet_ResourceGroup_Name_Polaris'),'Microsoft.Network/virtualNetworks', parameters('VNet_Name_Polaris')), '/subnets/',parameters('Subnet_Name_Polaris'))]",
+    "Virtual_Network_Subnet_Id_e2e": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('VNet_Name_e2e')), '/subnets/',parameters('Subnet_Name_e2e'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-09-01",
+      "name": "[parameters('Storage_Account_Name')]",
+      "location": "[parameters('Location')]",
+      "tags": {
+        "Availability": "A2",
+        "Confidentiality": "C3.2",
+        "Export": "E2",
+        "Integrity": "I2",
+        "Recovery": "R2",
+        "Project": "E2Emon"
+      },
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "kind": "Storage",
+      "properties": {
+        "publicNetworkAccess": "Enabled",
+        "minimumTlsVersion": "TLS1_2",
+        "allowBlobPublicAccess": true,
+        "networkAcls": {
+          "resourceAccessRules": [],
+          "bypass": "AzureServices",
+          "virtualNetworkRules": [
+            {
+              "id": "[variables('Virtual_Network_Subnet_Id_Polaris')]",
+              "action": "Allow",
+              "state": "Succeeded"
+            },
+            {
+              "id": "[variables('Virtual_Network_Subnet_Id_e2e')]",
+              "action": "Allow",
+              "state": "Succeeded"
+            }
+          ],
+          "ipRules": [],
+          "defaultAction": "Deny"
+        },
+        "supportsHttpsTrafficOnly": true,
+        "encryption": {
+          "services": {
+            "file": {
+              "keyType": "Account",
+              "enabled": true
+            },
+            "blob": {
+              "keyType": "Account",
+              "enabled": true
+            }
+          },
+          "keySource": "Microsoft.Storage"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[guid(resourceGroup().id,parameters('Storage_Account_Name'), parameters('Principal_Id'))]",
+      "scope": "[concat('Microsoft.Storage/storageAccounts', '/',parameters('Storage_Account_Name'))]",
+      "dependsOn": [
+        "[parameters('Storage_Account_Name')]"
+      ],
+      "properties": {
+        "roleDefinitionId": "[variables('Built_In_Role_Type')]",
+        "principalId": "[parameters('Principal_Id')]"
+        //"roleDefinitionId": "[concat('/subscriptions/','8900235a-4634-414a-9ca6-0b391bac3eef', '/providers/Microsoft.Authorization/roleDefinitions/', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
+        //"principalId": "ab2643fc-8068-44a9-8c54-c4e030744b0a"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices",
+      "apiVersion": "2021-09-01",
+      "name": "[concat(parameters('Storage_Account_Name'), '/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('Storage_Account_Name'))]"
+      ],
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "properties": {
+        "cors": {
+          "corsRules": []
+        },
+        "deleteRetentionPolicy": {
+          "allowPermanentDelete": false,
+          "enabled": false
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/fileServices",
+      "apiVersion": "2021-09-01",
+      "name": "[concat(parameters('Storage_Account_Name'), '/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('Storage_Account_Name'))]"
+      ],
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "properties": {
+        //"protocolSettings": {
+        //  "smb": {}
+        //},
+        "cors": {
+          "corsRules": []
+        },
+        "shareDeleteRetentionPolicy": {
+          "enabled": true,
+          "days": 7
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/queueServices",
+      "apiVersion": "2021-09-01",
+      "name": "[concat(parameters('Storage_Account_Name'), '/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('Storage_Account_Name'))]"
+      ],
+      "properties": {
+        "cors": {
+          "corsRules": []
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/tableServices",
+      "apiVersion": "2021-09-01",
+      "name": "[concat(parameters('Storage_Account_Name'), '/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('Storage_Account_Name'))]"
+      ],
+      "properties": {
+        "cors": {
+          "corsRules": []
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2021-09-01",
+      "name": "[concat(parameters('Storage_Account_Name'), '/default/azure-webjobs-hosts')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('Storage_Account_Name'), 'default')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('Storage_Account_Name'))]"
+      ],
+      "properties": {
+        "immutableStorageWithVersioning": {
+          "enabled": false
+        },
+        "defaultEncryptionScope": "$account-encryption-key",
+        "denyEncryptionScopeOverride": false,
+        "publicAccess": "None"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2021-09-01",
+      "name": "[concat(parameters('Storage_Account_Name'), '/default/azure-webjobs-secrets')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('Storage_Account_Name'), 'default')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('Storage_Account_Name'))]"
+      ],
+      "properties": {
+        "immutableStorageWithVersioning": {
+          "enabled": false
+        },
+        "defaultEncryptionScope": "$account-encryption-key",
+        "denyEncryptionScopeOverride": false,
+        "publicAccess": "None"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2021-09-01",
+      "name": "[concat(parameters('Storage_Account_Name'), '/default/calculated-sla-data')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('Storage_Account_Name'), 'default')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('Storage_Account_Name'))]"
+      ],
+      "properties": {
+        "immutableStorageWithVersioning": {
+          "enabled": false
+        },
+        "defaultEncryptionScope": "$account-encryption-key",
+        "denyEncryptionScopeOverride": false,
+        "publicAccess": "None"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2021-09-01",
+      "name": "[concat(parameters('Storage_Account_Name'), '/default/',parameters('EventHubContainer'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('Storage_Account_Name'), 'default')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('Storage_Account_Name'))]"
+      ],
+      "properties": {
+        "immutableStorageWithVersioning": {
+          "enabled": false
+        },
+        "defaultEncryptionScope": "$account-encryption-key",
+        "denyEncryptionScopeOverride": false,
+        "publicAccess": "None"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
+      "apiVersion": "2021-09-01",
+      "name": "[concat(parameters('Storage_Account_Name'), '/default/floweb04701553f628djobtriggers00')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/queueServices', parameters('Storage_Account_Name'), 'default')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('Storage_Account_Name'))]"
+      ],
+      "properties": {
+        "metadata": {}
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/tableServices/tables",
+      "apiVersion": "2021-09-01",
+      "name": "[concat(parameters('Storage_Account_Name'), '/default/AzureWebJobsHostLogs202206')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/tableServices', parameters('Storage_Account_Name'), 'default')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('Storage_Account_Name'))]"
+      ],
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/tableServices/tables",
+      "apiVersion": "2021-09-01",
+      "name": "[concat(parameters('Storage_Account_Name'), '/default/AzureWebJobsHostLogs202207')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/tableServices', parameters('Storage_Account_Name'), 'default')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('Storage_Account_Name'))]"
+      ],
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/tableServices/tables",
+      "apiVersion": "2021-09-01",
+      "name": "[concat(parameters('Storage_Account_Name'), '/default/AzureWebJobsHostLogscommon')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/tableServices', parameters('Storage_Account_Name'), 'default')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('Storage_Account_Name'))]"
+      ],
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/tableServices/tables",
+      "apiVersion": "2021-09-01",
+      "name": "[concat(parameters('Storage_Account_Name'), '/default/floweb04701553f628dflowsubscriptions')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/tableServices', parameters('Storage_Account_Name'), 'default')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('Storage_Account_Name'))]"
+      ],
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/tableServices/tables",
+      "apiVersion": "2021-09-01",
+      "name": "[concat(parameters('Storage_Account_Name'), '/default/floweb04701553f628djobdefinitions')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/tableServices', parameters('Storage_Account_Name'), 'default')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('Storage_Account_Name'))]"
+      ],
+      "properties": {}
+    }
+  ],
+  "outputs": {
+    "StorageAccountConnectionString": {
+      "type": "string",
+      "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('Storage_Account_Name'), ';AccountKey=',listKeys(variables('StorageAccount_ResourceId'),'2017-10-01').keys[0].value, ';EndpointSuffix=core.windows.net')]"
+    }
+  }
+}

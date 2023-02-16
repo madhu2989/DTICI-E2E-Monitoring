@@ -1,0 +1,99 @@
+<h1 mat-dialog-title style="word-break: break-all;">{{data.historyData.shortDescription ?
+    data.historyData.shortDescription : 'Deployment Window'}}</h1>
+<mat-divider></mat-divider>
+<mat-dialog-content>
+    <mat-grid-list cols="7" rowHeight="30px" fxflex role="list">
+        <div>
+            <mat-grid-tile role="listitem" colspan="2">
+                <div class="tile-content">Environment Name:</div>
+            </mat-grid-tile>
+            <mat-grid-tile role="listitem" colspan="5">
+                <div class="tile-content hover_class">{{data.historyData.environmentName}}
+
+                    <mat-icon style="font-size: 14px;height: 14px; width: 14px;" (click)="copyText(data.historyData.environmentName)"
+                        aria-label="Info">file_copy</mat-icon>
+
+                </div>
+            </mat-grid-tile>
+        </div>
+        <div>
+            <mat-grid-tile role="listitem" colspan="2">
+                <div class="tile-content">Subscription Id:</div>
+            </mat-grid-tile>
+            <mat-grid-tile role="listitem" colspan="5">
+                <div class="tile-content hover_class">{{data.historyData.environmentSubscriptionId}}
+                    <mat-icon style="font-size: 14px;height: 14px; width: 14px;" (click)="copyText(data.historyData.environmentSubscriptionId)"
+                        aria-label="Info">file_copy</mat-icon>
+                </div>
+            </mat-grid-tile>
+        </div>
+        
+      
+        <div>
+            <mat-grid-tile role="listitem" colspan="2">
+                <div class="tile-content">Start Date:</div>
+            </mat-grid-tile>
+            <mat-grid-tile role="listitem" colspan="5">
+                <div class="tile-content hover_class">{{data.historyData.startDate | date :'yyyy-MM-dd, HH:mm:ss'}}
+                    <mat-icon style="font-size: 14px;height: 14px; width: 14px;" (click)="copyText(data.historyData.startDate)"
+                        aria-label="Info">file_copy</mat-icon>
+                </div>
+            </mat-grid-tile>
+        </div>
+        <div *ngIf='data.historyData.endDate'>
+            <mat-grid-tile role="listitem" colspan="2">
+                <div class="tile-content">End Date:</div>
+            </mat-grid-tile>
+            <mat-grid-tile role="listitem" colspan="5">
+                <div class="tile-content hover_class">{{data.historyData.endDate | date :'yyyy-MM-dd, HH:mm:ss'}}
+                    <mat-icon style="font-size: 14px;height: 14px; width: 14px;" (click)="copyText(data.historyData.endDate)"
+                        aria-label="Info">file_copy</mat-icon>
+                </div>
+            </mat-grid-tile>
+        </div>
+    </mat-grid-list>
+        <div *ngIf='data.historyData.deployments'>
+          
+                
+                <table mat-table [dataSource]="data.historyData.deployments" class="mat-elevation-z8" style="width:100%" summary="deplyoment histoy data">
+
+                    <ng-container matColumnDef="id">
+                        <th mat-header-cell *matHeaderCellDef> Id. </th>
+                        <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+                    </ng-container>
+                    
+                    <ng-container matColumnDef="description">
+                        <th mat-header-cell *matHeaderCellDef> Description </th>
+                        <td mat-cell *matCellDef="let element"> {{element.description}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="startDate">
+                        <th mat-header-cell *matHeaderCellDef> StartDate </th>
+                        <td mat-cell *matCellDef="let element"> {{element.startDate | date :'yyyy-MM-dd, HH:mm:ss'}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="endDate">
+                        <th mat-header-cell *matHeaderCellDef> EndDate </th>
+                        <td mat-cell *matCellDef="let element"> {{element.endDate | date :'yyyy-MM-dd, HH:mm:ss'}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="elementIds">
+                        <th mat-header-cell *matHeaderCellDef> ElementIds </th>
+                        <td mat-cell *matCellDef="let element"> {{element.elementIds}} </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="['id', 'description' , 'startDate','endDate', 'elementIds']"></tr>
+                    <tr mat-row *matRowDef="let row; columns: ['id', 'description', 'startDate','endDate', 'elementIds'];"></tr>
+
+                </table>    
+
+          <!--  </mat-grid-tile> -->
+        </div>
+
+
+    
+
+</mat-dialog-content>
+<mat-dialog-actions align="center">
+    <button mat-button [mat-dialog-close] (click)="onCloseClick()">Close</button>
+</mat-dialog-actions>

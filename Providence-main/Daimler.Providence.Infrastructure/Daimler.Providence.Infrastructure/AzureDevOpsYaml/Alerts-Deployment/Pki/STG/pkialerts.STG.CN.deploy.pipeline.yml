@@ -1,0 +1,515 @@
+﻿# Pipeline file structure: https://docs.microsoft.com/en-us/azure/devops/pipelines/yaml-schema
+# Task List: https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks
+
+parameters:
+- name: PoolName
+  default: ''
+- name: DependsOn
+  default: 'Build'
+- name: EnvName
+  default: ''
+- name: ServiceConnection
+  default: ''
+- name: Location
+  default: ''
+- name: rootPath
+  default: ''
+  
+stages:
+- stage: ${{ parameters.EnvName }}Alerts
+  displayName: Deploy alerts to ${{ parameters.EnvName }}
+  dependsOn: ${{ parameters.DependsOn }}
+  pool: 
+    name: ${{ parameters.PoolName }}
+
+  jobs:
+    - deployment: PkiAlertsDeployment
+      environment: '${{ parameters.EnvName }}'
+      displayName: PKI Alerts Deployment to ${{ parameters.EnvName }}
+      strategy:
+        runOnce:
+          deploy:
+           steps:
+              - task: AzurePowerShell@5
+                displayName: 'Scheduled Query Error -  E2EMon_PKI_csg-apim-staging-cn_STG_CN_Error_TLSRAApi'
+                inputs:
+                  azureSubscription: ${{ parameters.ServiceConnection }}
+                  ScriptPath: '${{ parameters.rootPath }}/CreateAlert-ScheduledQuery.ps1'
+                  ScriptArguments: >
+                     -AlertName "E2EMon_PKI_csg-apim-staging-cn_STG_CN_Error_TLSRAApi"
+                     -AlertDescription "TLS Registration API's Exceptions" 
+                     -AlertSeverity $(Severity_Error) 
+                     -AlertResourceGroupName $(ResourceGroupNameSharedE2E)
+                     -Query "exceptions | where operation_Name contains 'GET /health'" 
+                     -Operator $(OperatorGreaterThan) 
+                     -Threshold "0" 
+                     -ActiongroupName $(ActionGroupNameE2E) 
+                     -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Location $(Location) 
+                     -Frequency $(Frequency_10M) 
+                     -WindowSize $(WindowSize_10M) 
+                     -TimeAggregation $(TimeAggregationCount) 
+                     -TargetResource "ai-cne2-stg-obsw-2-ra" 
+                     -TargetResourceGroupName $(TargetResourceGroupPKIShared) 
+                     -TargetResourceType $(TargetResourceTypeComponents) 
+                     -Environment $(Environment) 
+                     -CheckId "Onboarding_insights_Query" 
+                     -ComponentId "RA-csg-apim-staging-cn"
+                  azurePowerShellVersion: LatestVersion
+                enabled: true
+
+              - task: AzurePowerShell@5
+                displayName: 'Scheduled Query Ok -  E2EMon_PKI_csg-apim-staging-cn_STG_CN_Ok_TLSRAApi'
+                inputs:
+                  azureSubscription: ${{ parameters.ServiceConnection }}
+                  ScriptPath: '${{ parameters.rootPath }}/CreateAlert-ScheduledQuery.ps1'
+                  ScriptArguments: >
+                     -AlertName "E2EMon_PKI_csg-apim-staging-cn_STG_CN_Error_TLSRAApi" 
+                     -AlertDescription "TLS Registration API POD's Status" 
+                     -AlertSeverity $(Severity_Information) 
+                     -AlertResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Query "requests | where url contains 'https://registration-authority.cn.staging.private.csg.daimler-truck.com:443/health' and operation_Name contains 'GET /health' and success == true" 
+                     -Operator $(OperatorGreaterThan) 
+                     -Threshold "0" 
+                     -ActiongroupName $(ActionGroupNameE2E) 
+                     -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Location $(Location)
+                     -Frequency $(Frequency_10M) 
+                     -WindowSize $(WindowSize_10M)
+                     -TimeAggregation $(TimeAggregationCount) 
+                     -TargetResource "ai-cne2-stg-obsw-2-ra" 
+                     -TargetResourceGroupName $(TargetResourceGroupPKIShared)
+                     -TargetResourceType $(TargetResourceTypeComponents) 
+                     -Environment $(Environment) 
+                     -CheckId "Onboarding_insights_Query"
+                     -ComponentId "RA-csg-apim-staging-cn"
+                  azurePowerShellVersion: LatestVersion
+                enabled: true
+
+              - task: AzurePowerShell@5
+                displayName: 'Scheduled Query Ok -  E2EMon_PKI_csg-apim-staging-cn_STG_CN_Error_TLSRMApi'
+                inputs:
+                  azureSubscription: ${{ parameters.ServiceConnection }}
+                  ScriptPath: '${{ parameters.rootPath }}/CreateAlert-ScheduledQuery.ps1'
+                  ScriptArguments: >
+                     -AlertName "E2EMon_PKI_csg-apim-staging-cn_STG_CN_Error_TLSRMApi" 
+                     -AlertDescription "TLS Management API POD's Exceptions" 
+                     -AlertSeverity $(Severity_Error) 
+                     -AlertResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Query "exceptions | where operation_Name contains 'GET /api/health'" 
+                     -Operator $(OperatorGreaterThan) 
+                     -Threshold "0" 
+                     -ActiongroupName $(ActionGroupNameE2E) 
+                     -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Location $(Location) 
+                     -Frequency $(Frequency_10M) 
+                     -WindowSize $(WindowSize_10M) 
+                     -TimeAggregation $(TimeAggregationCount) 
+                     -TargetResource "ai-cne2-stg-obsw-2-ramgmt" 
+                     -TargetResourceGroupName $(TargetResourceGroupPKIShared) 
+                     -TargetResourceType $(TargetResourceTypeComponents) 
+                     -Environment $(Environment) 
+                     -CheckId "Onboarding_insights_Query" 
+                     -ComponentId "RM-csg-apim-staging-cn"
+                  azurePowerShellVersion: LatestVersion
+                enabled: true
+                
+              - task: AzurePowerShell@5
+                displayName: 'Scheduled Query POD -  E2EMon_PKI_csg-apim-staging-cn_STG_CN_Ok_TLSRMApi'
+                inputs:
+                  azureSubscription: ${{ parameters.ServiceConnection }}
+                  ScriptPath: '${{ parameters.rootPath }}/CreateAlert-ScheduledQuery.ps1'
+                  ScriptArguments: >
+                     -AlertName "E2EMon_PKI_csg-apim-staging-cn_STG_CN_Ok_TLSRMApi" 
+                     -AlertDescription "TLS Management API POD's Status" 
+                     -AlertSeverity $(Severity_Information) 
+                     -AlertResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Query "requests | where url contains 'http://registration-management.cn.staging.private.csg.daimler-truck.com/api/health' and operation_Name contains 'GET /api/health' and success == true" 
+                     -Operator $(OperatorGreaterThan) 
+                     -Threshold "0" 
+                     -ActiongroupName $(ActionGroupNameE2E) 
+                     -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Location $(Location) 
+                     -Frequency $(Frequency_10M) 
+                     -WindowSize $(WindowSize_10M) 
+                     -TimeAggregation $(TimeAggregationCount) 
+                     -TargetResource "ai-cne2-stg-obsw-2-ramgmt" 
+                     -TargetResourceGroupName $(TargetResourceGroupPKIShared) 
+                     -TargetResourceType $(TargetResourceTypeComponents) 
+                     -Environment $(Environment) 
+                     -CheckId "Onboarding_insights_Query" 
+                     -ComponentId "RM-csg-apim-staging-cn"
+                  azurePowerShellVersion: LatestVersion
+                enabled: true
+
+              - task: AzurePowerShell@5
+                displayName: 'Scheduled Query POD -  E2EMon_PKI_csg-china-staging-cne2_STG_CN_CAPROXY_PODSTATUS'
+                inputs:
+                  azureSubscription: ${{ parameters.ServiceConnection }}
+                  ScriptPath: '${{ parameters.rootPath }}/CreateAlert-ScheduledQuery.ps1'
+                  ScriptArguments: >
+                     -AlertName "E2EMon_PKI_csg-china-staging-cne2_STG_CN_CAPROXY_PODSTATUS" 
+                     -AlertDescription "This alert triggered for the number of the certificate-authority-proxy Pods are running in last 10 mins" 
+                     -AlertSeverity $(Severity_Information) 
+                     -AlertResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Query "KubePodInventory | where Name contains 'certificate-authority-proxy' and ContainerStatus contains 'running' | distinct Name" 
+                     -Operator $(OperatorGreaterThanOrEqual) 
+                     -Threshold "0" 
+                     -ActiongroupName $(ActionGroupNameE2E) 
+                     -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Location $(Location) 
+                     -Frequency $(Frequency_10M) 
+                     -WindowSize $(WindowSize_10M) 
+                     -TimeAggregation $(TimeAggregationCount) 
+                     -TargetResource "csg-china-staging-cne2" 
+                     -TargetResourceGroupName "csg-cne2-staging-k8s" 
+                     -TargetResourceType $(TargetResourceTypeManagedClusters) 
+                     -Environment $(Environment) 
+                     -CheckId "Onboarding_ContainerService_Query" 
+                     -ComponentId "CA-csg-china-staging-cne2" 
+                  azurePowerShellVersion: LatestVersion
+                enabled: true
+
+              - task: AzurePowerShell@5
+                displayName: 'Scheduled Query POD -  E2EMon_PKI_csg-china-staging-cne2_STG_CN_RA_PODSTATUS'
+                inputs:
+                  azureSubscription: ${{ parameters.ServiceConnection }}
+                  ScriptPath: '${{ parameters.rootPath }}/CreateAlert-ScheduledQuery.ps1'
+                  ScriptArguments: >
+                     -AlertName "E2EMon_PKI_csg-china-staging-cne2_STG_CN_RA_PODSTATUS" 
+                     -AlertDescription "This alert triggered for the number of the Registration-management Processor Pods are running in last 10 mins" 
+                     -AlertSeverity $(Severity_Information) 
+                     -AlertResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Query "KubePodInventory | where Name contains 'registration-authority' and ContainerStatus contains 'running' | distinct Name" 
+                     -Operator $(OperatorGreaterThanOrEqual) 
+                     -Threshold "0"
+                     -ActiongroupName $(ActionGroupNameE2E) 
+                     -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Location $(Location) 
+                     -Frequency $(Frequency_10M) 
+                     -WindowSize $(WindowSize_10M) 
+                     -TimeAggregation $(TimeAggregationCount) 
+                     -TargetResource "csg-china-staging-cne2" 
+                     -TargetResourceGroupName "csg-cne2-staging-k8s" 
+                     -TargetResourceType $(TargetResourceTypeManagedClusters) 
+                     -Environment $(Environment) 
+                     -CheckId "Onboarding_ContainerService_Query" 
+                     -ComponentId "RA-csg-china-staging-cne2"
+                  azurePowerShellVersion: LatestVersion
+                enabled: true
+
+              - task: AzurePowerShell@5
+                displayName: 'Scheduled Query POD -  E2EMon_PKI_csg-china-staging-cne2_STG_CN_RM_PODSTATUS'
+                inputs:
+                  azureSubscription: ${{ parameters.ServiceConnection }}
+                  ScriptPath: '${{ parameters.rootPath }}/CreateAlert-ScheduledQuery.ps1'
+                  ScriptArguments: >
+                     -AlertName "E2EMon_PKI_csg-china-staging-cne2_STG_CN_RM_PODSTATUS"
+                     -AlertDescription "This alert triggered for the number of the Registration-management Processor Pods are running in last 10 mins" 
+                     -AlertSeverity $(Severity_Information) 
+                     -AlertResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Query "KubePodInventory | where Name contains 'registration-management' and ContainerStatus contains 'running' | distinct Name" 
+                     -Operator $(OperatorGreaterThanOrEqual) 
+                     -Threshold "0" 
+                     -ActiongroupName $(ActionGroupNameE2E) 
+                     -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Location $(Location) 
+                     -Frequency $(Frequency_10M) 
+                     -WindowSize $(WindowSize_10M) 
+                     -TimeAggregation $(TimeAggregationCount) 
+                     -TargetResource "csg-china-staging-cne2" 
+                     -TargetResourceGroupName "csg-cne2-staging-k8s" 
+                     -TargetResourceType $(TargetResourceTypeManagedClusters) 
+                     -Environment $(Environment) 
+                     -CheckId "Onboarding_ContainerService_Query" 
+                     -ComponentId "RM-csg-china-staging-cne2"
+                  azurePowerShellVersion: LatestVersion
+                enabled: true
+
+              - task: AzurePowerShell@5
+                displayName: 'Metric Alert Error -  E2EMon_PKI_appgateway-cne2-staging-obsw-2_STG_CN_Error'
+                inputs:
+                  azureSubscription: ${{ parameters.ServiceConnection }}
+                  ScriptPath: '${{ parameters.rootPath }}/CreateAlert-MetricRules.ps1'
+                  ScriptArguments: >
+                     -AlertRuleName "E2EMon_PKI_appgateway-cne2-staging-obsw-2_STG_CN_Error" 
+                     -AlertRuleDescription "Triggered when healthy host count is less than or equal to .7 for app gateway appgateway-weu-stg-obsw-2 " 
+                     -Severity $(Severity_Error) 
+                     -ResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Operator $(OperatorLessThanOrEqual) 
+                     -Threshold "0.7" 
+                     -ActionGroupName $(ActionGroupNameE2E) 
+                     -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Location $(Location_Global) 
+                     -Frequency $(Frequency_5M) 
+                     -WindowSize $(WindowSize_15M) 
+                     -TimeAggregation $(TimeAggregationAverage) 
+                     -TargetResource "appgateway-cne2-stg-obsw-2" 
+                     -TargetResourceGroupName "csg-cne2-stg-obsw-2-pki" 
+                     -TargetResourceType $(TargetResourceTypeAppGateWay) 
+                     -Environment $(Environment) 
+                     -CheckId "Onboarding_appgateways_HealthyHostCount" 
+                     -ComponentId "appgateway-cne2-staging-obsw-2" 
+                     -MeticRuleName "HealthyHostCount"
+                  azurePowerShellVersion: LatestVersion
+                enabled: true
+
+              - task: AzurePowerShell@5
+                displayName: 'Metric Alert Ok -  E2EMon_PKI_appgateway-cne2-staging-obsw-2_STG_CN_Ok'
+                inputs:
+                  azureSubscription: ${{ parameters.ServiceConnection }}
+                  ScriptPath: '${{ parameters.rootPath }}/CreateAlert-MetricRules.ps1'
+                  ScriptArguments: >
+                     -AlertRuleName "E2EMon_PKI_appgateway-cne2-staging-obsw-2_STG_CN_Ok" 
+                     -AlertRuleDescription "Triggered when healthy host count is Greater than 0.7 for app gateway appgateway-weu-stg-obsw-2 " 
+                     -Severity $(Severity_Information) 
+                     -ResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Operator $(OperatorGreaterThan) 
+                     -Threshold "0.7" 
+                     -ActionGroupName $(ActionGroupNameE2E) 
+                     -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Location $(Location_Global) 
+                     -Frequency $(Frequency_5M) 
+                     -WindowSize $(WindowSize_15M) 
+                     -TimeAggregation $(TimeAggregationAverage) 
+                     -TargetResource "appgateway-cne2-stg-obsw-2" 
+                     -TargetResourceGroupName "csg-cne2-stg-obsw-2-pki" 
+                     -TargetResourceType $(TargetResourceTypeAppGateWay) 
+                     -Environment $(Environment) 
+                     -CheckId "Onboarding_appgateways_HealthyHostCount" 
+                     -ComponentId "appgateway-cne2-staging-obsw-2" 
+                     -MeticRuleName "HealthyHostCount"
+                  azurePowerShellVersion: LatestVersion
+                enabled: true
+
+              - task: AzurePowerShell@5
+                displayName: 'Metric Alert Error -  E2EMon_PKI_cne2stgstorageaccount_STG_CN_Error_Availability'
+                inputs:
+                  azureSubscription: ${{ parameters.ServiceConnection }}
+                  ScriptPath: '${{ parameters.rootPath }}/CreateAlert-MetricRules.ps1'
+                  ScriptArguments: >
+                     -AlertRuleName "E2EMon_PKI_cne2stgstorageaccount_STG_CN_Error_Availability" 
+                     -AlertRuleDescription "Whenever Storage account's availability is less than or equal to 70%" 
+                     -Severity $(Severity_Error) 
+                     -ResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Operator $(OperatorLessThanOrEqual) 
+                     -Threshold "70" 
+                     -ActionGroupName $(ActionGroupNameE2E) 
+                     -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Location $(Location_Global) 
+                     -Frequency $(Frequency_5M) 
+                     -WindowSize $(WindowSize_15M) 
+                     -TimeAggregation $(TimeAggregationAverage) 
+                     -TargetResource "cne2stgstorageaccount" 
+                     -TargetResourceGroupName $(TargetResourceGroupPKIShared) 
+                     -TargetResourceType $(TargetResourceTypeStorageAccount) 
+                     -Environment $(Environment) 
+                     -CheckId "Onboarding_storageacc_Availability" 
+                     -ComponentId "cne2stgstorageaccount" 
+                     -MeticRuleName $(MeticRuleNameAvailability)
+                  azurePowerShellVersion: LatestVersion
+                enabled: true
+
+              - task: AzurePowerShell@5
+                displayName: 'Metric Alert Ok -  E2EMon_PKI_cne2stgstorageaccount_STG_CN_Ok_Availability'
+                inputs:
+                  azureSubscription: ${{ parameters.ServiceConnection }}
+                  ScriptPath: '${{ parameters.rootPath }}/CreateAlert-MetricRules.ps1'
+                  ScriptArguments: >
+                     -AlertRuleName "E2EMon_PKI_cne2stgstorageaccount_STG_CN_Ok_Availability" 
+                     -AlertRuleDescription "Whenever availability is greater than 70%" 
+                     -Severity $(Severity_Information) 
+                     -ResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Operator $(OperatorGreaterThan) 
+                     -Threshold "70" 
+                     -ActionGroupName $(ActionGroupNameE2E) 
+                     -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Location $(Location_Global) 
+                     -Frequency $(Frequency_5M) 
+                     -WindowSize $(WindowSize_15M) 
+                     -TimeAggregation $(TimeAggregationAverage) 
+                     -TargetResource "cne2stgstorageaccount" 
+                     -TargetResourceGroupName $(TargetResourceGroupPKIShared) 
+                     -TargetResourceType $(TargetResourceTypeStorageAccount) 
+                     -Environment $(Environment) 
+                     -CheckId "Onboarding_storageacc_Availability" 
+                     -ComponentId "cne2stgstorageaccount" 
+                     -MeticRuleName $(MeticRuleNameAvailability)
+                  azurePowerShellVersion: LatestVersion
+                enabled: true
+
+              - task: AzurePowerShell@5
+                displayName: 'Metric Alert Error -  E2EMon_PKI_evgt-cne2-stg-obsw-2-pki_STG_CN_Error_RAEventGrid'
+                inputs:
+                  azureSubscription: ${{ parameters.ServiceConnection }}
+                  ScriptPath: '${{ parameters.rootPath }}/CreateAlert-MetricAlertWithTwoCondition.ps1'
+                  ScriptArguments: >
+                     -AlertRuleName "E2EMon_PKI_evgt-cne2-stg-obsw-2-pki_STG_CN_Error_RAEventGrid" 
+                     -AlertRuleDescription "Trigger when dropped events are greater than zero and delivered events is less than or equal to zero for event grid evgt-stg-obsw-2-pki" 
+                     -Severity $(Severity_Error) 
+                     -ResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Operator $(OperatorGreaterThan) 
+                     -Threshold "0" 
+                     -ActionGroupName $(ActionGroupNameE2E) 
+                     -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Location $(Location_Global) 
+                     -Frequency $(Frequency_5M) 
+                     -WindowSize $(WindowSize_15M) 
+                     -TimeAggregation $(TimeAggregationTotal) 
+                     -TargetResource "evgt-cne2-stg-obsw-2-pki" 
+                     -TargetResourceGroupName $(TargetResourceGroupPKIShared) 
+                     -TargetResourceType $(TargetResourceTypeEventGridTopics) 
+                     -Environment $(Environment) 
+                     -CheckId 'Onboarding_EventGrid_DeliverySuccessCount' 
+                     -ComponentId "evgt-cne2-stg-obsw-2-pki" 
+                     -MeticRuleName "DroppedEventCount" 
+                     -Threshold1 "0" 
+                     -Operator1 $(OperatorLessThanOrEqual) 
+                     -MeticRuleName1 "DeliverySuccessCount" 
+                     -TimeAggregation1 $(TimeAggregationTotal)
+                  azurePowerShellVersion: LatestVersion
+                enabled: true
+
+              - task: AzurePowerShell@5
+                displayName: 'Metric Alert Ok -  E2EMon_PKI_evgt-cne2-stg-obsw-2-pki_STG_CN_Ok_RAEventGrid'
+                inputs:
+                  azureSubscription: ${{ parameters.ServiceConnection }}
+                  ScriptPath: '${{ parameters.rootPath }}/CreateAlert-MetricAlertWithTwoCondition.ps1'
+                  ScriptArguments: >
+                     -AlertRuleName "E2EMon_PKI_evgt-cne2-stg-obsw-2-pki_STG_CN_Ok_RAEventGrid" 
+                     -AlertRuleDescription "Trigger when delivered events are greater than zero and dropped events is less than or equal to zero for event grid evgt-stg-obsw-2-pki" 
+                     -Severity $(Severity_Information) 
+                     -ResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Operator $(OperatorGreaterThan) 
+                     -Threshold "0" 
+                     -ActionGroupName $(ActionGroupNameE2E) 
+                     -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Location $(Location_Global) 
+                     -Frequency $(Frequency_5M) 
+                     -WindowSize $(WindowSize_15M) 
+                     -TimeAggregation $(TimeAggregationTotal) 
+                     -TargetResource "evgt-cne2-stg-obsw-2-pki" 
+                     -TargetResourceGroupName $(TargetResourceGroupPKIShared) 
+                     -TargetResourceType $(TargetResourceTypeEventGridTopics) 
+                     -Environment $(Environment) 
+                     -CheckId "Onboarding_EventGrid_DeliverySuccessCount" 
+                     -ComponentId "evgt-cne2-stg-obsw-2-pki" 
+                     -MeticRuleName "DeliverySuccessCount" 
+                     -Threshold1 "0" 
+                     -Operator1 $(OperatorLessThanOrEqual) 
+                     -MeticRuleName1 "DroppedEventCount" 
+                     -TimeAggregation1 $(TimeAggregationTotal)
+                  azurePowerShellVersion: LatestVersion
+                enabled: true
+
+              - task: AzurePowerShell@5
+                displayName: 'Metric Alert Ok - E2EMon_PKI_pki-cne2-stg-obsw-2_STG_CN_Ok_CosmosDBAvalability'
+                inputs:
+                  azureSubscription: ${{ parameters.ServiceConnection }}
+                  ScriptPath: '${{ parameters.rootPath }}/CreateAlert-MetricRules.ps1'
+                  ScriptArguments: >
+                     -AlertRuleName "E2EMon_PKI_pki-cne2-stg-obsw-2_STG_CN_Ok_CosmosDBAvalability" 
+                     -AlertRuleDescription "Trigger when service availability for cosmos db pki-stg-obsw-2 is Greater than 70%" 
+                     -Severity $(Severity_Information) 
+                     -ResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Operator $(OperatorGreaterThan) 
+                     -Threshold "70" 
+                     -ActionGroupName $(ActionGroupNameE2E) 
+                     -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Location $(Location_Global) 
+                     -Frequency $(Frequency_5M) 
+                     -WindowSize $(WindowSize_1H) 
+                     -TimeAggregation $(TimeAggregationAverage) 
+                     -TargetResource "pki-cne2-stg-obsw-2" 
+                     -TargetResourceGroupName $(TargetResourceGroupPKIShared)
+                     -TargetResourceType $(TargetResourceTypeDatabaseAcc) 
+                     -Environment $(Environment) 
+                     -CheckId "Onboarding_databaseacc_ServiceAvailability" 
+                     -ComponentId "pki-cne2-stg-obsw-2" 
+                     -MeticRuleName $(MeticRuleNameServiceAvailability)
+                  azurePowerShellVersion: LatestVersion
+                enabled: true
+
+              - task: AzurePowerShell@5
+                displayName: 'Metric Alert Error -  E2EMon_PKI_pki-cne2-stg-obsw-2_STG_CN_Error_CosmosDBAvalability'
+                inputs:
+                  azureSubscription: ${{ parameters.ServiceConnection }}
+                  ScriptPath: '${{ parameters.rootPath }}/CreateAlert-MetricRules.ps1'
+                  ScriptArguments: >
+                     -AlertRuleName "E2EMon_PKI_pki-cne2-stg-obsw-2_STG_CN_Error_CosmosDBAvalability" 
+                     -AlertRuleDescription "Trigger when service availability for cosmos db pki-stg-obsw-2 is less than or equal to 70%" 
+                     -Severity $(Severity_Error) 
+                     -ResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Operator $(OperatorLessThanOrEqual) 
+                     -Threshold "70" 
+                     -ActionGroupName $(ActionGroupNameE2E) 
+                     -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Location $(Location_Global) 
+                     -Frequency $(Frequency_5M) 
+                     -WindowSize $(WindowSize_1H) 
+                     -TimeAggregation $(TimeAggregationAverage) 
+                     -TargetResource "pki-cne2-stg-obsw-2" 
+                     -TargetResourceGroupName $(TargetResourceGroupPKIShared) 
+                     -TargetResourceType $(TargetResourceTypeDatabaseAcc) 
+                     -Environment $(Environment) 
+                     -CheckId "Onboarding_databaseacc_ServiceAvailability" 
+                     -ComponentId "pki-cne2-stg-obsw-2" 
+                     -MeticRuleName $(MeticRuleNameServiceAvailability)
+                  azurePowerShellVersion: LatestVersion
+                enabled: true
+
+              - task: AzurePowerShell@5
+                displayName: 'Metric Alert Error -  E2EMon_PKI_sbus-cne2-stg-obsw-2_STG_CN_Error_SbusStatus'
+                inputs:
+                  azureSubscription: ${{ parameters.ServiceConnection }}
+                  ScriptPath: '${{ parameters.rootPath }}/CreateAlert-MetricRules.ps1'
+                  ScriptArguments: >
+                     -AlertRuleName "E2EMon_PKI_sbus-cne2-stg-obsw-2_STG_CN_Error_SbusStatus" 
+                     -AlertRuleDescription "Trigger when service bus's server error is greater than 0" 
+                     -Severity $(Severity_Error) 
+                     -ResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Operator $(OperatorGreaterThan) 
+                     -Threshold "0" 
+                     -ActionGroupName $(ActionGroupNameE2E) 
+                     -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Location $(Location_Global) 
+                     -Frequency $(Frequency_5M) 
+                     -WindowSize $(WindowSize_15M) 
+                     -TimeAggregation $(TimeAggregationCount) 
+                     -TargetResource "sbus-cne2-stg-obsw-2" 
+                     -TargetResourceGroupName $(TargetResourceGroupPKIShared) 
+                     -TargetResourceType $(TargetResourceTypeServicebusNamespaces) 
+                     -Environment $(Environment) 
+                     -CheckId "Onboarding_servicebus_ServerSendLatency" 
+                     -ComponentId "sbus-cne2-stg-obsw-2" 
+                     -MeticRuleName $(MeticRuleNameServerErrors)
+                  azurePowerShellVersion: LatestVersion
+                enabled: true
+               
+              - task: AzurePowerShell@5
+                displayName: 'Metric Alert Ok -  E2EMon_PKI_sbus-cne2-stg-obsw-2_STG_CN_Ok_SbusStatus'
+                inputs:
+                  azureSubscription: ${{ parameters.ServiceConnection }}
+                  ScriptPath: '${{ parameters.rootPath }}/CreateAlert-MetricRules.ps1'
+                  ScriptArguments: >
+                     -AlertRuleName "E2EMon_PKI_sbus-cne2-stg-obsw-2_STG_CN_Ok_SbusStatus" 
+                     -AlertRuleDescription "Trigger when service bus's server send latency greater than 0" 
+                     -Severity $(Severity_Information) 
+                     -ResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Operator $(OperatorGreaterThan) 
+                     -Threshold "0" 
+                     -ActionGroupName $(ActionGroupNameE2E) 
+                     -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                     -Location $(Location_Global) 
+                     -Frequency $(Frequency_5M) 
+                     -WindowSize $(WindowSize_15M) 
+                     -TimeAggregation $(TimeAggregationCount) 
+                     -TargetResource "sbus-cne2-stg-obsw-2" 
+                     -TargetResourceGroupName $(TargetResourceGroupPKIShared) 
+                     -TargetResourceType $(TargetResourceTypeServicebusNamespaces) 
+                     -Environment $(Environment) 
+                     -CheckId "Onboarding_servicebus_ServerSendLatency" 
+                     -ComponentId "sbus-cne2-stg-obsw-2" 
+                     -MeticRuleName $(MeticRuleNameSuccessfulRequests)
+                  azurePowerShellVersion: LatestVersion
+                enabled: true

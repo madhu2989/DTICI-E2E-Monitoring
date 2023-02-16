@@ -1,0 +1,16 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "projectResourcePrefix": { "value": "{{ProjectResourcePrefix}}" },
+    "projectEnvironment": { "value": "{{Release.EnvironmentName}}" },
+    "logAnalytics_Name": { "value": "{{LogAnalyticsName}}" },
+    "logAnalytics_ResourceGroupName": { "value": "{{LogAnalyticsResourceGroupName}}" },
+    "logAnalytics_WorkspaceID": { "value": "{{LogAnalytics--spp-default-oms--WorkspaceId}}" },
+    "logAnalytics_WorkspaceKey": { "value": "{{LogAnalytics--spp-default-oms--WorkspaceKey}}" },
+    "logAnalytics_SP_ClientID": { "value": "{{AAD--CorpDir--AppRegistration--AdvanceAlertsOMSReader--AppId}}" },
+    "logAnalytics_SP_TenantID": { "value": "{{AAD--CorpDir--TenantId}}" },
+    "logAnalytics_SP_ClientSecret": { "value": "{{AAD--CorpDir--AppRegistration--AdvanceAlertsOMSReader--AppSecret}}" }
+  }
+}
+

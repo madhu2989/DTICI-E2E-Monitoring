@@ -1,0 +1,17 @@
+parameters:
+  targetFile: ""
+  customName: ""
+
+steps:
+- task: replacetokens@3
+  displayName: ${{ parameters.customName }}
+  inputs:
+    targetFiles: "${{ parameters.targetFile }}"
+    encoding: "auto"
+    writeBOM: false
+    actionOnMissing: "fail"
+    keepToken: false
+    tokenPrefix: "#{"
+    tokenSuffix: "}#"
+    useLegacyPattern: false
+    enableTelemetry: false

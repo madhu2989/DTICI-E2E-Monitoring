@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>E2E Monitoring Service</title>
+  <base href="/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script>
+    // see https://stackoverflow.com/a/49109828
+    // this prevents that the whole Angular app is loaded again in the hidden ADAL iFrame
+    if (window.parent !== window.self && window.parent && window.parent.AuthenticationContext) {
+      var self = window.parent._adalInstance;
+      var hash = window.location.hash;
+
+      console.log("Updating AAD token in the background...")
+
+      if (self.isCallback(hash)) {
+        self.info("Returned from redirect url");
+
+        var requestInfo = self.getRequestInfo(hash);
+        var tokenReceivedCallback = self._callBackMappedToRenewStates[requestInfo.stateResponse];
+
+        self.saveTokenFromHash(requestInfo);
+
+        var token = requestInfo.parameters[self.CONSTANTS.ACCESS_TOKEN] || requestInfo.parameters[self.CONSTANTS.ID_TOKEN];
+        var tokenType = self.CONSTANTS.ACCESS_TOKEN;
+        var errorDesc = requestInfo.parameters[self.CONSTANTS.ERROR_DESCRIPTION];
+        var error = requestInfo.parameters[self.CONSTANTS.ERROR];
+        try {
+          if (tokenReceivedCallback)
+            tokenReceivedCallback(errorDesc, token, error, tokenType);
+        } catch (err) {
+          self.error("Error occurred in user defined callback function: " + err);
+        }
+        document.write('<style type="text/undefined">');
+      }
+    }
+  </script>
+</head>
+
+<body color="primary" id="monitoring-service" class="mat-app-background">
+  <app-root></app-root>
+</body>
+
+</html>

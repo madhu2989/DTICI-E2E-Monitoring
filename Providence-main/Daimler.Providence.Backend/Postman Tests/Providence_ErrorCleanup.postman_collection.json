@@ -1,0 +1,304 @@
+{
+	"info": {
+		"_postman_id": "0af32ca2-2978-4394-bbd3-7d03c059d256",
+		"name": "Providence Service Test Cleanup",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"item": [
+				{
+					"name": "Get Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"bearer-token\", \"Bearer \"+jsonData.access_token);",
+									"",
+									"pm.test(\"Token received\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "resource",
+									"value": "{{bearer-client-id}}",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "{{bearer-client-id}}",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "{{bearer-client-secret}}",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "username\n",
+									"value": "{{bearer-username}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{bearer-password}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://login.windows.net/{{bearer-tenant-id}}/oauth2/token",
+							"protocol": "https",
+							"host": [
+								"login",
+								"windows",
+								"net"
+							],
+							"path": [
+								"{{bearer-tenant-id}}",
+								"oauth2",
+								"token"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tests",
+			"item": [
+				{
+					"name": "Tear down Test Environment",
+					"item": [
+						{
+							"name": "DeleteEnvironment",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/environments?elementId={{ms_test_environment_subscriptionid}}",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"environments"
+									],
+									"query": [
+										{
+											"key": "elementId",
+											"value": "{{ms_test_environment_subscriptionid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Check Environment State",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response should be: NotFound (404)\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"setTimeout(function(){}, 2000); "
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{HOST}}/api/environments/{{ms_test_environment_name}}",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"environments",
+										"{{ms_test_environment_name}}"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"Utils = {",
+							"    getNodeByIdRecursive: function(startNode, elementId) {",
+							"        var result = null;",
+							"        console.log(\"looking for \" + elementId + \" in \" + startNode.elementId);",
+							"        ",
+							"        if (startNode) {",
+							"          if (startNode.elementId === elementId) {",
+							"              console.log(\"found node!\");",
+							"              return startNode;",
+							"          }",
+							"          ",
+							"          var childNodes = [];",
+							"          ",
+							"          if (startNode.services) {",
+							"              childNodes = startNode.services;",
+							"          } else if (startNode.actions) {",
+							"              childNodes = startNode.actions;",
+							"          } else if (startNode.components) {",
+							"              childNodes = startNode.components;",
+							"          }",
+							"    ",
+							"          if (childNodes && childNodes.length) {",
+							"              for (let childIndex = 0; childIndex < childNodes.length; childIndex++) {",
+							"                result = this.getNodeByIdRecursive(childNodes[childIndex], elementId);",
+							"                if (result) {",
+							"                  return result;",
+							"                }",
+							"              }",
+							"          }",
+							"            ",
+							"          if (startNode.checks) {",
+							"            for (let checksIndex = 0; checksIndex < startNode.checks.length; checksIndex++) {",
+							"                result = this.getNodeByIdRecursive(startNode.checks[checksIndex], elementId);",
+							"                if (result) {",
+							"                   return result;",
+							"                }",
+							"            }",
+							"          }",
+							"        }",
+							"        ",
+							"        return result;",
+							"        ",
+							"    }",
+							"};"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

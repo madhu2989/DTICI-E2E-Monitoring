@@ -1,0 +1,19 @@
+parameters:
+  stage: ''
+  locationShortCsg: ''
+  subscription: ''
+  versionNumber: ''
+
+steps:
+  - checkout: self
+  - task: AzureCLI@2
+    name: vars
+    displayName: 'Set e2e variables ${{ parameters.stage }}'
+    inputs:
+      azureSubscription: ${{parameters.subscription}}
+      scriptType: 'pscore'
+      scriptLocation: scriptPath
+      scriptPath: '$(System.DefaultWorkingDirectory)/Providence-main/Daimler.Providence.Infrastructure/Daimler.Providence.Infrastructure/AzureDevOpsYaml/K8S Templates/ci/shared/variables/setvariables.ps1'
+      workingDirectory: $(System.DefaultWorkingDirectory)
+      arguments: '-WorkingDir $(System.DefaultWorkingDirectory) -Environment ${{ parameters.stage }} -LocationShortCsg ${{ parameters.locationShortCsg }} -VersionNumber ${{ parameters.versionNumber }}'
+      powerShellIgnoreLASTEXITCODE: true

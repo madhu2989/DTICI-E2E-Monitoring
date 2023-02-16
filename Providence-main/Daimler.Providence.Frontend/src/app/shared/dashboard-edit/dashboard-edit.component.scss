@@ -1,0 +1,32 @@
+.editModeToggle {
+    position: fixed;
+    bottom: 7px;
+    right: 24px;
+    height: 56px;
+    color: rgba(255,255,255,0.5);
+}
+
+.editModeAddButton {
+    position: fixed;
+    bottom: 61px;
+    right: 54px;
+}
+
+.editModeAddExistingComponentButton {
+    position: fixed;
+    bottom: 132px;
+    right: 54px;
+}
+
+.editModeAddExistingComponentPlusText {
+    bottom: 33px;
+    position: fixed;
+    right: 13px;
+}
+
+.editModeVersionText {
+    position: fixed;
+    bottom: 5px;
+    right: 24px;
+    color: rgba(255,255,255,0.5);
+}

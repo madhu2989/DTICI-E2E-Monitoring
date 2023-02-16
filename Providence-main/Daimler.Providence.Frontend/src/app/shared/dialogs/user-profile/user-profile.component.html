@@ -1,0 +1,19 @@
+<div fxLayout="column" class="user-profile-popup">
+  <div fxFlex fxLayout="row" fxLayoutAlign="start start">
+    <button color="primary" mat-mini-fab class="user-profile-mat-icon">
+      <mat-icon aria-label="avatar">person</mat-icon>
+    </button>
+    <div>
+      <div class="text-large">
+        {{(data.userProfile.given_name || data.userProfile.family_name) ? data.userProfile.given_name + " " +
+        data.userProfile.family_name : data.userProfile.name }}
+      </div>
+      <div class="text-medium">{{data.userProfile.email ? data.userProfile.email : data.userProfile.unique_name}}</div>
+    </div>
+  </div>
+  <div fxLayout="row" fxLayoutAlign="end center">
+    <a mat-raised-button color="accent" routerLink="/logout">
+      <mat-icon>power_settings_new</mat-icon> Logout
+    </a>
+  </div>
+</div>

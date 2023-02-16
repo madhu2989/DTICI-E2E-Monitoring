@@ -1,0 +1,16 @@
+@import '../../assets/styles/globals.scss';
+
+
+.dashboardTopCard {
+   width: 740px; 
+}
+
+.editControls {
+   position: relative;
+   top: 20px;
+   z-index: 10;
+   margin-top: -5px;
+}
+.editControls button:first-child {
+   margin-right: 10px
+}

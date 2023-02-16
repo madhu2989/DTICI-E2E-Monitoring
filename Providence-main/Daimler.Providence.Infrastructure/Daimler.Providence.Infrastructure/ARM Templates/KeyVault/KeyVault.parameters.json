@@ -1,0 +1,18 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+  "parameters": {
+    "keyvault_name": {
+      "value": ""
+    },
+    "Location": {
+      "value": ""
+    },
+    "Tenant_id": {
+      "value": ""
+    },
+    "Pipeline_Object_id": {
+      "value": ""
+    }
+  }
+}

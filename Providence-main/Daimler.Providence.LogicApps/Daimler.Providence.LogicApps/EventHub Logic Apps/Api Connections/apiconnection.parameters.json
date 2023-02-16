@@ -1,0 +1,12 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "projectResourcePrefix": { "value": "{{ProjectResourcePrefix}}" },
+    "projectEnvironment": { "value": "{{Release.EnvironmentName}}" },
+    "providenceEventHubName": { "value": "#{EventHub--spp-monitoring-eventhub-ns--spp-monitoring-eventhub--Name}#" },
+    "providenceEventHubConnectionString": { "value": "#{EventHub--spp-monitoring-eventhub-ns--spp-monitoring-eventhub--SAP--loganalytics--PriConString}#" },
+    "providenceEventHubSubscriptionID": { "value": "{{ProvidenceSubscriptionId}}" },
+    "logicApp_NameSuffix": { "value": "{{LogicAppNameSuffix}}" }
+  }
+}

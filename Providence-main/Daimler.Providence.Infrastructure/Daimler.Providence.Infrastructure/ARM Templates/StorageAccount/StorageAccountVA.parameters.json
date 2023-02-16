@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "Storage_Account_Name": {
+      "value": ""
+    },
+    "Location": {
+      "value": ""
+    },
+    "Built_In_Role_ID": {
+      "value": "ba92f5b4-2d11-453d-a403-e96b0029c9fe"
+    },
+    "Subscription_Id": {
+      "value": ""
+    },
+    "SqlPrincipal_Id": {
+      "value": ""
+    }
+  }
+}

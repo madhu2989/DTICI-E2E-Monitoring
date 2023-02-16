@@ -1,0 +1,9 @@
+variables: 
+  - name: ActionGroupName
+    value: csg-stg-mon-ag01-weu
+  - name: ActionGroupResourceGroupName
+    value: csg-weu-stg-e2e-mon-shared
+  - name: Location
+    value: westeurope
+  - name: FAResourceGroupName
+    value: csg-weu-stg-e2e-mon

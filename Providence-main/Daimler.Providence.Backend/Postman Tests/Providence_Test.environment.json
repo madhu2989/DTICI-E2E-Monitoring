@@ -1,0 +1,79 @@
+{
+  "id": "60b22895-de48-4658-8c16-1090cae5483b",
+  "name": "ProvidenceService-SmokeTest",
+  "values": [
+    {
+      "key": "HOST",
+      "value": "https://#{CustomPrefix}#-monitoringservice-#{EnvironmentName}#.azurewebsites.net",
+      "enabled": true
+    },
+    {
+      "key": "bearer-token",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "bearer-tenant-id",
+      "value": "#{TenantId}#",
+      "enabled": true
+    },
+    {
+      "key": "bearer-client-id",
+      "value": "#{EnterpriseApplication-AppId}#",
+      "enabled": true
+    },
+    {
+      "key": "bearer-grant-type",
+      "value": "password",
+      "enabled": true
+    },
+    {
+      "key": "bearer-client-secret",
+      "value": "#{EnterpriseApplication-AppSecret}#",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "enabled": true
+    },
+    {
+      "key": "bearer-username",
+      "value": "#{SmokeTest-Username}#",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "enabled": true
+    },
+    {
+      "key": "bearer-password",
+      "value": "#{SmokeTest-Password}#",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "enabled": true
+    },
+    {
+      "key": "ms_test_environment_name",
+      "value": "#{Build.BuildNumber}#-Environment",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "enabled": true
+    },
+    {
+      "key": "ms_test_environment_subscriptionid",
+      "value": "#{Build.BuildNumber}#-SubId",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2019-10-01T11:20:59.917Z",
+  "_postman_exported_using": "Postman/7.6.0"
+}

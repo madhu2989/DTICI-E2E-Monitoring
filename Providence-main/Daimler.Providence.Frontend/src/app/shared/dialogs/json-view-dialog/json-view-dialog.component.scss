@@ -1,0 +1,7 @@
+.hover_class mat-icon {
+    visibility:hidden;
+  }
+.hover_class:hover mat-icon {
+   visibility:visible;
+   cursor: pointer;
+  }

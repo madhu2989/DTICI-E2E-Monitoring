@@ -1,0 +1,35 @@
+/*@import '~@angular/material/theming';
+@include mat-core();
+
+.m2app-dark {
+  $dark-primary:  mat-palette($mat-orange, 700, 500, 900);
+  $dark-accent:  mat-palette($mat-orange, A200, A100, A400);
+  $dark-warn:    mat-palette($mat-deep-orange);
+  $dark-theme:mat-dark-theme($dark-primary, $dark-accent, $dark-warn);
+  @include angular-material-theme($dark-theme);
+}
+*/
+
+@import '~@angular/material/theming';
+// Plus imports for other components in your app.
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// **Be sure that you only ever include this mixin once!**
+@include mat-core();
+
+// Define the default theme (same as the example above).
+$dark-primary: mat-palette($mat-blue-grey, A100);
+$dark-accent: mat-palette($mat-blue, 700);
+$dark-warn: mat-palette($mat-deep-orange);
+$light-theme: mat-light-theme($dark-primary, $dark-accent, $dark-warn);
+$dark-theme: mat-dark-theme($dark-primary, $dark-accent, $dark-warn);
+
+
+// Set the colors to blue and amber
+$ag-mat-primary: #2196F3; // blue-500
+$ag-mat-accent: #FFD740; // amber-A200
+
+// Include the default theme styles.
+//@include angular-material-theme($light-theme);
+@include angular-material-theme($dark-theme);

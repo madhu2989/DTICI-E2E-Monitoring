@@ -1,0 +1,22 @@
+variables: 
+  - name: AzureGroupName
+    value: az_001-csgp_crew-e2e-mon
+  - name: BuiltInRoleID_eventhub
+    value: f526a384-b230-433a-b45c-95f59c4a2dec
+  - name: BuiltInRoleID_storageaccount
+    value: ba92f5b4-2d11-453d-a403-e96b0029c9fe
+  - name: EmailListVulnerabilityAssessment
+    #value: ['sandeep.kulkarni@daimlertruck.com','hina.singh@daimlertruck.com','parna.dutta@daimlertruck.com','madhusudhan.b@daimlertruck.com','mallika.sachan@daimlertruck.com']
+    value: sandeep.kulkarni@daimlertruck.com
+  - name: EventHub_SkuTierName
+    value: Standard
+  - name: MSIAdministratorType_sqlserver
+    value: ActiveDirectory
+  - name: MSIPrincipalType_sqlserver
+    value: Group
+  - name: ProdOpsServiceConnection
+    value: azure-prod-ops-e2e-monitoring
+  - name: SqlServer-Admin-Password
+    value: todo
+  - name: SqlServer-Admin-Username
+    value: todo

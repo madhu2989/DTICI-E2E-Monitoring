@@ -1,0 +1,42 @@
+
+
+variables:
+  - name: pool
+    value: CSG Linux
+
+  - name: poolCn
+    value: "CSG China Linux"
+  
+  - name: serviceConnectionOps
+    value: azure-prod-ops-e2e-monitoring
+
+
+  - name: publicIpPrefixresourceGroup
+    value: csg-weu-ops-dmz
+
+  - name: publicIpPrefixResourceName
+    value: csg-weu-ops-firewall
+
+#Dev
+
+  
+  - name: serviceConnectionDev
+    value: csg-azure-dev-eu-e2e-monitoring
+  
+  - name: functionAppNameDev
+    value: csg-dev-e2e-mon-func-grafana-weu
+
+  - name: functionAppResourceGroupDev
+    value: csg-weu-dev-e2e-mon
+
+
+#Staging
+
+  - name: serviceConnectionStaging
+    value: csg-azure-stg-eu-e2e-monitoring
+  
+  - name: functionAppNameStaging
+    value: csg-stg-e2e-mon-func-grafana-weu
+
+  - name: functionAppResourceGroupStaging
+    value: csg-weu-stg-e2e-mon

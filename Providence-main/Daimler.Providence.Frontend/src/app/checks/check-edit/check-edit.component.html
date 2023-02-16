@@ -1,0 +1,51 @@
+<ngx-loading [show]="showloadingIndicator" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+<h1 mat-dialog-title>{{data.title}}</h1>
+<mat-dialog-content>
+  <form #inputFieldsForm="ngForm">
+    <div fxLayout="column" class="checkerInput" fxFlex="100">
+      <div style="margin: 25px">
+        <div fxLayout="column">
+          <mat-form-field>
+            <input matInput placeholder="Check Id" name="elementId" [(ngModel)]="currentVanCheck.elementId" [disabled]="data.mode === 'edit'"
+              required>
+            <mat-error>Please enter check description</mat-error>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-select matInput placeholder="Environment Name" name="environmentSubscriptionId" [disabled]="data.mode === 'edit'" [(ngModel)]="currentVanCheck.environmentSubscriptionId"
+              required>
+              <mat-option *ngFor="let environment of environments" value="{{environment.subscriptionId}}">{{environment.name}}</mat-option>
+            </mat-select>
+            <mat-error>Please select the environment name</mat-error>
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput placeholder="Name" name="name" [(ngModel)]="currentVanCheck.name" required maxlength="250">
+            <mat-error>Please enter check name</mat-error>
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput placeholder="Description" name="description" [(ngModel)]="currentVanCheck.description">
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput placeholder="VSTS Link" name="vstsLink" [(ngModel)]="currentVanCheck.vstsLink">
+          </mat-form-field>
+          <mat-checkbox [(ngModel)]="frequencyIsChecked" name="frequencyCheck">Specify a reset frequency</mat-checkbox>
+          <div *ngIf="frequencyIsChecked">
+            <div fxFlex="15" fxLayoutAlign="left center">
+              Frequency:
+            </div>
+            <div fxFlex="70">
+              <mat-slider thumbLabel [displayWith]="formatLabel" name="frequency" tickInterval="10" step="5" min="10" max="120" [(ngModel)]="chosenfrequency"></mat-slider>
+            </div>
+            <div fxFlex="15" fxLayoutAlign="left center">
+              {{+chosenfrequency.toFixed(2)}} min
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+</mat-dialog-content>
+<mat-dialog-actions fxLayout="row" fxLayoutAlign="center">
+  <button mat-button (click)="onSaveClick()" [disabled]="!currentVanCheck.elementId || !currentVanCheck.environmentSubscriptionId || !currentVanCheck.name">Save</button>
+  <button mat-button (click)="onCancelClick()">Cancel</button>
+</mat-dialog-actions>

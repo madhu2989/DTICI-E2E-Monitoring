@@ -1,0 +1,16 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "Name": { "value": "" },
+    "Location": { "value": "" },
+    "App_Service_Plan_Name": { "value": "" },
+    "VNet_Name": { "value": "" },
+    "Subnet_Name": { "value": "" },
+    "MSI_Id": { "value": "" },
+    "MSI_ResourceGroup_Name": { "value": "" },
+    "Suffix_Url": {
+      "value": ""
+    }
+  }
+}

@@ -1,0 +1,54 @@
+<div *ngIf="data.mode!=='delete'">
+  <h1 mat-dialog-title>{{dialogTitle}}</h1>
+  <div *ngIf="!isAddExistingElementPartActive">
+    <mat-dialog-content>
+      <form #inputFieldsForm="ngForm">
+        <div fxLayout="column" class="checkerInput" fxFlex="100">
+
+          <div fxLayout="column">
+            <mat-form-field *ngIf="isFieldVisible('name')">
+              <input matInput placeholder="Name" [(ngModel)]="payload.name" name="name" required>
+              <mat-error>Please enter the valid name of the {{data.elementTypeName}}.</mat-error>
+            </mat-form-field>
+            <mat-form-field *ngIf="isFieldVisible('description')">
+              <input matInput placeholder="Description" [(ngModel)]="payload.description" name="description">
+              <mat-error>Please enter a description for the {{data.elementTypeName}}.</mat-error>
+            </mat-form-field>
+            <mat-form-field *ngIf="isFieldVisible('elementId')">
+              <input matInput placeholder="Element Id" [(ngModel)]="payload.elementId" name="elementId" [disabled]="isFieldActive('elementId')" [pattern]="regexElementId" required>
+              <mat-error>Please enter the valid element Id of the {{data.elementTypeName}}. {{regexTooltipElementId}}.</mat-error>
+            </mat-form-field>
+            <mat-form-field *ngIf="isFieldVisible('subscriptionId')">
+              <input matInput placeholder="Subscription Id" [(ngModel)]="payload.subscriptionId" name="subscriptionId" [disabled]="isFieldActive('subscriptionId')" [pattern]="regexId" required>
+              <mat-error>Please enter the valid subscription id of the {{data.elementTypeName}}. {{regexTooltipElementId}}.</mat-error>
+            </mat-form-field>
+            <mat-checkbox *ngIf="isFieldVisible('isDemo')" [(ngModel)]="payload.isDemo" name="isDemo">Demo environment?
+            </mat-checkbox>
+            <mat-form-field *ngIf="isFieldVisible('componentType')">
+              <input matInput placeholder="Component Type" [(ngModel)]="payload.componentType" name="componentType" required>
+              <mat-error>Please enter the component type of the {{data.elementTypeName}}</mat-error>
+            </mat-form-field>
+          </div>
+
+        </div>
+      </form>
+    </mat-dialog-content>
+    <mat-dialog-actions>
+      <button mat-button (click)="onSaveClick()" [disabled]="!inputFieldsForm.valid">Save</button>
+      <button mat-button [mat-dialog-close]>Cancel</button>
+    </mat-dialog-actions>
+  </div>
+
+  <div *ngIf="isAddExistingElementPartActive">
+    <ag-grid-angular style="width: 100%; height: 450px;" class="ag-theme-material" [gridOptions]="gridOptions" [enableSorting]="true"
+      [enableFilter]="true" [rowSelection]="rowSelection">
+    </ag-grid-angular>
+    <mat-dialog-actions>
+      <button mat-button (click)="onSaveClick()" [disabled]="!isSaveButtonActive || !isAnyRowSelected">Save</button>
+      <button mat-button [mat-dialog-close]>Cancel</button>
+    </mat-dialog-actions>
+  </div>
+</div>
+<div>
+  <ngx-loading [show]="showloadingIndicator" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+</div>

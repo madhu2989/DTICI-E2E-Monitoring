@@ -1,0 +1,67 @@
+jobs:
+  - deployment: publiccloud_deployment_job
+    environment: Schedule
+    displayName: Public Ip prefix deployment job
+    pool: $(pool)
+    strategy:
+      runOnce:
+        deploy:
+          steps: 
+              - checkout: self
+              - task: AzurePowerShell@5
+                name: vars
+                displayName: "fetch prefix-dev"
+                inputs:
+                  azureSubscription: $(serviceConnectionOps)
+                  ScriptType: InlineScript
+                  Inline: |
+                    $pulicIPPrefixVal = Get-AzPublicIpPrefix -ResourceGroupName $(publicIpPrefixresourceGroup) -Name $(publicIpPrefixResourceName) | Select IPPrefix
+                    $IPRangeDev = $pulicIPPrefixVal.IPPrefix
+                    Write-Output "##vso[task.setvariable variable=ipRangeDev;isOutput=true]$IPRangeDev"
+                    Write-Host "IP Range Dev $IPRangeDev"
+                  azurePowerShellVersion: LatestVersion
+              - task: AzureCLI@2
+                displayName: "verify address change-dev"
+                inputs:
+                  azureSubscription: $(serviceConnectionDev)
+                  scriptType: ps
+                  scriptLocation: inlineScript
+                  inlineScript: |
+                    $ruleName = az functionapp config access-restriction show --name $(functionAppNameDev) --resource-group $(functionAppResourceGroupDev) --query 'ipSecurityRestrictions[0].name' --output tsv
+                    Write-Output "##vso[task.setvariable variable=ruleName]$ruleName"
+                    $ruleIpAddress = az functionapp config access-restriction show --name $(functionAppNameDev) --resource-group $(functionAppResourceGroupDev) --query 'ipSecurityRestrictions[0].ip_address' --output tsv
+                    Write-Output "##vso[task.setvariable variable=ruleIpAddress;]$ruleIpAddress"
+              - task: AzureCLI@2
+                displayName: "add range to funtion app-dev"
+                inputs:
+                  azureSubscription: $(serviceConnectionDev)
+                  scriptType: ps
+                  scriptLocation: inlineScript
+                  inlineScript: |
+                    az functionapp config access-restriction add -g $(functionAppResourceGroupDev) -n $(functionAppNameDev) --priority 100 --ip-address '$(vars.ipRangeDev)' --rule-name Allow_Grafana
+                condition: ne(variables['ruleIpAddress'], variables['vars.ipRangeDev'])
+              - task: AzureCLI@2
+                displayName: "verify address change-staging"
+                inputs:
+                  azureSubscription: $(serviceConnectionStaging)
+                  scriptType: ps
+                  scriptLocation: inlineScript
+                  inlineScript: |
+                    $ruleNameStaging = az functionapp config access-restriction show --name $(functionAppNameStaging) --resource-group $(functionAppResourceGroupStaging) --query 'ipSecurityRestrictions[0].name' --output tsv
+                    Write-Output "##vso[task.setvariable variable=ruleNameStaging]$ruleNameStaging"
+                    $ruleIpAddressStaging = az functionapp config access-restriction show --name $(functionAppNameStaging) --resource-group $(functionAppResourceGroupStaging) --query 'ipSecurityRestrictions[0].ip_address' --output tsv
+                    Write-Output "##vso[task.setvariable variable=ruleIpAddressStaging;]$ruleIpAddressStaging"
+              - task: AzureCLI@2
+                displayName: "add range to funtion app-staging"
+                inputs:
+                  azureSubscription: $(serviceConnectionStaging)
+                  scriptType: ps
+                  scriptLocation: inlineScript
+                  inlineScript: |
+                    az functionapp config access-restriction add -g $(functionAppResourceGroupStaging) -n $(functionAppNameStaging) --priority 100 --ip-address '$(vars.ipRangeDev)' --rule-name Allow_Grafana
+                condition: ne(variables['ruleIpAddressStaging'], variables['vars.ipRangeDev'])                  
+
+      
+      
+      
+

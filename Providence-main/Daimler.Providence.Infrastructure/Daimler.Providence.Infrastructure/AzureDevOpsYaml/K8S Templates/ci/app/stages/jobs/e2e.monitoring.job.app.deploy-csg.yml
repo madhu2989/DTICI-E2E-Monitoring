@@ -1,0 +1,57 @@
+parameters:
+  stage: ''
+  locationShortCsg: ''
+  subscription: ''
+  subscriptionDocker: '' 
+  subscriptionAks: ''
+  versionNumber: ''
+  tagVersion: ''
+  azureDevOpsEnvironment: ''
+  forceDeployment: ''
+
+jobs:
+  - deployment: e2e_monitoring_deploy_job
+    displayName: "Deploy E2E Monitoring App CSG"
+    environment: ${{ parameters.azureDevOpsEnvironment }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - task: HelmInstaller@1
+              displayName: ensure-helm
+              inputs:
+                helmVersionToInstall: "3.6.2"
+
+            - template: ../../../shared/steps/step-common-template-csg.yml
+              parameters:
+                stage: ${{ parameters.stage }}
+                locationShortCsg: ${{ parameters.locationShortCsg }}
+                subscription: ${{ parameters.subscription }}
+                versionNumber: ${{ parameters.versionNumber}}  
+            
+            - template: ../steps/e2e.monitoring.step.app.k8s.yml
+              parameters:
+                serviceName: $(vars.E2E_MONITORING_UI_APP_NAME)
+                componentName: $(vars.COMPONENT_NAME_UI)
+                repository: $(vars.ContainerRegistryLoginServer)
+                subscriptionAks: ${{ parameters.subscriptionAks }}
+                replicas: $(vars.REPLICAS)
+                minReplicas: $(vars.MinReplicas)
+                maxReplicas: $(vars.MaxReplicas)
+                resourcesRequestsMemory: $(vars.RESOURCES_REQUESTS_MEMORY)
+                resourcesRequestsCpu: $(vars.RESOURCES_REQUESTS_CPU)
+                resourcesLimitsMemory: $(vars.RESOURCES_LIMITS_MEMORY)
+                resourcesLimitsCpu: $(vars.RESOURCES_LIMITS_CPU)
+                dockerImageName: 'e2emonitoring-frontend'
+                port: $(vars.EndpointPortUI)
+                versionNumber: ${{ parameters.versionNumber }}
+
+            #TODO: Have to add global tag
+            #- task: AzureCLI@2
+            #  displayName: 'Add Tag to global'
+            #  inputs:
+            #    azureSubscription: 'PROD_EU'
+            #    scriptType: ps
+            #    scriptLocation: scriptPath
+            #    ScriptPath: 'ci/app/scripts/e2e-monitoring-deploy/add-tag-for-acr-cleanup.ps1'
+            #    arguments: '-project $(vars.ACRRepositoryName) -stage ${{ parameters.stage }} -locationShort ${{ parameters.locationShortCsg }} -versionNumber ${{ parameters.versionNumber }}'

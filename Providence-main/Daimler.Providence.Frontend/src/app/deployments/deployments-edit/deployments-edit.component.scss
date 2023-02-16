@@ -1,0 +1,36 @@
+.dateItem {
+    margin-right: 30px;
+}
+
+.endDateArea {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    margin-right: 30px;
+    font-size: 16px;
+}
+
+.scheduling-radio-button {
+    margin: 8px;
+}
+
+mat-checkbox {
+    margin: 5px;
+}
+
+.slider {
+    margin: 0 10px 0 20px;
+    width: 40%;
+}
+
+//fix open angular material chips issue, when strings are too long: https://github.com/angular/components/issues/14934
+.elementid-chip.elementid-chip.elementid-chip { 
+    width: fit-content;
+    max-width: 100%;
+}
+//fix open angular material chips issue, when strings are too long: https://github.com/angular/components/issues/14934
+.elementid-chip-text {
+    width: calc(100%); 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

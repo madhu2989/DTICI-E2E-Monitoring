@@ -1,0 +1,45 @@
+parameters:
+  versionNumber: ''
+  tagVersion: ''
+  subscription: ''
+  dockerFile: ''
+  repository: ''
+  imageName: ''
+  jobName: ''
+
+
+jobs:
+  - job: docker_build_app_csg_${{ parameters.jobName }}
+    dependsOn: []
+    displayName: "Build Application CSG"
+    steps:
+      - task: Docker@2
+        displayName: Login to ACR
+        inputs:
+          command: login
+          containerRegistry: ${{ parameters.subscription }}
+
+      - task: Docker@2
+        displayName: "Build Docker image - ${{ parameters.imageName }}"
+        inputs:
+          command: build
+          containerRegistry: ${{ parameters.subscription }}
+          dockerfile: ${{ parameters.dockerFile }}
+          repository: ${{ parameters.repository }}
+          tags: |
+            ${{ parameters.versionNumber }}
+          arguments: --no-cache -t ${{ parameters.imageName }}:${{ parameters.versionNumber }}
+
+      - task: Docker@2
+        displayName: 'Push docker image - ${{ parameters.imageName }}'
+        inputs:
+          command: push
+          containerRegistry: ${{ parameters.subscription }}
+          repository: ${{ parameters.repository }}
+          tags: ${{ parameters.versionNumber }}
+
+      - task: Docker@2
+        displayName: Logout of ACR
+        inputs:
+          command: logout
+          containerRegistry: ${{ parameters.subscription }}

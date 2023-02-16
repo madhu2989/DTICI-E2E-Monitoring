@@ -1,0 +1,9 @@
+variables: 
+  - name: ActionGroupName
+    value: csg-prod-mon-ag01-eus
+  - name: ActionGroupResourceGroupName
+    value: csg-eus2-prod-e2e-mon-shared
+  - name: Location
+    value: eastus2
+  - name: FAResourceGroupName
+    value: csg-eus2-prod-e2e-mon

@@ -1,0 +1,84 @@
+/* You can add global styles to this file, and also import other style files */
+@import './assets/styles/globals.scss';
+@import './app/charts/timeline/d3-timeline/d3-timeline.scss';
+@import "~ag-grid-community/dist/styles/ag-grid.css";
+@import "~ag-grid-community/dist/styles/ag-theme-material.css";
+@import 'material-icons/iconfont/material-icons.css';
+@import './assets/scss/modules/_fonts.scss';
+html, 
+body {
+    @include white-alpha(.7);
+    margin: 0px;
+    font-family: roboto, sans-serif;
+    font-size: 13px;
+    line-height: 1.42857143;
+    overflow-y: hidden;
+}
+
+div.ag-root {
+    -webkit-user-select:text;
+    -moz-user-select:text;
+    -ms-user-select:text;
+    user-select:text;
+}
+
+#monitoring-service { 
+    .mat-app-background {
+        background-color: $color-background;
+    }
+
+    router-outlet {
+        background-color: $color-background;
+    }
+
+    .mat-sidenav-content{
+        padding: 13px 13px 0px 13px;
+    }
+
+    .text-large {
+    font: 500 20px/32px Roboto, "Helvetica Neue", sans-serif;
+    }
+    .text-medium {
+        font: 500 14px/14px Roboto, "Helvetica Neue", sans-serif;
+    }
+    .text-menu {
+        font: 500 16px/20px Roboto, "Helvetica Neue", sans-serif;
+    }
+
+    .text-small {
+        @include white-alpha(.4);
+        
+        line-height: 160%;
+        font-size: 12px;
+    }
+
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background:rgba(255, 255, 255, 0.1);
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #888; 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555; 
+}
+
+
+.ag-theme-material .ag-row-selected {
+    background-color: lightblue !important; }
+    
+.ag-theme-material .ag-icon-checkbox-checked:empty {
+    background-color: transparent !important;
+    background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHZpZXdCb3g9IjAgMCAxOCAxOCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTYgMEgyYTIgMiAwIDAgMC0yIDJ2MTRhMiAyIDAgMCAwIDIgMmgxNGEyIDIgMCAwIDAgMi0yVjJhMiAyIDAgMCAwLTItMnpNNyAxNEwyIDlsMS40MS0xLjQxTDcgMTEuMTdsNy41OS03LjU5TDE2IDVsLTkgOXoiIGZpbGw9IiMzMzMiLz48L3N2Zz4=) !important;
+}
+   

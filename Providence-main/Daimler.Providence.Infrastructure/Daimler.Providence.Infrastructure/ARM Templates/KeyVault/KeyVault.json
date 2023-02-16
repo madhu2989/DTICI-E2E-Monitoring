@@ -1,0 +1,96 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "keyvault_name": {
+      "type": "String"
+    },
+    "Location": {
+      "type": "String"
+    },
+    "Tenant_id": {
+      "type": "string"
+    },
+    "Pipeline_Object_id": {
+      "type": "string"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2021-06-01-preview",
+      "name": "[parameters('keyvault_name')]",
+      "location": "[parameters('Location')]",
+      "tags": {
+        "Availability": "A2",
+        "Confidentiality": "C2.2",
+        "Export": "E2",
+        "Integrity": "I2",
+        "Recovery": "R2",
+        "Project": "E2Emon"
+      },
+      "properties": {
+        "sku": {
+          "family": "A",
+          "name": "standard"
+        },
+        "tenantId": "[parameters('Tenant_id')]",
+        "accessPolicies": [
+          {
+            "tenantId": "[parameters('Tenant_id')]",
+            "objectId": "[parameters('Pipeline_Object_id')]",
+            "permissions": {
+              "keys": [
+                "Get",
+                "List",
+                "Update",
+                "Create",
+                "Import",
+                "Delete",
+                "Recover",
+                "Backup",
+                "Restore"
+              ],
+              "secrets": [
+                "Get",
+                "List",
+                "Set",
+                "Delete",
+                "Recover",
+                "Backup",
+                "Restore"
+              ],
+              "certificates": [
+                "Get",
+                "List",
+                "Update",
+                "Create",
+                "Import",
+                "Delete",
+                "Recover",
+                "Backup",
+                "Restore",
+                "ManageContacts",
+                "ManageIssuers",
+                "GetIssuers",
+                "ListIssuers",
+                "SetIssuers",
+                "DeleteIssuers"
+              ],
+              "storage": []
+            }
+          }
+        ],
+        "enabledForDeployment": false,
+        "enabledForDiskEncryption": false,
+        "enabledForTemplateDeployment": false,
+        "enableSoftDelete": true,
+        "softDeleteRetentionInDays": 90,
+        "enableRbacAuthorization": false,
+        "vaultUri": "[concat('https://', parameters('keyvault_name'), '.vault.azure.net/')]",
+        "provisioningState": "Succeeded"
+      }
+    }
+  ]
+}

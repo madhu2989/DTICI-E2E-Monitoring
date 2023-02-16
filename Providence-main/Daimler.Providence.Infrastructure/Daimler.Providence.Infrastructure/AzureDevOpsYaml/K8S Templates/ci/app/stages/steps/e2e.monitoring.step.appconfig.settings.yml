@@ -1,0 +1,16 @@
+parameters:  
+  subscription: ""
+
+steps:
+  - template: ./e2e.monitoring.step.replace-token.yml
+    parameters:
+      customName: 'Substitute tokens in appsettings.json'
+      targetFile: "$(System.DefaultWorkingDirectory)/ci/app/appconfig/appsettings.json"
+
+  - task: AzureAppConfiguration.azure-app-configuration-task-push.custom-build-release-task.AzureAppConfigurationPush@3
+    displayName: 'Azure App Configuration - Fill it up'
+    inputs:
+      azureSubscription: ${{ parameters.subscription }}
+      AppConfigurationEndpoint: $(vars.AppConfigurationEndpoint)
+      ConfigurationFile: "$(System.DefaultWorkingDirectory)/ci/app/appconfig/appsettings.json"
+      Separator: ':'

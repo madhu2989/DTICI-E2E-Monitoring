@@ -1,0 +1,46 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "LogAnalytics_Name": {
+      "type": "String"
+    },
+    "Location": { "type": "string" }
+  },
+  "resources": [
+    {
+      "type": "microsoft.operationalinsights/workspaces",
+      "apiVersion": "2021-12-01-preview",
+      "name": "[parameters('LogAnalytics_Name')]",
+      "location": "[parameters('Location')]",
+      "tags": {
+        "Availability": "A2",
+        "Confidentiality": "C3.2",
+        "Export": "E2",
+        "Integrity": "I2",
+        "Recovery": "R2",
+        "Project": "E2Emon"
+      },
+      "properties": {
+        "sku": {
+          "name": "pergb2018"
+        },
+        "retentionInDays": 30,
+        "features": {
+          "enableLogAccessUsingOnlyResourcePermissions": true
+        },
+        "workspaceCapping": {
+          "dailyQuotaGb": -1
+        },
+        "publicNetworkAccessForIngestion": "Enabled",
+        "publicNetworkAccessForQuery": "Enabled"
+      }
+    }
+  ],
+  "outputs": {
+    "resourceId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('LogAnalytics_Name'))]"
+    }
+  }
+}

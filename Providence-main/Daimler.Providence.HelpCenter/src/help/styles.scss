@@ -1,0 +1,66 @@
+@import './assets/styles/globals.scss';
+
+html {
+  background-color: $wiki-html-background;
+}
+
+body {
+  font: 500 20px/32px Roboto, "Helvetica Neue", sans-serif !important;
+
+  a:link, a {
+    color: $wiki-blue;
+    cursor: pointer; 
+  }
+
+  a:visited {
+    color: $wiki-blue;
+  }
+
+  a:hover {
+    color: $wiki-blue-hover-link;
+  }
+}
+
+table {
+  border-collapse: collapse;
+}
+
+table, th, td {
+  border: 0.01rem solid $wiki-grey;
+  padding: 0.5rem;
+}
+
+img {
+  max-width: 60rem;
+  max-height: 60rem;
+ 
+  margin: 1rem 0;
+}
+
+h1, h2, h3 {
+  margin: 3rem 0 2rem;
+  line-height: normal;
+}
+
+router-outlet {
+  background-color: #222C32 !important;
+}
+
+
+
+/* The hover background color for the navigation menu.*/
+.is-active {
+  background-color: $wiki-blue-hover;
+}
+
+
+.mat-drawer {
+  background-color:#222C32 !important;
+  
+  color: #fff;
+}
+
+.mat-expansion-panel {
+  background: #222C32 !important;
+  color: white;
+}

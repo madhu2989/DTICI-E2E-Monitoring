@@ -1,0 +1,19 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "projectResourcePrefix": { "value": "{{ProjectResourcePrefix}}" },
+    "projectEnvironment": { "value": "{{Release.EnvironmentName}}" },
+    "providenceEventHubName": { "value": "#{EventHub--spp-monitoring-eventhub-ns--spp-monitoring-eventhub--Name}#" },
+    "logicApp_NameSuffix": { "value": "{{LogicAppNameSuffix}}" }, 
+    "logAnalytics_Name": { "value": "{{LogAnalyticsName}}" },
+    "logAnalytics_ResourceGroupName": { "value": "{{LogAnalyticsResourceGroupName}}" },
+    "logAnalytics_CustomLogName": { "value": "{{LogAnalyticsCustomLogName}}" },
+    "logicApp_QueryWindowOverlapTime": { "value": "{{LogicAppQueryWindowOverlapTime}}" },
+    "logicApp_Hourly_QueryWindowOverlapTime": { "value": "{{LogicAppHourlyQueryWindowOverlapTime}}" },
+    "logicApp_RunLatencyThreshold": { "value": {{LogicAppRunLatencyThreshold}} },
+    "logicApp_RunsFailedThreshold": { "value": {{LogicAppRunsFailedThreshold}} },
+    "logicApp_Hourly_RunLatencyThreshold": { "value": {{LogicAppHourlyRunLatencyThreshold}} },
+    "logicApp_Hourly_RunsFailedThreshold": { "value": {{LogicAppHourlyRunsFailedThreshold}} }
+  }
+}

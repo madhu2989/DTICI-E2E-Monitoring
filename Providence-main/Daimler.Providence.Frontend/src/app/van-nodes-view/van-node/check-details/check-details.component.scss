@@ -1,0 +1,68 @@
+mat-grid-list {
+    overflow: hidden;
+    margin: 5px;
+    margin-bottom: 25px;
+}
+
+.tile-content {
+    overflow: auto;
+    text-align: left;
+    width: 100%;
+    max-height: 54px;
+    padding: 5px;
+    word-break: break-all;
+}
+
+.hover_class mat-icon {
+    visibility:hidden;
+  }
+
+.hover_class:hover mat-icon {
+    visibility:visible;
+    cursor: pointer;
+}
+
+.row-element {
+    min-height:20px; max-height: 190px; margin-bottom: 20px;
+}
+
+.row-element-key {
+    padding-left: 10px;
+}
+ 
+.row-element-value {
+    overflow: auto;
+    padding-left: 7px;
+    cursor: pointer;    
+    word-break: break-all;
+}
+
+.copy-icon {
+    font-size: 14px;height: 14px; width: 14px;
+}
+
+.ag-theme-material {
+    width: 100% !important; 
+    height: calc(100vh - 166px) !important; 
+    margin-top: 10px;
+  }
+
+.row-element-value a.insertedHrefStyle:link {
+    text-decoration: none !important;
+    color:deepskyblue !important;
+  }
+  
+  .row-element-value a.insertedHrefStyle:visited {
+    text-decoration: none !important;
+    color: cadetblue !important;
+  }
+  
+  .row-element-value a.insertedHrefStyle:hover {
+    text-decoration: underline !important;
+    color:deepskyblue !important;
+  }
+  
+  .row-element-value a.insertedHrefStyle:active {
+    text-decoration: none !important;
+    color:deepskyblue !important;
+  }

@@ -1,0 +1,48 @@
+<div fxLayout="column" fxLayoutAlign="start start" class="van-node-container">
+
+    <div class="title-area" fxLayout="row" fxLayoutAlign="space-between center">
+
+        <div fxLayout="column">
+            <div class="text-large nodes-view-header">{{rootNode ? rootNode.name : ''}}    
+                </div>
+            <div *ngIf="rootNode">
+                <div class="text-small">{{rootNode.description ? rootNode.description : rootNode.getNodeTitle()}}</div>
+            </div>
+        </div>
+        <form class="autocomplete-area" fxLayout="row" [formGroup]='searchFrom'>
+            <mat-form-field class="elementSearch">
+                <input matInput placeholder="Search an Element" [matAutocomplete]="auto" formControlName='userInput' (keyup.enter)="navigateSearch(searchFrom.get('userInput').value)">
+            </mat-form-field>
+            <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn" autoActiveFirstOption>
+                <mat-option class="autocompleteOptions" *ngFor="let element of (filteredElements | async)?.results" [value]="element" (click)="navigateSearch(searchFrom.get('userInput').value)">
+                    <div>
+                        <div class="autocompleteFirstLine" title="{{element.name}}">{{ element.name }}</div>
+                        <div class="autocompleteSecondLine" title="{{element.elementId}}">{{ element.elementId }}</div>
+                    </div>
+                </mat-option>
+            </mat-autocomplete>
+            <mat-icon class="search-icon" (click)="navigateSearch(searchFrom.get('userInput').value)">search</mat-icon>
+        </form>
+    </div>
+
+    <div *ngIf="rootNode" class="component-timeline">
+        <app-timeline [view]="view" [elementId]="rootNode.elementId" [checkId]="rootNode.checkId" [alertName]="rootNode.state.alertName"
+            [simpleVersion]="false" resize="true"></app-timeline>
+
+        <app-depoyment-window [view]="viewDW" [simpleVersion]="true" resize="true" [showTooltip]="true" [elementId]="rootNode.elementId"></app-depoyment-window>
+    </div>
+    <div style="width:100%;" fxLayout="row wrap" fxLayoutAlign="start stretch" *ngIf="rootNode">
+        <div *ngFor="let vanNode of rootNode.getChildNodes()" fxLayout="column" fxLayoutAlign="start center" [class.wasSearched]="vanNode.elementId === searchedElementId">
+            <div *ngIf="settingsService.editModeActive && checkIgnoreOkForNode(vanNode)" class="editControls">
+                <button mat-mini-fab (click)="onEditButtonPress(vanNode.elementId);">
+                    <mat-icon aria-label="Edit element">edit</mat-icon>
+                </button>
+                <button mat-mini-fab (click)="onDeleteButtonPress(vanNode.elementId);">
+                    <mat-icon aria-label="Delete element">delete</mat-icon>
+                </button>
+            </div>
+            <app-van-node [elementId]="vanNode.elementId"></app-van-node>
+        </div>
+    </div>
+    <app-dashboard-edit (add)="addNewElement()" (addExistingComponent)="addExistingElement()"></app-dashboard-edit>
+</div>

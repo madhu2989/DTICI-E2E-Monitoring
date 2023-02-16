@@ -1,0 +1,44 @@
+trigger: none
+
+pool: CSG Linux
+parameters:
+- name: 'Tag_Name'
+  displayName: 'Delete multiple images. Ex: [img1,img2,img3,.........]'
+  type: object
+  default: []
+- name: 'Repo_Name'
+  displayName: 'Select which repository you wish to delete!'
+  type: string
+  values:
+    - backend
+    - frontend
+
+stages:
+- stage: DeleteTaggedImages
+  displayName: 'Delete Taged Images'
+  jobs:
+      - job: DeleteTaggedImage
+        steps:
+        - ${{ each image in parameters.Tag_Name }}:
+          - task: AzureCLI@2
+            displayName: '${{image}} deleting.....'
+            inputs: 
+              azureSubscription: 'csg-azure-prod-eu-e2e-monitoring'
+              scriptType: 'ps'
+              scriptLocation: 'scriptPath'
+              scriptPath: 'Providence-main/Daimler.Providence.Infrastructure/Daimler.Providence.Infrastructure/AzureDevOpsYaml/K8S Templates/ci/shared/scripts/Delete_Tagged_Images.ps1'
+              arguments: '-AzureRegistryName csgcrewe2emonitoring.azurecr.io -RepositoryName e2emonitoring-${{parameters.Repo_Name}} -tagName ${{image}} -enableDelete yes'
+
+- stage: DeleteUntaggedImages
+  displayName: 'Delete Untaged Images'
+  jobs:
+      - job: DeleteUntaggedImage
+        steps:
+        - task: AzureCLI@2
+          displayName: 'Delete untagged images'
+          inputs:
+            azureSubscription: 'csg-azure-prod-eu-e2e-monitoring'
+            scriptType: 'ps'
+            scriptLocation: 'scriptPath'
+            scriptPath: 'Providence-main/Daimler.Providence.Infrastructure/Daimler.Providence.Infrastructure/AzureDevOpsYaml/K8S Templates/ci/shared/scripts/Delete_Untagged_Images.ps1'
+            arguments: '-AzureRegistryName csgcrewe2emonitoring.azurecr.io'

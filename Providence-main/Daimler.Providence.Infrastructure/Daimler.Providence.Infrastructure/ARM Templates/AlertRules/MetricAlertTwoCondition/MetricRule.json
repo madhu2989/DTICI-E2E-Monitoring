@@ -1,0 +1,124 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "AlertName": {
+      "type": "String"
+    },
+    "AlertDescription": {
+      "type": "String"
+    },
+    "Scope": {
+      "type": "String"
+    },
+    "ActionGroup": {
+      "type": "String"
+    },
+    "Location": {
+      "type": "String"
+    },
+    "Frequency": {
+      "type": "String"
+    },
+    "Severity": {
+      "type": "String"
+    },
+    "ResourceType": {
+      "type": "String"
+    },
+    "WindowSize": {
+      "type": "String"
+    },
+    "Operator": {
+      "type": "String"
+    },
+    "TimeAggregation": {
+      "type": "String"
+    },
+    "Threshold": {
+      "type": "String"
+    },
+    "Environment": {
+      "type": "String"
+    },
+    "ComponentId": {
+      "type": "String"
+    },
+    "CheckId": {
+      "type": "String"
+    },
+    "MetricName": {
+      "type": "string"
+    },
+    "Threshold1": {
+      "type": "String"
+    },
+    "MetricName1": {
+      "type": "String"
+    },
+    "Operator1": {
+      "type": "String"
+    },
+    "TimeAggregation1": {
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "apiVersion": "2018-03-01",
+      "name": "[parameters('AlertName')]",
+      "location": "[parameters('Location')]",
+      "tags": {
+        "E2E Partner": "PKI"
+      },
+      "type": "microsoft.insights/metricAlerts",
+      "properties": {
+        "description": "[parameters('AlertDescription')]",
+        "severity": "[parameters('Severity')]",
+        "enabled": true,
+        "scopes": [
+          "[parameters('Scope')]"
+        ],
+        "evaluationFrequency": "[parameters('Frequency')]",
+        "windowSize": "[parameters('WindowSize')]",
+        "criteria": {
+          "allOf": [
+            {
+              "criterionType": "StaticThresholdCriterion",
+              "metricName": "[parameters('MetricName')]",
+              "metricNamespace": "[parameters('ResourceType')]",
+              "name": "Metric1",
+              "operator": "[parameters('Operator')]",
+              "threshold": "[parameters('Threshold')]",
+              "timeAggregation": "[parameters('TimeAggregation')]"
+            },
+            {
+              "threshold": "[parameters('Threshold1')]",
+              "name": "Metric2",
+              "metricNamespace": "[parameters('ResourceType')]",
+              "metricName": "[parameters('MetricName1')]",
+              "operator": "[parameters('Operator1')]",
+              "timeAggregation": "[parameters('TimeAggregation1')]",
+              "criterionType": "StaticThresholdCriterion"
+            }
+          ],
+          "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+        },
+        "autoMitigate": true,
+        "targetResourceType": "[parameters('ResourceType')]",
+        "targetResourceRegion": "[parameters('Location')]",
+        "actions": [
+          {
+            "actionGroupId": "[parameters('ActionGroup')]",
+            "webHookProperties": {
+              "CheckId": "[parameters('CheckId')]",
+              "ComponentId": "[parameters('ComponentId')]",
+              "Environment": "[parameters('Environment')]"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

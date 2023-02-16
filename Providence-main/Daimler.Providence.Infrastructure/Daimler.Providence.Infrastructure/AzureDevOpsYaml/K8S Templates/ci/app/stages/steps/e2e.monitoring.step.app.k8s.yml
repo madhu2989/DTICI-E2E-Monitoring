@@ -1,0 +1,77 @@
+parameters:
+  serviceName: ""
+  componentName: ""
+  repository: ""
+  subscriptionAks: ""
+  replicas: ""
+  minReplicas: ""
+  maxReplicas: ""
+  resourcesRequestsMemory: ""
+  resourcesRequestsCpu: ""
+  resourcesLimitsMemory: ""
+  resourcesLimitsCpu: ""
+  dockerImageName: ""
+  port: ""
+  versionNumber: ""
+
+steps:
+- template: e2e.monitoring.step.replace-token.yml
+  parameters:
+    targetFile: "$(System.DefaultWorkingDirectory)/Providence-main/Daimler.Providence.Infrastructure/Daimler.Providence.Infrastructure/AzureDevOpsYaml/K8S Templates/ci/app/k8s/helm/config/default.yaml"
+    customName: 'Substitute tokens in helm defaults'
+
+- template: e2e.monitoring.step.replace-token.yml
+  parameters:
+    targetFile: "$(System.DefaultWorkingDirectory)/Providence-main/Daimler.Providence.Infrastructure/Daimler.Providence.Infrastructure/AzureDevOpsYaml/K8S Templates/ci/app/k8s/helm/e2e-mon-backend/templates/ingress.yaml"
+    customName: 'Substitute tokens in helm ingress for Backend'
+
+- template: e2e.monitoring.step.replace-token.yml
+  parameters:
+    targetFile: "$(System.DefaultWorkingDirectory)/Providence-main/Daimler.Providence.Infrastructure/Daimler.Providence.Infrastructure/AzureDevOpsYaml/K8S Templates/ci/app/k8s/helm/e2emonfrontend/templates/ingress.yaml"
+    customName: 'Substitute tokens in helm ingress for FrontEnd'
+
+- template: e2e.monitoring.step.replace-token.yml
+  parameters:
+    targetFile: "$(System.DefaultWorkingDirectory)/Providence-main/Daimler.Providence.Infrastructure/Daimler.Providence.Infrastructure/AzureDevOpsYaml/K8S Templates/ci/app/k8s/helm/e2e-mon-backend/templates/configmap.yaml"
+    customName: 'Substitute tokens in Config map for Backend'
+
+- template: e2e.monitoring.step.replace-token.yml
+  parameters:
+    targetFile: "$(System.DefaultWorkingDirectory)/Providence-main/Daimler.Providence.Infrastructure/Daimler.Providence.Infrastructure/AzureDevOpsYaml/K8S Templates/ci/app/k8s/helm/e2emonfrontend/templates/configmap.yaml"
+    customName: 'Substitute tokens in Config map for FrontEnd'
+
+- task: HelmDeploy@0
+  displayName: "Deploy e2e-monitoring-service-frontend"
+  inputs:
+    connectionType: "Kubernetes Service Connection"
+    kubernetesServiceConnection: ${{ parameters.subscriptionAks }}
+    namespace: "$(vars.K8S_NAMESPACES_E2E)"
+    command: upgrade
+    chartType: FilePath
+    chartPath: "./Providence-main/Daimler.Providence.Infrastructure/Daimler.Providence.Infrastructure/AzureDevOpsYaml/K8S Templates/ci/app/k8s/helm/e2emonfrontend/"
+    releaseName: "e2emonfrontend"
+    install: true
+    force: true
+    overrideValues: 'global.AzureDevOps.BuildNumber="${{ parameters.versionNumber }}",replicas.min=${{ parameters.minReplicas }},replicas.max=${{ parameters.maxReplicas }},resources.requests.memory="${{ parameters.resourcesRequestsMemory }}",resources.requests.cpu="${{ parameters.resourcesRequestsCpu }}",resources.limits.memory="${{ parameters.resourcesLimitsMemory }}",resources.limits.cpu="${{ parameters.resourcesLimitsCpu }}"'
+    valueFile: "./Providence-main/Daimler.Providence.Infrastructure/Daimler.Providence.Infrastructure/AzureDevOpsYaml/K8S Templates/ci/app/k8s/helm/config/default.yaml"
+    waitForExecution: true
+    #arguments: "--timeout=420s --atomic"
+    failOnStderr: false
+    
+- task: HelmDeploy@0
+  displayName: "Deploy e2e-monitoring-service-backend"
+  inputs:
+    connectionType: "Kubernetes Service Connection"
+    kubernetesServiceConnection: ${{ parameters.subscriptionAks }}
+    namespace: "$(vars.K8S_NAMESPACES_E2E)"
+    command: upgrade
+    chartType: FilePath
+    chartPath: "./Providence-main/Daimler.Providence.Infrastructure/Daimler.Providence.Infrastructure/AzureDevOpsYaml/K8S Templates/ci/app/k8s/helm/e2e-mon-backend/"
+    releaseName: "e2e-mon-backend"
+    install: true
+    force: true
+    overrideValues: 'global.AzureDevOps.BuildNumber="${{ parameters.versionNumber }}",replicas.min=${{ parameters.minReplicas }},replicas.max=${{ parameters.maxReplicas }},resources.requests.memory="${{ parameters.resourcesRequestsMemory }}",resources.requests.cpu="${{ parameters.resourcesRequestsCpu }}",resources.limits.memory="${{ parameters.resourcesLimitsMemory }}",resources.limits.cpu="${{ parameters.resourcesLimitsCpu }}"'
+    valueFile: "./Providence-main/Daimler.Providence.Infrastructure/Daimler.Providence.Infrastructure/AzureDevOpsYaml/K8S Templates/ci/app/k8s/helm/config/default.yaml"
+    waitForExecution: true
+    # arguments: "--timeout=350s --atomic"
+    failOnStderr: false

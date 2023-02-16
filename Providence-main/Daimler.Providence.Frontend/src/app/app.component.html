@@ -1,0 +1,75 @@
+<!--The content below is only a placeholder and can be replaced.-->
+<mat-toolbar class="titlebar mat-elevation-z6">
+  <div *ngIf="!settingsService.isCurrentUserOnlyViewer">
+    <button mat-button style="padding: 0px;height:100%; min-width: 40px;" (click)="sidenav.toggle();" matTooltip="Menu" [matTooltipShowDelay]="1000">
+      <div fxLayout="row" class="toolbar-menu-button" fxLayoutAlign="center center">
+        <div class="notification-toolbar-button" fxLayoutAlign="center center">
+          <mat-icon style="font-size: 30px;height: 30px; width: 30px;" aria-label="Menu">menu</mat-icon>
+        </div>
+      </div>
+    </button>
+  </div>
+  <span (click)="navigateHome();" class="title-hover">{{title}}</span>
+  <span class="toolbar-spacer"></span>
+  <div class="toolbarSeparatorVertical"></div>
+  <div class="toolbarSeparatorVertical"></div>
+  <button mat-button style="padding: 0px;height:100%;" (click)="refreshView();" matTooltip="Refresh" [matTooltipShowDelay]="1000">
+    <div fxLayout="row" fxLayoutAlign="center center">
+      <div class="notification-toolbar-button" fxLayoutAlign="center center">
+        <mat-icon style="font-size: 30px;height: 30px; width: 30px;" aria-label="Refresh">refresh</mat-icon>
+      </div>
+    </div>
+  </button>
+  <div class="toolbarSeparatorVertical"></div>
+  <a mat-button style="padding: 15px;height:100%;" href="/help" target="_blank" matTooltip="Help" [matTooltipShowDelay]="1000">
+    <div fxLayout="row" fxLayoutAlign="center center">
+      <div class="notification-toolbar-button" fxLayoutAlign="center center">
+        <mat-icon style="font-size: 30px;height: 30px; width: 30px;" aria-label="Info">help_outline</mat-icon>
+      </div>
+    </div>
+  </a>
+  <div class="toolbarSeparatorVertical"></div>
+  <button mat-button style="padding: 0px;height:100%;" (click)="toogleSettingsPanel();" matTooltip="Settings" [matTooltipShowDelay]="1000">
+    <div fxLayout="row" fxLayoutAlign="center center">
+      <div class="notification-toolbar-button" fxLayoutAlign="center center">
+        <mat-icon style="font-size: 30px;height: 30px; width: 30px;" aria-label="Info">settings</mat-icon>
+      </div>
+    </div>
+  </button>
+  <div class="toolbarSeparatorVertical"></div>
+  <button mat-button (click)="toggleUserProfilePanel();" matTooltip="User profile" [matTooltipShowDelay]="1000">
+    <div fxLayout="row" fxLayoutAlign="center center">
+      <div class="current-user text-small" fxLayout="column" fxLayoutAlign="center end">
+        <div>
+          {{currentUser.profile ? currentUser.profile.given_name: ""}} {{ currentUser.profile ? currentUser.profile.family_name: ""
+          }}
+        </div>
+        <div>{{currentUserName}}</div>
+        <div>{{settingsService.isCurrentUserOnlyViewer ? "": currentUser.profile.roles}}</div>
+      </div>
+      <button style="height: 30px; width: 30px; font-size: 30px;" mat-mini-fab color="primary">
+        <mat-icon style="font-size: 30px; padding-left: 6px; padding-bottom: 10px;" aria-label="User profile">person</mat-icon>
+      </button>
+    </div>
+  </button>
+</mat-toolbar>
+<mat-sidenav-container class="sidebar-menu-container" color="primary">
+  <mat-sidenav class="menu-sidenav" position="start" #sidenav mode="over" opened="false" color="primary">
+    <mat-nav-list color="primary" (click)="sidenav.toggle()">
+
+      <a class="mainmenuitem" mat-list-item routerLink="/dashboard" routerLinkActive="activeMenuItem"> Dashboard </a>
+      <a class="mainmenuitem" mat-list-item routerLink="/slaReportsJobs" routerLinkActive="activeMenuItem"> SLA Report </a>
+      <a class="mainmenuitem" mat-list-item routerLink="/slaThresholds" routerLinkActive="activeMenuItem" style="margin-left: 20px; width: auto;"> SLA Thresholds </a>
+      <a class="mainmenuitem" mat-list-item routerLink="/deployments" routerLinkActive="activeMenuItem"> Deployments </a>
+      <a class="mainmenuitem" mat-list-item routerLink="/ignores" routerLinkActive="activeMenuItem"> Alert ignores </a>
+      <a  class="mainmenuitem" mat-list-item routerLink="/checks" routerLinkActive="activeMenuItem"> Checks </a>
+      <a  *ngIf="settingsService.isCurrentUserAdmin" class="mainmenuitem" mat-list-item routerLink="/notifications" routerLinkActive="activeMenuItem"> Notification Rules </a>
+      <a  *ngIf="settingsService.isCurrentUserAdmin" class="mainmenuitem" mat-list-item routerLink="/stateIncreaseRules" routerLinkActive="activeMenuItem"> State Increase Rules </a>
+      <a  *ngIf="settingsService.isCurrentUserAdmin" class="mainmenuitem" mat-list-item routerLink="/changelog" routerLinkActive="activeMenuItem"> Changelog History </a>
+      <a class="mainmenuitem" mat-list-item routerLink="/licenses" routerLinkActive="activeMenuItem"> Licenses </a>
+    </mat-nav-list>
+  </mat-sidenav>
+  <ngx-loading [show]="showloadingIndicator" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+  <app-breadcrumb></app-breadcrumb>
+  <router-outlet></router-outlet>
+</mat-sidenav-container>

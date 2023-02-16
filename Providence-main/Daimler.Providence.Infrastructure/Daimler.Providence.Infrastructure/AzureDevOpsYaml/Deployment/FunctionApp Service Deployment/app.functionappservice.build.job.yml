@@ -1,0 +1,109 @@
+
+
+parameters:
+  - name: environment
+    type: string
+    default: "Development"
+  - name: FunctionAppType
+    type: string
+    default: "ProvidenceFuncApp"
+
+jobs:
+  - job: BuildandDeployFuctionApp
+    displayName: Function App Build & Deploy
+    variables:
+      BuildConfiguration: "Release"
+      solution: "**/*.sln"
+      BuildPlatform: "Any CPU"
+      SolutionPath: 'Providence-main/Daimler.Providence.FunctionApp/${{ parameters.FunctionAppType }}.sln'
+    steps:
+      - task: UseDotNet@2
+        displayName: "Use DotNet Version 6.0.x"
+        inputs:
+          inputs:
+          packageType: sdk
+          version: 6.0.x
+
+      - task: DotNetCoreCLI@2
+        inputs:
+          command: "restore"
+          projects: "$(SolutionPath)"
+        displayName: "Restore NuGet packages"
+
+      - task: DotNetCoreCLI@2
+        displayName: "[DotNetCoreCLI] Clean Daimler.Providence.FunctionApps"
+        inputs:
+          command: "custom"
+          projects: "$(SolutionPath)"
+          custom: "clean"
+
+      - task: DotNetCoreCLI@2
+        inputs:
+          command: "build"
+          projects: "$(SolutionPath)"
+        displayName: "Build solution"
+    
+      - task: DotNetCoreCLI@2
+        inputs:
+          command: "publish"
+          publishWebProjects: false
+          projects: "$(SolutionPath)"
+          arguments: "--configuration $(BuildConfiguration) --output $(build.artifactStagingDirectory)/$(BuildConfiguration)"
+        displayName: "Publish to temp location"
+
+      - task: PowerShell@2
+        displayName: "Set function app variables"
+        name: funcAppValues
+        inputs:
+          targetType: "filePath"
+          filePath: '$(System.DefaultWorkingDirectory)/Providence-main/Daimler.Providence.Infrastructure/Daimler.Providence.Infrastructure/AzureDevOpsYaml/Deployment/FunctionApp Service Deployment/InitializeFunctionAppServiceVariables.ps1'
+          arguments: >
+            -envName ${{ parameters.environment }}
+            -FuncAppType ${{ parameters.FunctionAppType }}
+
+      - task: AzurePowerShell@5
+        displayName: "Setting StorageAccount NetworkRuleSet to 'Allow' as DefaultAction"
+        inputs:
+          azureSubscription: $(ServiceConnection)
+          ScriptType: InlineScript
+          Inline: |
+              Update-AzStorageAccountNetworkRuleSet -ResourceGroupName $(funcAppValues.ResGroupName) -Name $(funcAppValues.StorageAccName) -DefaultAction Allow
+          azurePowerShellVersion: LatestVersion
+
+      - task: AzureCLI@2
+        condition: and(succeeded(), eq('${{ parameters.FunctionAppType }}', 'ProvidenceFuncApp'))
+        displayName: "Removing ActionGroup Network restriction rule from Function App"
+        inputs:
+          azureSubscription: $(ServiceConnection)
+          scriptType: ps
+          scriptLocation: inlineScript
+          inlineScript: |
+              az functionapp config access-restriction remove -g '$(funcAppValues.ResGroupName)' -n $(funcAppValues.FuncAppName) -r ActionGroup
+
+      - task: AzureFunctionApp@1
+        displayName: 'Azure Function Deploy to ${{ parameters.environment }} region'
+        inputs:
+          azureSubscription: $(ServiceConnection)
+          appType: functionApp
+          appName: $(funcAppValues.FuncAppName)
+          package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
+          appSettings: $(funcAppValues.AppSettings)
+
+      - task: AzureCLI@2
+        condition: and(succeeded(), eq('${{ parameters.FunctionAppType }}', 'ProvidenceFuncApp'), ne('${{ parameters.environment }}', 'STG-CN'), ne('${{ parameters.environment }}', 'PROD-CN'))
+        displayName: "Adding ActionGroup Network restriction rule to Function App"
+        inputs:
+          azureSubscription: $(ServiceConnection)
+          scriptType: ps
+          scriptLocation: inlineScript
+          inlineScript: |
+              az functionapp config access-restriction add -g $(funcAppValues.ResGroupName) -n $(funcAppValues.FuncAppName) --priority 100 --service-tag ActionGroup -r ActionGroup
+
+      - task: AzurePowerShell@5
+        displayName: "Setting StorageAccount NetworkRuleSet to 'Deny' as DefaultAction"
+        inputs:
+          azureSubscription: $(ServiceConnection)
+          ScriptType: InlineScript
+          Inline: |
+              Update-AzStorageAccountNetworkRuleSet -ResourceGroupName $(funcAppValues.ResGroupName) -Name $(funcAppValues.StorageAccName) -DefaultAction Deny
+          azurePowerShellVersion: LatestVersion

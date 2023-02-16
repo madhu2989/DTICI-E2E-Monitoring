@@ -1,0 +1,19 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "projectResourcePrefix": { "value": "{{ProjectResourcePrefix}}" },
+    "projectEnvironment": { "value": "{{Release.EnvironmentName}}" },
+    "logAnalytics_Name": { "value": "{{LogAnalyticsName}}" },
+    "logAnalytics_ResourceGroupName": { "value": "{{LogAnalyticsResourceGroupName}}" },
+    "logAnalytics_CustomLogName": { "value": "{{LogAnalyticsCustomLogName}}" },
+    "logicApp_Heartbeat_RunLatencyThreshold": { "value": {{LogicAppHeartbeatRunLatencyThreshold}} },
+    "logicApp_Heartbeat_RunsFailedThreshold": { "value": {{LogicAppHeartbeatRunsFailedThreshold}} },
+    "logicApp_GenericQueryAlert_RunLatencyThreshold": { "value": {{LogicAppGenericQueryAlertRunLatencyThreshold}} },
+    "logicApp_GenericQueryAlert_RunsFailedThreshold": { "value": {{LogicAppGenericQueryAlertRunsFailedThreshold}} },
+    "logicApp_ActivityAlert_RunLatencyThreshold": { "value": {{LogicAppActivityAlertRunLatencyThreshold}} },
+    "logicApp_ActivityAlert_RunsFailedThreshold": { "value": {{LogicAppActivityAlertRunsFailedThreshold}} },
+    "logicApp_MetricAlert_RunLatencyThreshold": { "value": {{LogicAppMetricAlertRunLatencyThreshold}} },
+    "logicApp_MetricAlert_RunsFailedThreshold": { "value": {{LogicAppMetricAlertRunsFailedThreshold}} }
+  }
+}

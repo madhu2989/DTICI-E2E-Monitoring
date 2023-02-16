@@ -1,0 +1,27 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.frontendAppName }}
+  labels:
+    app: {{ .Values.frontendAppName }}
+  annotations:
+    nginx.ingress.kubernetes.io/enable-global-auth: "false"
+    nginx.ingress.kubernetes.io/proxy-body-size: 50m
+spec:
+  ingressClassName: public
+  tls:
+    - hosts:
+        - #{vars.IngressHostFrontEnd}#
+  rules:
+    - host: #{vars.IngressHostFrontEnd}#
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.frontendAppName }}
+                port:
+                  name: http
+          

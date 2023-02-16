@@ -1,0 +1,137 @@
+<mat-card
+  *ngIf="currentNode && showUnassignedComponentsForContributor && (!settingsService.ignoreokMode || (currentNode.state.state === 'ERROR' || currentNode.state.state === 'WARNING'))"
+  class="van-nodes-title" [ngClass]="{'dashboardCard': (currentNode.getNodeTitle() !== 'Service'),
+'nodeCardServiceView': (currentNode.getNodeTitle() === 'Service')}" (click)="redirect(currentNode, null)">
+  <div [ngClass]="{
+    'van-node-element': (hasChildElements() || (this.currentNode.getNodeTitle() === 'Component'))
+  }">
+    <mat-card-header fxLayout="row" fxLayoutAlign="start center">
+      <mat-icon style="margin-right:6px; font-size: 20px;overflow: inherit;" class="tooltip">{{nodeType}}
+        <span class="tooltiptext">{{currentNode.getNodeTitle()}}</span>
+      </mat-icon>
+      <div class="title-tooltip">
+        <mat-card-title fxFlex>
+          {{currentNode.name}}
+        </mat-card-title>
+        <span class="title-tooltiptext">{{currentNode.name}}</span>
+
+      </div>
+      <mat-icon aria-label="Status" fxLayoutAlign="center" [ngClass]="{ 'icon-ok': currentNode.state.state==='OK' , 'icon-warning': currentNode.state.state==='WARNING'
+      , 'icon-error': currentNode.state.state==='ERROR' }" style="overflow: inherit;">{{getIconName()}}</mat-icon>
+    </mat-card-header>
+    <div *ngIf="currentNode">
+      <div *ngIf="this.currentNode.getNodeTitle() === 'Component'" class="header-subtitle text-small">
+        {{currentNode.componentType ? currentNode.componentType : 'Component'}}</div>
+      <div *ngIf="this.currentNode.getNodeTitle() !== 'Component'" class="header-subtitle text-small">
+        {{currentNode.description ? currentNode.description : ''}}</div>
+    </div>
+  </div>
+  <mat-card-content style="margin:0px;" [ngClass]=" { 'nodeCard van-nodes-title van-node-element': (logSystemState === 'OK') || (settingsService.debugMode) }
+      ">
+    <div (click)="$event.stopPropagation();">
+      <app-timeline style="margin: 0px !important;" [view]="viewOfElement" [elementId]="currentNode.elementId"
+        [checkId]="currentNode.state.checkId" [alertName]="currentNode.state.alertName" [simpleVersion]="true">
+      </app-timeline>
+      <app-depoyment-window [view]="viewDW" [simpleVersion]="true" [viewSizeForElements]="true"
+        [elementId]="currentNode.elementId"></app-depoyment-window>
+    </div>
+
+
+    <div class="child-node-summary" fxLayout="row" fxLayoutAlign="space-around center"
+      *ngIf="!settingsService.overviewMode && (currentNode.getNodeTitle() === 'Service' || (currentNode.isSLA && currentNode.getNodeTitle() === 'Action'))">
+      <!-- TEXT version of action summary {{currentNode.getChildNodesTitle()}} (OK: {{nodeChildStatesSummary["series"][0].value}} WARN: {{nodeChildStatesSummary["series"][1].value}}
+      ERR: {{nodeChildStatesSum
+        mary["series"][2].value}}) -->
+      <div fxLayout="row">
+        <div *ngIf="(currentNode.isSLA !== true || (currentNode.isSLA === true && currentNode.getNodeTitle() !== 'Action'))" style="margin-top: 9px;">
+          {{currentNode.getChildNodesTitle()}} ({{nodeChildStatesTotal}})
+        </div>
+        <div *ngIf="((nodeChildStatesTotal !== 0 && currentNode.isSLA !== true) || (currentNode.isSLA === true && currentNode.getNodeTitle() !== 'Action'))" style="min-width: 50px;position: relative;">
+          <app-ngx-pie-chart [envName]="environmentName" [nodeElementId]="currentNode.elementId"></app-ngx-pie-chart>
+        </div>
+      </div>
+
+
+      <div *ngIf="currentNode.isSLA==true; else elseBlock" fxLayout="row">        
+        <div *ngIf="(currentNode.getNodeTitle() !== 'Action' && isCurrentUserAdmin)" style="margin-top: 9px;">
+          {{currentNode.getGrandChildNodesTitle()}} ({{nodeGrandChildStatesTotal}})
+        </div>
+        <div *ngIf="nodeGrandChildStatesTotal !== 0 && isCurrentUserAdmin" style="min-width: 50px;position: relative;">
+          <app-ngx-pie-chart [envName]="environmentName" [nodeElementId]="currentNode.elementId"
+            [isNodeChildElementNeeded]="true"></app-ngx-pie-chart>
+        </div>
+        <div *ngIf="(currentNode.getNodeTitle() === 'Action' && currentNode.isDashboardAvailable)">
+          <button mat-button (click)="redirectToDashBoard()" >Redirect To Dashboard</button>        
+      </div>
+      </div>
+      
+      <ng-template #elseBlock>
+        <div fxLayout="row">
+            <div style="margin-top: 9px;">
+                {{currentNode.getGrandChildNodesTitle()}} ({{nodeGrandChildStatesTotal}})
+              </div>
+              <div *ngIf="nodeGrandChildStatesTotal !== 0" style="min-width: 50px;    position: relative;">
+                <app-ngx-pie-chart [envName]="environmentName" [nodeElementId]="currentNode.elementId"
+                  [isNodeChildElementNeeded]="true"></app-ngx-pie-chart>
+              </div>
+        </div>        
+      </ng-template>
+
+      <!-- <div *ngIf="currentNode.isSLA==true  && currentNode.isDashboardAvailable">
+            <button mat-button (click)="redirectToDashBoard()">Redirect To Dashboard</button>
+        </div>
+        <div *ngIf="currentNode.isSLA==false" style="margin-top: 3px;">
+          {{currentNode.getGrandChildNodesTitle()}} ({{nodeGrandChildStatesTotal}})
+        </div>
+        <div *ngIf="nodeGrandChildStatesTotal !== 0 && currentNode.isSLA==false" style="min-width: 50px;    position: relative;">
+          <app-ngx-pie-chart [envName]="environmentName" [nodeElementId]="currentNode.elementId" [isNodeChildElementNeeded]="true"></app-ngx-pie-chart>
+        </div> -->
+    </div>
+    <div  *ngIf="(currentNode.isSLA==true && currentNode.isDashboardAvailable && currentNode.getNodeTitle() !== 'Action'); else actionBlock">
+      <div class="tile-separator-horizontal"></div>
+      <div style= "align-items:right" fxLayout="row">
+        <button mat-button style="display: block; margin-left: auto;margin-right: 0;" (click)="redirectToDashBoard()" >Redirect To Dashboard</button>        
+    </div>
+    </div>
+    
+    <div
+      *ngIf="(!settingsService.overviewMode && currentNode.getChildNodes() && currentNode.getChildNodes().length> 0) && (currentNode.getNodeTitle() !== 'Service') && checkIgnoreok(currentNode.getChildNodes())">
+      <div class="tile-separator-horizontal"></div>
+      <div class="element-title">{{currentNode.getChildNodesTitle()}}</div>
+      <div *ngFor="let element of currentNode.getChildNodes()">
+        <div
+          *ngIf="!settingsService.ignoreokMode || (element.state.state === 'ERROR' || element.state.state === 'WARNING')"
+          fxLayout="column" fxLayoutAlign="start start" class="van-node-element childNode-tooltip"
+          (click)="redirect(currentNode, element)">
+          <div class="childNodeName">{{element.name}} </div>
+          <div (click)="$event.stopPropagation();">
+            <app-timeline [view]="view" [elementId]="element.elementId" [checkId]="element.state.checkId"
+              [alertName]="element.state.alertName" [simpleVersion]="true"></app-timeline>
+            <app-depoyment-window [view]="viewDW" [simpleVersion]="true" [viewSizeForElements]="true"
+              [elementId]="element.elementId"></app-depoyment-window>
+          </div>
+          <span class="childNode-tooltiptext">{{element.name}}</span>
+        </div>
+      </div>
+    </div>
+    <div
+      *ngIf="(!settingsService.overviewMode && currentNode.checks && currentNode.checks.length> 0) && (currentNode.getNodeTitle() !== 'Service')">
+      <div class="tile-separator-horizontal"></div>
+      <div class="element-title" fxLayout="row" fxLayoutAlign="space-between center">Checks</div>
+      <div *ngFor="let element of currentNode.checks">
+        <div fxLayout="column" fxLayoutAlign="start start" class="van-node-element  checks-tooltip">
+          <div class="childNodeName">{{element.name}}</div>
+          <span class="checks-tooltiptext">{{element.name}}</span>
+          <div (click)="$event.stopPropagation();">
+            <app-timeline [view]="view"
+              [elementId]="element.state.elementId ? element.state.elementId : element.elementId"
+              [checkId]="element.state.checkId" [alertName]="element.state.alertName" [simpleVersion]="true">
+            </app-timeline>
+            <app-depoyment-window [view]="viewDW" [simpleVersion]="true" [viewSizeForElements]="true"
+              [elementId]="element.elementId"></app-depoyment-window>
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

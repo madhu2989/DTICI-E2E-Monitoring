@@ -1,0 +1,24 @@
+#Build pipeline for E2E Monitoring
+
+trigger: none
+
+
+variables:
+- template: publicipschedulerVars.yml
+- name: rootPath
+  value : '$(System.DefaultWorkingDirectory)/Providence-main/Daimler.Providence.Infrastructure/Daimler.Providence.Infrastructure/AzureDevOpsYaml/Deployment/Scheduler/PublicIP'
+
+
+schedules:
+    - cron: '*/2 * * * *'
+      displayName: 'PublicIp scheduler'
+      branches:
+          include: ["develop"]
+          exclude: []
+      always: true
+
+stages:
+  - stage: verify_publicipprefix
+    displayName: Publicip Prefix Verification
+    jobs:
+      - template: e2e.monitoring.publicipprefix.nonchina.job.yml  

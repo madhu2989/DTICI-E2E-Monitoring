@@ -1,0 +1,10 @@
+<div *ngFor="let result of results">
+  <div fxLayout="row" fxFlex>
+    <div [ngClass]="{
+      'ok-square': result.name === 'OK',
+      'warn-square': result.name === 'WARNING',
+      'error-square': result.name === 'ERROR'
+    }">{{result.name}}</div>
+    <div fxFlex class="serviceCount">{{result.value}}</div>
+  </div>
+</div>

@@ -1,0 +1,200 @@
+# E2E Monitoring Crew, 2022
+
+# This is the entry point for the YAML pipeline
+
+trigger: none
+
+variables:
+- template: ../shared/variables/azureDevOpsVars.yml
+- name: major
+  value: 1
+- name: minor
+  value: 2
+- name: patch
+  value: $(Build.BuildID)
+- name: rev
+  value: 'rev-$(git rev-parse --short HEAD)'
+- name: dev
+  value: 'true'
+- name: stg
+  value: 'true'
+- name: prd_eu
+  value: 'false'
+- name: prd_us
+  value: 'false'
+- name: prd_jp
+  value: 'false'
+- name: prd_cn
+  value: 'false'
+
+
+- name: imageTag # to deploy a different version you can orverwrite the tag by specifing 'DOCKERTAG' in the Azure DevOps UI variables
+  value: "latest"
+- group: 'CSGQA-Code-Scan'
+
+
+parameters:
+- name: forceDeployment
+  displayName: 'Force Deployment'
+  type: boolean
+  default: false
+
+stages:
+  - template: stages/e2e.monitoring.stage.build.yml    
+    parameters:
+      versionNumber: '$(major).$(minor).$(patch)'
+      tagVersion: '$(major).$(minor).$(patch).$(rev)'
+      subscriptionDocker: $(subscriptionDocker)
+      stageName: 'Build_Docker_Image'
+
+  - template: stages/e2e.monitoring.stage.build.yml
+    parameters:
+      versionNumber: '$(major).$(minor).$(patch)'
+      tagVersion: '$(major).$(minor).$(patch).$(rev)'
+      subscriptionDocker: $(subscriptionDockerCN)
+      stageName: 'Build_Docker_Image_CN'
+
+  # - stage: ScanFrontEndApp
+  #   displayName: 'Scan Front End Application'
+  #   pool: '$(pool)'
+  #   dependsOn: []
+  #   jobs:
+  #   - template: stages/jobs/e2e.monitoring.frontend.scan.job.yml 
+
+  # - stage: ScanBackEndApp
+  #   displayName: 'Scan Back End Application'
+  #   pool: '$(pool)'
+  #   dependsOn: []
+  #   jobs:
+  #   - template: stages/jobs/e2e.monitoring.backend.scan.job.yml 
+
+  - stage: 'DEV_CSG'
+    pool: '$(pool)'
+    #dependsOn: [build]
+    #condition: and(succeeded(), eq(variables['dev'], 'true'), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    displayName: 'DEV_CSG'
+    jobs:
+      - template: stages/jobs/e2e.monitoring.jobs.template-csg.yml
+        parameters:
+          stage: 'dev'
+          azureDevOpsEnvironment: $(azureDevOpsDevEnvironment)
+          subscription: $(subscriptionDev)
+          subscriptionDocker: $(subscriptionDocker)
+          subscriptionAks: $(subscriptionAks)
+          locationShortCsg: 'weu'
+          versionNumber: '$(major).$(minor).$(patch)'
+          tagVersion: '$(major).$(minor).$(patch).$(rev)'
+          forceDeployment: '${{ parameters.forceDeployment }}'
+          pool: $(pool)
+
+  - stage: 'STG_CSG'
+    pool: '$(pool)'  
+
+    #dependsOn: [DEV_CSG]
+    #condition: and(succeeded(), eq(variables['stg'], 'true'), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    displayName: 'STG_CSG'
+    jobs:
+      - template: stages/jobs/e2e.monitoring.jobs.template-csg.yml
+        parameters:
+          stage: 'stg'
+          azureDevOpsEnvironment: '$(azureDevOpsStgEnvironment)'
+          subscription: $(subscriptionStg)
+          subscriptionDocker: $(subscriptionDocker)
+          subscriptionAks: $(subscriptionAksStg)
+          locationShortCsg: 'weu'
+          versionNumber: '$(major).$(minor).$(patch)'
+          tagVersion: '$(major).$(minor).$(patch).$(rev)'
+          forceDeployment: '${{ parameters.forceDeployment }}'
+          pool: '$(pool)'
+
+  - stage: 'STG_CN_CSG'
+    dependsOn: [DEV_CSG]
+    pool: '$(poolCn)'    
+    #condition: and(succeeded(), eq(variables['stg'], 'true'))
+    displayName: 'STG_CN_CSG'
+    jobs:
+      - template: stages/jobs/e2e.monitoring.jobs.template-csg.yml
+        parameters:
+          stage: 'stg_cne2'
+          azureDevOpsEnvironment: '$(azureDevOpsPrdEnvironmentCn)'
+          subscription: $(subscriptionCsgStagingCN)
+          subscriptionDocker: $(subscriptionDockerCN)
+          subscriptionAks: $(subscriptionAksStagingCN)
+          locationShortCsg: 'cne2'
+          versionNumber: '$(major).$(minor).$(patch)'
+          tagVersion: '$(major).$(minor).$(patch).$(rev)'
+          forceDeployment: '${{ parameters.forceDeployment }}'
+          pool: '$(poolCn)'
+
+
+  - stage: 'PROD_EU_CSG'
+    pool: '$(pool)'
+    #dependsOn: [STG_CSG]
+    #condition: and(succeeded(), eq(variables['prd_eu'], 'true'))
+    displayName: 'PROD_EU_CSG'
+    jobs:
+      - template: stages/jobs/e2e.monitoring.jobs.template-csg.yml
+        parameters:
+          stage: 'prod_weu'
+          azureDevOpsEnvironment: '$(azureDevOpsPrdEnvironment)'
+          subscription: $(subscriptionCsgProdEu)
+          subscriptionDocker: $(subscriptionDocker)
+          subscriptionAks: $(subscriptionAksProdEu)
+          locationShortCsg: 'weu'
+          versionNumber: '$(major).$(minor).$(patch)'
+          tagVersion: '$(major).$(minor).$(patch).$(rev)'
+          forceDeployment: '${{ parameters.forceDeployment }}'
+
+  - stage: 'PROD_US_CSG'
+    pool: '$(pool)'
+    #dependsOn: [STG_CSG]
+    #condition: and(succeeded(), eq(variables['prd_us'], 'true'))
+    displayName: 'PROD_US_CSG'
+    jobs:
+      - template: stages/jobs/e2e.monitoring.jobs.template-csg.yml
+        parameters:
+          stage: 'prod_eus2'
+          azureDevOpsEnvironment: '$(azureDevOpsPrdEnvironment)'
+          subscription: $(subscriptionCsgProdUs)
+          subscriptionDocker: $(subscriptionDocker)
+          subscriptionAks: $(subscriptionAksProdUs)
+          locationShortCsg: 'eus2'
+          versionNumber: '$(major).$(minor).$(patch)'
+          tagVersion: '$(major).$(minor).$(patch).$(rev)'
+          forceDeployment: '${{ parameters.forceDeployment }}'
+
+  - stage: 'PROD_JP_CSG'
+    pool: '$(pool)'
+    #dependsOn: [STG_CSG]
+    #condition: and(succeeded(), eq(variables['prd_jp'], 'true'))
+    displayName: 'PROD_JP_CSG'
+    jobs:
+      - template: stages/jobs/e2e.monitoring.jobs.template-csg.yml
+        parameters:
+          stage: 'prod_jpe'
+          azureDevOpsEnvironment: '$(azureDevOpsPrdEnvironment)'
+          subscription: $(subscriptionCsgProdJp)
+          subscriptionDocker: $(subscriptionDocker)
+          subscriptionAks: $(subscriptionAksProdJp)
+          locationShortCsg: 'jpe'
+          versionNumber: '$(major).$(minor).$(patch)'
+          tagVersion: '$(major).$(minor).$(patch).$(rev)'
+          forceDeployment: '${{ parameters.forceDeployment }}'
+          
+  - stage: 'PROD_CN_CSG'
+    pool: '$(poolCn)'
+    #dependsOn: [STG_CN_CSG]
+    #condition: and(succeeded(), eq(variables['prd_cn'], 'true'))
+    displayName: 'PROD_CN_CSG'
+    jobs:
+      - template: stages/jobs/e2e.monitoring.jobs.template-csg.yml
+        parameters:
+          stage: 'prod_cne2'
+          azureDevOpsEnvironment: '$(azureDevOpsPrdEnvironmentCn)'
+          subscription: $(subscriptionCsgProdCn)
+          subscriptionDocker: $(subscriptionDockerCN)
+          subscriptionAks: $(subscriptionAksProdCN)
+          locationShortCsg: 'cne2'
+          versionNumber: '$(major).$(minor).$(patch)'
+          tagVersion: '$(major).$(minor).$(patch).$(rev)'
+          forceDeployment: '${{ parameters.forceDeployment }}'

@@ -1,0 +1,106 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "AlertName": {
+      "type": "String"
+    },
+    "AlertDescription": {
+      "type": "String"
+    },
+    "Scope": {
+      "type": "String"
+    },
+    "ActionGroup": {
+      "type": "String"
+    },
+    "Location": {
+      "type": "String"
+    },
+    "Frequency": {
+      "type": "String"
+    },
+    "Severity": {
+      "type": "String"
+    },
+    "ResourceType": {
+      "type": "String"
+    },
+    "WindowSize": {
+      "type": "String"
+    },
+    "Operator": {
+      "type": "String"
+    },
+    "Query": {
+      "type": "String"
+    },
+    "TimeAggregation": {
+      "type": "String"
+    },
+    "Threshold": {
+      "type": "String"
+    },
+    "Environment": {
+      "type": "String"
+    },
+    "CheckId": {
+      "type": "String"
+    },
+    "ComponentId": {
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "microsoft.insights/scheduledqueryrules",
+      "apiVersion": "2021-08-01",
+      "name": "[parameters('AlertName')]",
+      "location": "[parameters('Location')]",
+      "tags": {
+        "E2E mon": "DAAS uptake"
+      },
+      "properties": {
+        "displayName": "[parameters('AlertName')]",
+        "description": "[parameters('AlertDescription')]",
+        "Severity": "[parameters('Severity')]",
+        "enabled": true,
+        "evaluationFrequency": "[parameters('Frequency')]",
+        "scopes": [
+          "[parameters('Scope')]"
+        ],
+        "targetResourceTypes": [
+          "[parameters('ResourceType')]"
+        ],
+        "windowSize": "[parameters('WindowSize')]",
+        "criteria": {
+          "allOf": [
+            {
+              "query": "[parameters('Query')]",
+              "timeAggregation": "[parameters('TimeAggregation')]",
+              "dimensions": [],
+              "operator": "[parameters('Operator')]",
+              "threshold": "[parameters('Threshold')]",
+              "failingPeriods": {
+                "numberOfEvaluationPeriods": 1,
+                "minFailingPeriodsToAlert": 1
+              }
+            }
+          ]
+        },
+        "autoMitigate": false,
+        "actions": {
+          "actionGroups": [
+            "[parameters('ActionGroup')]"
+          ],
+          "customProperties": {
+            "Environment": "[parameters('Environment')]",
+            "CheckId": "[parameters('CheckId')]",
+            "ComponentId": "[parameters('ComponentId')]"
+          }
+        }
+      }
+    }
+  ]
+}

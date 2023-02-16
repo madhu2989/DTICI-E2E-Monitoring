@@ -1,0 +1,1 @@
+CREATE LOGIN [monitoringService] WITH PASSWORD = '$(ProvidencePwd)'

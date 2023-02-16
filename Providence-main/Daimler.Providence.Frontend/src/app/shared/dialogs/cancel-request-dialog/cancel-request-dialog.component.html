@@ -1,0 +1,10 @@
+<div mat-dialog-actions fxLayout="column" fxLayoutAlign="start center">
+  <h1 mat-dialog-title>{{data.title}}</h1>
+</div>
+<mat-divider></mat-divider>
+<div class="mat-typography">
+        <ngx-loading [show]="true" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+  <div style="height:150px;" mat-dialog-actions fxLayout="column" fxLayoutAlign="end center">
+    <button (click)="onCancelClick()" mat-button cdkFocusInitial class="cancel-button">Cancel</button>
+  </div>
+</div>

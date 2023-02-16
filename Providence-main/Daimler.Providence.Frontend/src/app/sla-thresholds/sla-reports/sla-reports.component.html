@@ -1,0 +1,65 @@
+<mat-toolbar class="crud-toolbar" color="primary">
+  <div>
+    <span class="text-large">SLA Report</span>
+    <span class="crud-subtitle text-small">Monitor and filter the SLA Report</span>
+  </div> 
+</mat-toolbar>
+
+<div fxLayout="row" style="margin: 30px 0 0 10px;">
+  <mat-form-field class="formField">
+    <mat-select matInput placeholder="Environment Name" name="environmentSubscriptionId" [disabled]="true" [(ngModel)]="data.environmentSubscriptionId">
+      <mat-option *ngFor="let environment of environments" value="{{environment.subscriptionId}}">{{environment.name}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <form [formGroup]="timeFormGroup">
+    <mat-form-field class="dateItem">
+        <input matInput placeholder="Start Date" formControlName="startDateCtrl" [(ngModel)]="data.startDate">
+    </mat-form-field>
+    <mat-form-field class="dateItem">
+        <input matInput placeholder="End Date" formControlName="endDateCtrl" [(ngModel)]="data.endDate">
+    </mat-form-field>
+  </form>
+  <mat-form-field class="formField">
+    <mat-select matInput placeholder="Representation" name="presentationType" required [(ngModel)]="presentationType" (selectionChange)="disableDownload()">
+      <mat-option value="value">Value</mat-option>
+      <mat-option value="pieChart">Pie Chart</mat-option>
+      <mat-option value="lineChart">Line Chart</mat-option>
+    </mat-select>
+    <mat-error>Please select the representation type</mat-error>
+  </mat-form-field>
+  <form class="autocomplete-area" fxLayout="row" [formGroup]='searchFrom'>
+      <mat-form-field class="elementSearch">
+        <input matInput placeholder="Element Name" [matAutocomplete]="auto" formControlName='elementIdInput'>
+      </mat-form-field>
+      <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn" autoActiveFirstOption>
+          <mat-option class="autocompleteOptions" *ngFor="let element of (filteredElements | async)?.results" [value]="element">
+            <div>
+              <div class="autocompleteFirstLine" title="{{element.name}}">{{ element.name }}</div>
+              <div class="autocompleteSecondLine" title="{{element.elementId}}">{{ element.elementId }}</div>
+            </div>
+          </mat-option>
+      </mat-autocomplete>
+  </form>
+</div>
+
+<div fxLayout="column">
+  <mat-toolbar class="crud-toolbar" color="primary">
+    <button mat-raised-button (click)="confirmLoading()" style="margin: 10px 10px 0 0;" [disabled]="!validate()">Show Report</button>
+    <span class="crud-toolbar-spacer"></span>
+    <div fxLayout="row">
+      <div style="margin: 10px 10px 0 0;">
+        <button mat-raised-button class="crud-toolbar-button" (click)="downloadCsv()" [disabled]="!slaDataLoaded()">
+          Download CSV
+        </button>
+      </div>
+      <div style="margin: 10px 0 0 0;">
+        <button mat-raised-button class="crud-toolbar-button" (click)="downloadPdf()" [disabled]="!slaDataLoaded()">
+          Download PDF
+        </button>
+      </div>
+    </div>
+  </mat-toolbar>
+  <ag-grid-angular #agGrid class="ag-theme-material" [rowData]="rowData" [columnDefs]="columnDefs" [enableSorting]="true"
+    [enableColResize]="true" [rowSelection]="rowSelection" [gridOptions]="gridOptions" [floatingFilter]="true">
+  </ag-grid-angular>
+</div>

@@ -1,0 +1,61 @@
+#Build pipeline for E2E Monitoring
+
+trigger: none
+
+#pool: DOTAzure-Windows-2019
+
+parameters:
+ - name: environment
+   displayName: Environment
+   type: string
+   default: 'DEV-EU'
+   values:
+    - DEV-EU
+    - STG-EU
+    - STG-CN
+    - PROD-EU
+    - PROD-US
+    - PROD-JP
+    - PROD-CN
+
+variables:
+- group: 'E2E-Monitoring-Infra-Variables'
+- group: 'CSGQA-Code-Scan'
+- name: ServiceConnection
+  ${{ if eq(parameters.environment, 'DEV-EU') }}:       
+   value: csg-azure-dev-eu-e2e-monitoring
+  ${{ elseif eq(parameters.environment, 'STG-EU') }}:       
+   value: csg-azure-stg-eu-e2e-monitoring  
+  ${{ elseif eq(parameters.environment, 'PROD-EU') }}:
+    value : 'csg-azure-prod-eu-e2e-monitoring'  
+  ${{ elseif eq(parameters.environment, 'PROD-US') }}:
+    value : 'csg-azure-prod-us-e2e-monitoring'  
+  ${{ elseif eq(parameters.environment, 'PROD-JP') }}:
+    value : 'csg-azure-prod-jp-e2e-monitoring'  
+  ${{ elseif eq(parameters.environment, 'STG-CN') }}:
+    value : 'csg-azure-cn-staging-e2e-monitoring'  
+  ${{ elseif eq(parameters.environment, 'PROD-CN') }}:
+    value : 'csg-aks-cn-prod-e2e-monitoring'
+
+stages:  
+- stage: BuildFunctionApp
+  displayName: 'Build Function App'
+  pool: CSG Linux
+  jobs:
+  - template: app.functionappservice.build.job.yml
+    parameters: 
+      environment: ${{parameters.environment}}
+      FunctionAppType: ProvidenceFuncApp
+
+- stage: BuildGrafanaFunctionApp
+  displayName: 'Build Grafana Function App'
+  pool: CSG Linux
+  jobs:
+  - template: app.functionappservice.build.job.yml
+    parameters: 
+      environment: ${{parameters.environment}}
+      FunctionAppType: GrafanaFunctionApp
+          
+          
+          
+    

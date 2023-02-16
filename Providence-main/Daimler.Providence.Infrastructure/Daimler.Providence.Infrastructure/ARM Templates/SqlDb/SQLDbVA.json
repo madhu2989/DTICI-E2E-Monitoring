@@ -1,0 +1,53 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "Location": {
+      "type": "string"
+    },
+    "SQL_Server_Name": {
+      "type": "string"
+    },
+    "StorageAccount_Name": {
+      "type": "string"
+    },
+    "PrincipalId": {
+      "type": "string"
+    },
+    "TenantId": {
+      "type": "string"
+    },
+    "EmailList": {
+      "type": "Array"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2021-08-01-preview",
+      "name": "[parameters('SQL_Server_Name')]",
+      "location": "[parameters('Location')]",
+      "identity": {
+        "principalId": "[parameters('PrincipalId')]",
+        "tenantId": "[parameters('TenantId')]",
+        "type": "SystemAssigned"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/vulnerabilityAssessments",
+      "name": "[concat(parameters('SQL_Server_Name'), '/Default')]",
+      "apiVersion": "2018-06-01-preview",
+      "properties": {
+        "storageContainerPath": "[concat('https://',parameters('StorageAccount_Name'),'.blob.core.windows.net/','sql-vulnerability-assessment','/')]",
+        "recurringScans": {
+          "isEnabled": true,
+          "emailSubscriptionAdmins": false,
+          "emails": "[parameters('EmailList')]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('SQL_Server_Name'))]"
+      ]
+    }
+  ]
+}

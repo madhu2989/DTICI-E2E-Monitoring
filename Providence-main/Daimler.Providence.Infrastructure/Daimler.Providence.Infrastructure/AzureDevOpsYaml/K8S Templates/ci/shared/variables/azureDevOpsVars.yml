@@ -1,0 +1,84 @@
+
+variables:
+  - name: pool
+    value: CSG Linux
+
+  - name: poolCn
+    value: "CSG China Linux"
+
+  - name: subscriptionDocker
+    value: csg-acr-crew-e2e-monitoring
+
+  - name: subscriptionDockerCN
+    value: csg-acr-crew-e2e-monitoring-cn
+
+#Dev Environment Variables   
+
+  - name: subscriptionDev
+    value: csg-azure-dev-eu-e2e-monitoring
+
+  - name: subscriptionAks
+    value: csg-k8s-dev-eu-weu-crew-e2e-monitoring  
+
+  - name: azureDevOpsDevEnvironment
+    value: e2e-monitoring-dev
+
+  
+
+#Staging Environment Variables
+  - name: subscriptionStg
+    value: csg-azure-stg-eu-e2e-monitoring
+
+  - name: subscriptionAksStg
+    value: csg-k8s-stg-eu-weu-crew-e2e-monitoring 
+
+  - name: azureDevOpsStgEnvironment
+    value: e2e-monitoring-dev
+    
+
+#Prod Environment Variable
+  - name: azureDevOpsPrdEnvironment
+    value: "e2e-monitoring-dev"
+
+  - name: azureDevOpsPrdEnvironmentCn
+    value: "e2e-monitoring-dev"
+
+#Region Europe 
+
+  - name: subscriptionAksProdEu
+    value: "csg-aks-prod-eu-weu-crew-e2e-monitoring"
+
+  - name: subscriptionCsgProdEu
+    value: "csg-azure-prod-eu-e2e-monitoring"
+
+#Region US
+  - name: subscriptionAksProdUs
+    value: "csg-aks-prod-us-eus2-crew-e2e-monitoring"
+
+  - name: subscriptionCsgProdUs
+    value: "csg-azure-prod-us-e2e-monitoring"
+
+#Region JP
+  - name: subscriptionAksProdJp
+    value: "csg-aks-prod-jp-jpe-crew-e2e-monitoring"
+
+  - name: subscriptionCsgProdJp
+    value: "csg-azure-prod-jp-e2e-monitoring"
+
+#Region CN Staging
+  - name: subscriptionAksStagingCN
+    value: "csg-aks-cn-staging-e2e-monitoring"
+
+  - name: subscriptionCsgStagingCN
+    value: "csg-azure-cn-staging-e2e-monitoring"
+
+#Region CN
+  - name: subscriptionAksProdCN
+    value: "csg-aks-cn-prod-e2e-monitoring"
+
+  - name: subscriptionCsgProdCn
+    value: "csg-azure-cn-prod-e2e-monitoring"
+  
+
+  
+    

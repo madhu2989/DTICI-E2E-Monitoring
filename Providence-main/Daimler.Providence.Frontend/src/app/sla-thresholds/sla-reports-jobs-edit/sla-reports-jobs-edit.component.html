@@ -1,0 +1,35 @@
+<mat-toolbar class="crud-toolbar" color="primary">
+  <div>
+    <span class="text-large">SLA Reports</span>
+    <span class="crud-subtitle text-small">Create a new SLA Reports Job</span>
+  </div>
+</mat-toolbar>
+
+<div fxLayout="row" style="margin: 30px 0 0 10px;">
+  <mat-form-field class="formField">
+    <mat-select matInput placeholder="Environment Name" name="subscriptionId" required [(ngModel)]="environmentSubscriptionId">
+      <mat-option *ngFor="let environment of environments" value="{{environment.subscriptionId}}">{{environment.name}}</mat-option>
+    </mat-select>
+    <mat-error>Please select the environment name</mat-error>
+  </mat-form-field>
+  <form [formGroup]="timeFormGroup">
+    <mat-form-field class="dateItem">
+      <input matInput [matDatepicker]="startPicker" placeholder="Start Date" formControlName="startDateCtrl">
+      <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+      <mat-datepicker #startPicker></mat-datepicker>
+      <mat-error>Please choose a start date.</mat-error>
+    </mat-form-field>
+    <mat-form-field class="dateItem">
+      <input matInput [matDatepicker]="endPicker" placeholder="End Date" formControlName="endDateCtrl">
+      <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+      <mat-datepicker #endPicker></mat-datepicker>
+      <mat-error *ngIf="formControlEndDate.hasError('startBiggerEnd')">The end date can't be before the start date.
+      </mat-error>
+    </mat-form-field>
+  </form>
+</div>
+
+<mat-dialog-actions>
+  <button mat-button (click)="onCreateReportJobClick()" [disabled]="!validate()">Create Job</button>
+  <button mat-button (click)="onCancelClick()">Cancel</button>
+</mat-dialog-actions>

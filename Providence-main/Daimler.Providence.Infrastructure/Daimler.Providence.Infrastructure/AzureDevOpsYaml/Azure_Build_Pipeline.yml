@@ -1,0 +1,32 @@
+#Build pipeline for E2E Monitoring
+
+trigger: none
+
+#pool: DOTAzure-Windows-2019
+
+parameters:
+- name: environment
+  displayName: Environment
+  type: string
+  values:
+   - Development
+   - Staging
+   - Europe
+   - US
+   - Japan
+   - China Staging
+   - China
+
+variables:
+- group: 'E2E-Monitoring-Infra-Variables'
+- group: 'CSGQA-Code-Scan'
+
+stages:  
+  - template: Build/app.service.build.appService.stage.yml
+    parameters: 
+      environment: ${{parameters.environment}}
+
+          
+          
+          
+    

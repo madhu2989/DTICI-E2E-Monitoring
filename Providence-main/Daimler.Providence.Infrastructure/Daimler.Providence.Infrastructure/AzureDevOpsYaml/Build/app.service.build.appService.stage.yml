@@ -1,0 +1,30 @@
+parameters:
+  environment: ''
+stages:
+
+- stage: BuildFunctionApp
+  displayName: 'Build Function App'
+  pool: CSG Linux
+  jobs:
+  - template: Stages/Jobs/app.service.functionapp.build.job.yml
+    parameters: 
+      environment: ${{parameters.environment}}
+      FunctionAppName: ProvidenceFuncApp
+
+- stage: BuildGrafanaFunctionApp
+  displayName: 'Build Grafana Function App'
+  pool: CSG Linux
+  jobs:
+  - template: Stages/Jobs/app.service.functionapp.build.job.yml
+    parameters: 
+      environment: ${{parameters.environment}}
+      FunctionAppName: GrafanaFunctionApp
+
+
+
+
+
+ 
+
+  
+  

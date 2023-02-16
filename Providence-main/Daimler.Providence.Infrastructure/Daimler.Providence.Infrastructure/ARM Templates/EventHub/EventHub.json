@@ -1,0 +1,236 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "EventHub_NameSpace_Name": {
+      "type": "String"
+    },
+    "EventHub_Name": {
+      "type": "String"
+    },
+    "Location": {
+      "type": "String"
+    },
+    "Sku_Tier_Name": {
+      "type": "string"
+    },
+    "Sku_Capacity": {
+      "type": "int",
+      "defaultValue": 1
+    },
+    "VNet_Name_Polaris": {
+      "type": "string",
+      "metadata": {
+        "description": "VNet Name"
+      }
+    },
+    "Subnet_Name_Polaris": {
+      "type": "string",
+      "metadata": {
+        "description": "Subnet Name"
+      }
+    },
+    "Vnet_ResourceGroup_Name_Polaris": {
+      "type": "string"
+    },
+    "Vnet_SubscriptionId_Id_Polaris": {
+      "type": "string"
+    },
+    "VNet_Name_e2e": {
+      "type": "string"
+    },
+    "Subnet_Name_e2e": {
+      "type": "string"
+    },
+    "Built_In_Role_ID": {
+      "type": "string",
+      "metadata": {
+        "description": "Built-in role to assign"
+      }
+    },
+    "Principal_Id": {
+      "type": "string",
+      "metadata": {
+        "description": "Role Principal Id"
+      }
+    },
+    "Subscription_Id": {
+      "type": "string",
+      "metadata": {
+        "description": "Subscription Id"
+      }
+    },
+    "zoneRedundant": {
+      "type": "string",
+      "defaultValue": "true"
+    }
+  },
+  "variables": {
+    "EventHub_ResourceId": "[resourceId('Microsoft.EventHub/namespaces/eventhubs/authorizationRules', parameters('EventHub_NameSpace_Name'), parameters('EventHub_Name'), 'ProvidenceAPIAccess')]",
+    "Built_In_Role_Type": "[concat('/subscriptions/', parameters('Subscription_Id'), '/providers/Microsoft.Authorization/roleDefinitions/',  parameters('Built_In_Role_ID'))]",
+    "Virtual_Network_Subnet_Id_Polaris": "[concat(resourceId(parameters('Vnet_SubscriptionId_Id_Polaris'),parameters('Vnet_ResourceGroup_Name_Polaris'),'Microsoft.Network/virtualNetworks', parameters('VNet_Name_Polaris')), '/subnets/',parameters('Subnet_Name_Polaris'))]",
+    "Virtual_Network_Subnet_Id_e2e": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('VNet_Name_e2e')), '/subnets/',parameters('Subnet_Name_e2e'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.EventHub/namespaces",
+      "apiVersion": "2021-11-01",
+      "name": "[parameters('EventHub_NameSpace_Name')]",
+      "location": "[parameters('Location')]",
+      "tags": {
+        "Availability": "A1",
+        "Confidentiality": "C3.2",
+        "Export": "E2",
+        "Integrity": "I2",
+        "Recovery": "R1",
+        "Project": "E2Emon"
+      },
+      "sku": {
+        "name": "[parameters('Sku_Tier_Name')]",
+        "tier": "[parameters('Sku_Tier_Name')]",
+        "capacity": "[parameters('Sku_Capacity')]"
+      },
+      "properties": {
+        "minimumTlsVersion": "1.2",
+        "disableLocalAuth": false,
+        "zoneRedundant": "[parameters('zoneRedundant')]",
+        "isAutoInflateEnabled": false,
+        "maximumThroughputUnits": 0,
+        "kafkaEnabled": false
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[guid(resourceGroup().id,parameters('EventHub_Name'), parameters('Principal_Id'))]",
+      "scope": "[concat('Microsoft.EventHub/namespaces', '/',parameters('EventHub_NameSpace_Name'))]",
+      "dependsOn": [
+        "[parameters('EventHub_NameSpace_Name')]"
+      ],
+      "properties": {
+        "roleDefinitionId": "[variables('Built_In_Role_Type')]",
+        "principalId": "[parameters('Principal_Id')]"
+      }
+    },
+    {
+      "type": "Microsoft.EventHub/namespaces/AuthorizationRules",
+      "apiVersion": "2021-11-01",
+      "name": "[concat(parameters('EventHub_NameSpace_Name'), '/RootManageSharedAccessKey')]",
+      "location": "[parameters('Location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces', parameters('EventHub_NameSpace_Name'))]"
+      ],
+      "properties": {
+        "rights": [
+          "Listen",
+          "Manage",
+          "Send"
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.EventHub/namespaces/eventhubs",
+      "apiVersion": "2021-11-01",
+      "name": "[concat(parameters('EventHub_NameSpace_Name'), '/', parameters('EventHub_Name'))]",
+      "location": "[parameters('Location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces', parameters('EventHub_NameSpace_Name'))]"
+      ],
+      "properties": {
+        "messageRetentionInDays": 1,
+        "partitionCount": 2,
+        "status": "Active"
+      }
+    },
+    {
+      "type": "Microsoft.EventHub/namespaces/networkRuleSets",
+      "apiVersion": "2021-11-01",
+      "name": "[concat(parameters('EventHub_NameSpace_Name'), '/default')]",
+      "location": "[parameters('Location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces', parameters('EventHub_NameSpace_Name'))]"
+      ],
+      "properties": {
+        "publicNetworkAccess": "Enabled",
+        "defaultAction": "Deny",
+        "virtualNetworkRules": [
+          {
+            "subnet": {
+              "id": "[variables('Virtual_Network_Subnet_Id_Polaris')]"
+            },
+            "ignoreMissingVnetServiceEndpoint": false
+          },
+          {
+            "subnet": {
+              "id": "[variables('Virtual_Network_Subnet_Id_e2e')]"
+            },
+            "ignoreMissingVnetServiceEndpoint": false
+          }
+
+
+        ],
+        "ipRules": []
+      }
+    },
+    {
+      "type": "Microsoft.EventHub/namespaces/eventhubs/authorizationRules",
+      "apiVersion": "2021-11-01",
+      "name": "[concat(parameters('EventHub_NameSpace_Name'),'/', parameters('EventHub_Name'), '/PreviewDataPolicy')]",
+      "location": "[parameters('Location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('EventHub_NameSpace_Name'), parameters('EventHub_Name'))]",
+        "[resourceId('Microsoft.EventHub/namespaces', parameters('EventHub_NameSpace_Name'))]"
+      ],
+      "properties": {
+        "rights": [
+          "Listen"
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.EventHub/namespaces/eventhubs/authorizationRules",
+      "apiVersion": "2021-11-01",
+      "name": "[concat(parameters('EventHub_NameSpace_Name'), '/', parameters('EventHub_Name'), '/ProvidenceAPIAccess')]",
+      "location": "[parameters('Location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('EventHub_NameSpace_Name'), parameters('EventHub_Name'))]",
+        "[resourceId('Microsoft.EventHub/namespaces', parameters('EventHub_NameSpace_Name'))]"
+      ],
+      "properties": {
+        "rights": [
+          "Manage",
+          "Listen",
+          "Send"
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
+      "apiVersion": "2021-11-01",
+      "name": "[concat(parameters('EventHub_NameSpace_Name'), '/', parameters('EventHub_Name'), '/$Default')]",
+      "location": "[parameters('Location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('EventHub_NameSpace_Name'), parameters('EventHub_Name'))]",
+        "[resourceId('Microsoft.EventHub/namespaces', parameters('EventHub_NameSpace_Name'))]"
+      ],
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
+      "apiVersion": "2021-11-01",
+      "name": "[concat(parameters('EventHub_NameSpace_Name'), '/', parameters('EventHub_Name'), '/alertreceiver')]",
+      "location": "[parameters('Location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('EventHub_NameSpace_Name'), parameters('EventHub_Name'))]",
+        "[resourceId('Microsoft.EventHub/namespaces', parameters('EventHub_NameSpace_Name'))]"
+      ],
+      "properties": {}
+    }
+  ],
+  "outputs": {
+    "EventHubConnectionString": {
+      "type": "string",
+      "value": "[listkeys(variables('EventHub_ResourceId'), '2015-08-01').primaryConnectionString]"
+    }
+  }
+}

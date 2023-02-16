@@ -1,0 +1,12 @@
+---
+apiVersion: aadpodidentity.k8s.io/v1
+kind: AzureIdentityBinding
+metadata:
+  name: {{ .Values.frontendAppName }}
+  labels:
+      msi.azure.k8s.io/name: {{ .Values.podIdentity.msiResourceName }}
+      msi.azure.k8s.io/resourcegroup: {{ .Values.podIdentity.msiResourceGroupName }}
+      msi.azure.k8s.io/subscription: {{ .Values.podIdentity.msiSubscriptionId }}
+spec:
+  # do not set azureIdentity here as this is done by azure-msi-operator
+  selector: {{ .Values.podIdentity.bindingName }}

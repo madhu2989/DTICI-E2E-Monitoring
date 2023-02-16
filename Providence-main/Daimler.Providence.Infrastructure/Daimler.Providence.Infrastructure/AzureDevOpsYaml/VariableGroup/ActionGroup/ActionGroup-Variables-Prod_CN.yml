@@ -1,0 +1,9 @@
+variables: 
+  - name: ActionGroupName
+    value: csg-stg-mon-ag01-cne2
+  - name: ActionGroupResourceGroupName
+    value: csg-cne2-stg-e2e-mon-shared
+  - name: Location
+    value: chinaeast2
+  - name: FAResourceGroupName
+    value: csg-cne2-stg-e2e-mon

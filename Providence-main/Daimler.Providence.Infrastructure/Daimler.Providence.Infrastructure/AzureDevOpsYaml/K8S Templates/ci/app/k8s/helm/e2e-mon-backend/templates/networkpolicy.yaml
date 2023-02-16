@@ -1,0 +1,28 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Values.backendAppName }}
+  labels:
+    app: {{ .Values.backendAppName }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ .Values.backendAppName }}
+  policyTypes:
+  - Ingress
+  - Egress
+
+  ingress:
+    # Ingress
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            service: ingress
+            ingress: public
+      ports:
+        - port: {{ .Values.containerPort.backendPort }}
+          protocol: TCP
+ 
+  egress:
+    - {}  # allow all egress, as portranges are currently "alpha" feature, which would be needed for specificing portrange for SQL DB and Function App

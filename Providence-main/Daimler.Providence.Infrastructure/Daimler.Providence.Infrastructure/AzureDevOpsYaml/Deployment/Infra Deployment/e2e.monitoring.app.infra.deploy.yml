@@ -1,0 +1,748 @@
+parameters:
+  - name: envName
+    type: string
+    default: ""
+  - name: appServicePlan
+    type: boolean
+    default: false
+  - name: nsgWithoutRules
+    type: boolean
+    default: false
+  - name: nsgDeploy
+    type: boolean
+    default: false
+  - name: vnetWithoutSubnet
+    type: boolean
+    default: false
+  - name: vnetDeploy
+    type: boolean
+    default: false  
+  - name: keyvaultDeploy
+    type: boolean
+    default: false
+  - name: createSecrets
+    type: boolean
+    default: false 
+  - name: createCredsInSecrets
+    type: boolean
+    default: false
+  - name: createLogAnalytics
+    type: boolean
+    default: false
+  - name: createEventHub
+    type: boolean
+    default: false
+  - name: retriveLogAnalysticsResourceId
+    type: boolean
+    default: false
+  - name: createAppInsights
+    type: boolean
+    default: false
+  - name: createStorageAccount
+    type: boolean
+    default: false
+  - name: createFunctionApp
+    type: boolean
+    default: false
+  - name: createGrafanaFunctionApp
+    type: boolean
+    default: false
+  - name: createSqlServer
+    type: boolean
+    default: false
+  - name: storageAccountVA
+    type: boolean
+    default: false
+  - name: sqlServerVA
+    type: boolean
+    default: false
+  - name: createSQLTables
+    type: boolean
+    default: false
+  - name: createSQLInitData
+    type: boolean
+    default: false
+  - name: createMsiSid
+    type: boolean
+    default: false
+  - name: assignMsiUserAsAdmin
+    type: boolean
+    default: false
+  - name: assignMsiUserForStoredProc
+    type: boolean
+    default: false
+
+stages:
+  - stage: "Deploy_Infrastructure"
+    displayName: Infrastructure deployment    
+    jobs:
+      - deployment: linux_deployment_job
+        environment: Dev-Infra
+        displayName: ${{ parameters.envName }} Infra
+        pool:
+          name: "$(pool)"
+        strategy:
+          runOnce:
+            deploy:
+              steps: 
+                  - checkout: self
+                  - task: PowerShell@2
+                    displayName: "Setup Infra Pipeline Variables"
+                    name: initInfra
+                    inputs:
+                      targetType: 'inline'
+                      script: |
+                        if( '${{ parameters.envName }}' -like '*STG*')
+                        {
+                          $environment = 'stg'
+                        } 
+                        elseif( '${{ parameters.envName }}' -like '*PROD*') 
+                        {
+                          $environment = 'prod'
+                        }
+                        else 
+                        {
+                          $environment = 'dev'
+                        }
+                        Write-Host 'The environment is ' $environment  
+                        Write-Output "##vso[task.setvariable variable=environmentOut;isOutput=true]$environment" 
+                        function getLocation($environment)
+                        {
+                          switch ($environment)
+                          {
+                            { ($_ -eq "DEV-WEU") -or ($_ -eq "STG-WEU") -or ($_ -eq "PROD-WEU") } { return "weu"; break}
+                            "PROD-JPE" { return "jpe"; break}
+                            "PROD-US" { return "eus2"; break}
+                            "STG-CHINA" { return "cne2"; break}
+                            "PROD-CHINA" { return  "cne2"; break}
+                            Default {
+                                Write-Host "No matches"
+                            } 
+                          }
+                        }
+
+                        $location = getLocation('${{ parameters.envName }}')
+                        Write-Host 'The location generated is ' $location  
+                        Write-Output "##vso[task.setvariable variable=locationOut;isOutput=true]$location" 
+                  - task: PowerShell@2
+                    displayName: "Create ARM input variables"
+                    name: SetVariables
+                    inputs:
+                      targetType: "filePath" 
+                      filePath: '$(System.DefaultWorkingDirectory)/Providence-main/Daimler.Providence.Infrastructure/Daimler.Providence.Infrastructure/AzureDevOpsYaml/Deployment/Infra Deployment/InitializeVariables.ps1'
+                      arguments: >
+                        -envName $(initInfra.environmentOut)
+                        -resourceType "all"
+                        -location $(initInfra.locationOut)                                   
+                  - task: AzureResourceManagerTemplateDeployment@3
+                    displayName: MSI resource Deployment
+                    inputs:
+                      azureResourceManagerConnection: "$(ServiceConnection)"
+                      subscriptionId: "$(subscriptionId)"
+                      resourceGroupName: "$(resourceGroupNamemsi)"
+                      location: "$(infravariables.location)"
+                      csmFile: '$(rootPath)/MSI/MSI.json'
+                      csmParametersFile: '$(rootPath)/MSI/MSI.parameters.json'
+                      deploymentMode: Incremental
+                      overrideParameters: "$(SetVariables.overrideParametersmsi)"
+                      deploymentOutputs: armOutputs
+                  - task: PowerShell@2
+                    displayName: "Retrive MSI Details"
+                    name: RetrieveId
+                    inputs:
+                      targetType: 'inline'
+                      script: |
+                        $outputsObject = $env:MSIARM_OUTPUTS | ConvertFrom-Json                     
+                        Write-Host "principalId -" $outputsObject.principalId.value
+                        Write-Host "clientId -" $outputsObject.clientlId.value
+                        $principalId = $outputsObject.principalId.value
+                        $clientId = $outputsObject.clientlId.value
+                        
+                        Write-Output "##vso[task.setvariable variable=principalIdOut;isOutput=true]$principalId "
+                        Write-Output "##vso[task.setvariable variable=clientlIdOut;isOutput=true]$clientId"
+                        Write-Host "Msi Name :"$(SetVariables.msiNameOut)
+                    env:
+                      MSIARM_OUTPUTS: $(armOutputs)
+                      LOGARM_OUTPUTS: $(logarmOutputs)
+                  
+                  - ${{ if eq(parameters.appServicePlan, true) }}:
+                    - task: AzureResourceManagerTemplateDeployment@3
+                      displayName: 'App service plan deploy if not exists for function app to deploy '
+                      inputs:
+                        azureResourceManagerConnection: '$(ServiceConnection)'
+                        subscriptionId: '$(subscriptionId)'
+                        resourceGroupName: '$(resourceGroupName)'
+                        location: '$(SetVariables.locationOut)'
+                        csmFile: '$(rootPath)/AppServicePlan/AppServicePlan.json'
+                        csmParametersFile: '$(rootPath)/AppServicePlan/AppServicePlan.parameters.json'
+                        overrideParameters: '$(SetVariables.overrideParametersappserviceplan)'
+                        deploymentMode: Incremental
+                  - ${{ if eq(parameters.nsgWithoutRules, true) }}:
+                    - ${{ if or(eq(parameters.envName, 'STG-CHINA'), eq(parameters.envName, 'PROD-CHINA')) }}:
+                      - task: AzureResourceManagerTemplateDeployment@3
+                        displayName: 'NSG Deployment Without Rules For China East'
+                        inputs:
+                          azureResourceManagerConnection: '$(ServiceConnection)'
+                          subscriptionId: '$(subscriptionId)'
+                          resourceGroupName: '$(resourceGroupName)'
+                          location: '$(SetVariables.locationOut)'
+                          csmFile: '$(rootPath)/NSGWithoutSecurityRules/NSG.json'
+                          csmParametersFile: '$(rootPath)/NSGWithoutSecurityRules/NSG.parameters.json'
+                          overrideParameters: '$(SetVariables.overrideParametersnsgwithoutrules)'
+                          deploymentMode: Incremental
+                      - task: AzureResourceManagerTemplateDeployment@3
+                        displayName: 'NSG Deployment Without Rules for China North 3'
+                        inputs:
+                          azureResourceManagerConnection: '$(ServiceConnection)'
+                          subscriptionId: '$(subscriptionId)'
+                          resourceGroupName: '$(resourceGroupName)'
+                          location: '$(SetVariables.locationOut)'
+                          csmFile: '$(rootPath)/NSGWithoutSecurityRules/NSG.json'
+                          csmParametersFile: '$(rootPath)/NSGWithoutSecurityRules/NSG.parameters.json'
+                          overrideParameters: '$(SetVariables.overrideParametersnsgwithoutrulescnnorth)'
+                          deploymentMode: Incremental                    
+                    - ${{else}}:  
+                      - task: AzureResourceManagerTemplateDeployment@3
+                        displayName: 'NSG Deployment Without Rules'
+                        inputs:
+                          azureResourceManagerConnection: '$(ServiceConnection)'
+                          subscriptionId: '$(subscriptionId)'
+                          resourceGroupName: '$(resourceGroupName)'
+                          location: '$(SetVariables.locationOut)'
+                          csmFile: '$(rootPath)/NSGWithoutSecurityRules/NSG.json'
+                          csmParametersFile: '$(rootPath)/NSGWithoutSecurityRules/NSG.parameters.json'
+                          overrideParameters: '$(SetVariables.overrideParametersnsgwithoutrules)'
+                          deploymentMode: Incremental
+
+                  - ${{ if eq(parameters.nsgDeploy, true) }}:
+                    - ${{ if or(eq(parameters.envName, 'STG-CHINA'), eq(parameters.envName, 'PROD-CHINA')) }}:
+                      - task: AzureResourceManagerTemplateDeployment@3
+                        displayName: 'NSG Deployment CNE2'
+                        inputs:
+                          azureResourceManagerConnection: '$(ServiceConnection)'
+                          subscriptionId: '$(subscriptionId)'
+                          resourceGroupName: '$(resourceGroupName)'
+                          location: '$(SetVariables.locationOut)'
+                          csmFile: '$(rootPath)/NSG/NSG.json'
+                          csmParametersFile: '$(rootPath)/NSG/NSG.parameters.json'
+                          overrideParameters: '$(SetVariables.overrideParametersnsg)'
+                          deploymentMode: Incremental
+                      - task: AzureResourceManagerTemplateDeployment@3
+                        displayName: 'NSG Deployment for CNN3'
+                        inputs:
+                          azureResourceManagerConnection: '$(ServiceConnection)'
+                          subscriptionId: '$(subscriptionId)'
+                          resourceGroupName: '$(resourceGroupName)'
+                          location: '$(SetVariables.locationOut)'
+                          csmFile: '$(rootPath)/NSG/NSG.json'
+                          csmParametersFile: '$(rootPath)/NSG/NSG.parameters.json'
+                          overrideParameters: '$(SetVariables.overrideParametersnsgcnnorth)'
+                          deploymentMode: Incremental                          
+                    - ${{else}}:  
+                      - task: AzureResourceManagerTemplateDeployment@3
+                        displayName: 'NSG Deployment'
+                        inputs:
+                          azureResourceManagerConnection: '$(ServiceConnection)'
+                          subscriptionId: '$(subscriptionId)'
+                          resourceGroupName: '$(resourceGroupName)'
+                          location: '$(SetVariables.locationOut)'
+                          csmFile: '$(rootPath)/NSG/NSG.json'
+                          csmParametersFile: '$(rootPath)/NSG/NSG.parameters.json'
+                          overrideParameters: '$(SetVariables.overrideParametersnsg)'
+                          deploymentMode: Incremental                      
+                      
+                  - ${{ if eq(parameters.vnetWithoutSubnet, true) }}:
+                    - ${{ if or(eq(parameters.envName, 'STG-CHINA'), eq(parameters.envName, 'PROD-CHINA')) }}:
+                      - task: AzureResourceManagerTemplateDeployment@3
+                        displayName: 'VNet Deployment Without Subnet for CNE2'
+                        inputs:
+                          azureResourceManagerConnection: '$(ServiceConnection)'
+                          subscriptionId: '$(subscriptionId)'
+                          resourceGroupName: '$(resourceGroupName)'
+                          location: '$(SetVariables.locationOut)'
+                          csmFile: '$(rootPath)/VNWithoutSubnet/VN.json'
+                          csmParametersFile: '$(rootPath)/VNWithoutSubnet/VN.parameters.json'
+                          overrideParameters: '$(SetVariables.overrideParametersvnetwithoutsubnet)'
+                          deploymentMode: Incremental
+                      
+                      - task: AzureResourceManagerTemplateDeployment@3
+                        displayName: 'VNet Deployment Without Subnet for CNN3'
+                        inputs:
+                          azureResourceManagerConnection: '$(ServiceConnection)'
+                          subscriptionId: '$(subscriptionId)'
+                          resourceGroupName: '$(resourceGroupName)'
+                          location: '$(SetVariables.locationOut)'
+                          csmFile: '$(rootPath)/VNWithoutSubnet/VN.json'
+                          csmParametersFile: '$(rootPath)/VNWithoutSubnet/VN.parameters.json'
+                          overrideParameters: '$(SetVariables.overrideParametersvnetwithoutsubnetcnnorth)'
+                          deploymentMode: Incremental                          
+                    - ${{else}}:  
+                      - task: AzureResourceManagerTemplateDeployment@3
+                        displayName: 'VNet Deployment Without Subnet'
+                        inputs:
+                          azureResourceManagerConnection: '$(ServiceConnection)'
+                          subscriptionId: '$(subscriptionId)'
+                          resourceGroupName: '$(resourceGroupName)'
+                          location: '$(SetVariables.locationOut)'
+                          csmFile: '$(rootPath)/VNWithoutSubnet/VN.json'
+                          csmParametersFile: '$(rootPath)/VNWithoutSubnet/VN.parameters.json'
+                          overrideParameters: '$(SetVariables.overrideParametersvnetwithoutsubnet)'
+                          deploymentMode: Incremental            
+                  - ${{ if eq(parameters.vnetDeploy, true) }}:
+                    - ${{ if or(eq(parameters.envName, 'STG-CHINA'), eq(parameters.envName, 'PROD-CHINA')) }}:
+                      - task: AzureResourceManagerTemplateDeployment@3
+                        displayName: 'VNet Deployment for CNE2'
+                        inputs:
+                          azureResourceManagerConnection: '$(ServiceConnection)'
+                          subscriptionId: '$(subscriptionId)'
+                          resourceGroupName: '$(resourceGroupName)'
+                          location: '$(SetVariables.locationOut)'
+                          csmFile: '$(rootPath)/VN/VN.json'
+                          csmParametersFile: '$(rootPath)/VN/VN.parameters.json'
+                          overrideParameters: '$(SetVariables.overrideParametersvnet)'
+                          deploymentMode: Incremental       
+                      - task: AzureResourceManagerTemplateDeployment@3
+                        displayName: 'VNet Deployment for CNN3'
+                        inputs:
+                          azureResourceManagerConnection: '$(ServiceConnection)'
+                          subscriptionId: '$(subscriptionId)'
+                          resourceGroupName: '$(resourceGroupName)'
+                          location: '$(SetVariables.locationOut)'
+                          csmFile: '$(rootPath)/VN/VNChina.json'
+                          csmParametersFile: '$(rootPath)/VN/VN.parameters.json'
+                          overrideParameters: '$(SetVariables.overrideParametersvnetcnnorth)'
+                          deploymentMode: Incremental        
+                    - ${{else}}:
+                      - task: AzureResourceManagerTemplateDeployment@3
+                        displayName: 'VNet Deployment'
+                        inputs:
+                          azureResourceManagerConnection: '$(ServiceConnection)'
+                          subscriptionId: '$(subscriptionId)'
+                          resourceGroupName: '$(resourceGroupName)'
+                          location: '$(SetVariables.locationOut)'
+                          csmFile: '$(rootPath)/VN/VN.json'
+                          csmParametersFile: '$(rootPath)/VN/VN.parameters.json'
+                          overrideParameters: '$(SetVariables.overrideParametersvnet)'
+                          deploymentMode: Incremental
+                  - ${{ if eq(parameters.keyvaultDeploy, true) }}:
+                    - task: AzureResourceManagerTemplateDeployment@3
+                      displayName: 'Keyvault deployment'
+                      inputs:
+                        azureResourceManagerConnection: '$(ServiceConnection)'
+                        subscriptionId: '$(subscriptionId)'
+                        resourceGroupName: '$(resourceGroupName)'
+                        location: '$(SetVariables.locationOut)'
+                        csmFile: '$(rootPath)/KeyVault/KeyVault.json'
+                        csmParametersFile: '$(rootPath)/KeyVault/KeyVault.parameters.json'
+                        overrideParameters: '$(SetVariables.overrideParameterskeyvault)'
+                        deploymentMode: Incremental
+                  - ${{ if eq(parameters.createSecrets, true) }}:
+                    - task: AzurePowerShell@5
+                      displayName: 'Create secrets '
+                      inputs:
+                        azureSubscription: '$(ServiceConnection)'
+                        ScriptPath: '$(System.DefaultWorkingDirectory)/Providence-main/Daimler.Providence.Infrastructure/Daimler.Providence.Infrastructure/ARM Templates/KeyVault/Scripts/CreateSecrets.ps1'
+                        ScriptArguments: '-SecretName $(SetVariables.secretNameOut) -SecretValue $(SetVariables.secretValueOut) -VaultName $(SetVariables.keyvaultNameOut) -ResourceGroupName $(resourceGroupName) -ObjectId $(objectId)'
+                        azurePowerShellVersion: LatestVersion
+                        deploymentMode: Incremental      
+                  - ${{ if eq(parameters.createCredsInSecrets, true) }}:
+                    - task: AzurePowerShell@5
+                      displayName: 'Create credentials in secrets of Keyvault'
+                      inputs:
+                        azureSubscription: '$(ServiceConnection)'
+                        ScriptPath: '$(System.DefaultWorkingDirectory)/Providence-main/Daimler.Providence.Infrastructure/Daimler.Providence.Infrastructure/ARM Templates/KeyVault/Scripts/CreateDefaultSecrets.ps1'
+                        ScriptArguments: '-VaultName $(SetVariables.keyvaultNameOut)'
+                        azurePowerShellVersion: LatestVersion   
+                  - ${{ if eq(parameters.createLogAnalytics, true) }}:
+                    - task: AzureResourceManagerTemplateDeployment@3
+                      displayName: 'LogAnalytics deployment'
+                      inputs:
+                        azureResourceManagerConnection: '$(ServiceConnection)'
+                        subscriptionId: '$(subscriptionId)'
+                        resourceGroupName: '$(resourceGroupName)'
+                        location: '$(SetVariables.locationOut)'
+                        csmFile: '$(rootPath)/LogAnalytics/LogAnalytics.json'
+                        csmParametersFile: '$(rootPath)/LogAnalytics/LogAnalytics.parameters.json'
+                        overrideParameters: '$(SetVariables.overrideParametersloganalytics)'
+                        deploymentOutputs: logarmOutputs 
+                  - ${{ if eq(parameters.createEventHub, true) }}:
+                    - task: AzureResourceManagerTemplateDeployment@3
+                      displayName: 'Eventhub deployment'
+                      inputs:
+                        azureResourceManagerConnection: '$(ServiceConnection)'
+                        subscriptionId: '$(subscriptionId)'
+                        resourceGroupName: '$(resourceGroupName)'
+                        location: '$(SetVariables.locationOut)'
+                        csmFile: '$(rootPath)/EventHub/EventHub.json'
+                        csmParametersFile: '$(rootPath)/EventHub/EventHub.parameters.json'
+                        overrideParameters: '$(SetVariables.overrideParameterseventhub)'   
+                  - ${{ if eq(parameters.retriveLogAnalysticsResourceId, true) }}:
+                    - task: AzurePowerShell@5
+                      name: RetrieveResId
+                      displayName: 'Retrieve ResourceId of Loganalytics deployed above for Appinsights to deploy'
+                      inputs:
+                        azureSubscription: '$(ServiceConnection)'
+                        ScriptType: InlineScript
+                        Inline: |
+                          $resourceId = (Get-AzResource -Name $(SetVariables.loganalyticNameOut)).ResourceId
+                          
+                          Write-Host "ResourceId : "$resourceId
+                          
+                          Write-Output "##vso[task.setvariable variable=resourceIdOut;isOutput=true]$resourceId"
+                        azurePowerShellVersion: LatestVersion                                              
+                  - ${{ if eq(parameters.createAppInsights, true) }}:                        
+                    - ${{ if or(eq(parameters.envName, 'STG-CHINA'), eq(parameters.envName, 'PROD-CHINA')) }}:
+                      - task: AzureResourceManagerTemplateDeployment@3
+                        displayName: 'AppInsights deployment for China'
+                        inputs:
+                          azureResourceManagerConnection: '$(ServiceConnection)'
+                          subscriptionId: '$(subscriptionId)'
+                          resourceGroupName: '$(resourceGroupName)'
+                          location: '$(SetVariables.locationOut)'
+                          csmFile: '$(rootPath)/AppInsight/China/AppInsight/AppInsight.json'
+                          csmParametersFile: '$(rootPath)/AppInsight/China/AppInsight/AppInsight.parameters.json'
+                          overrideParameters: '$(SetVariables.overrideParametersappinsights)'
+                          deploymentOutputs: DatabaseARMOutput
+                    - ${{else}}:  
+                      - task: AzureResourceManagerTemplateDeployment@3
+                        displayName: 'AppInsights deployment'
+                        inputs:
+                          azureResourceManagerConnection: '$(ServiceConnection)'
+                          subscriptionId: '$(subscriptionId)'
+                          resourceGroupName: '$(resourceGroupName)'
+                          location: '$(SetVariables.locationOut)'
+                          csmFile: '$(rootPath)/AppInsight/AppInsight.json'
+                          csmParametersFile: '$(rootPath)/AppInsight/AppInsight.parameters.json'
+                          overrideParameters: '$(SetVariables.overrideParametersappinsights)'
+                          deploymentOutputs: DatabaseARMOutput
+
+                  - ${{ if eq(parameters.createAppInsights, true) }}: 
+                    - task: AzurePowerShell@5
+                      displayName: 'Create secret - AI Connection String'
+                      inputs:
+                        azureSubscription: '$(ServiceConnection)'
+                        ScriptPath: '$(System.DefaultWorkingDirectory)/Providence-main/Daimler.Providence.Infrastructure/Daimler.Providence.Infrastructure/ARM Templates/KeyVault/Scripts/CreateSecrets.ps1'
+                        ScriptArguments: '-SecretName AIConnectionString -SecretValue $(SetVariables.connectionstringai) -VaultName $(SetVariables.keyvaultNameOut) -ResourceGroupName $(resourceGroupName)'
+                        azurePowerShellVersion: LatestVersion
+
+                  - ${{ if eq(parameters.createStorageAccount, true) }}:  
+                    - task: AzureResourceManagerTemplateDeployment@3
+                      displayName: 'StorageAccount deployment'
+                      inputs:
+                        azureResourceManagerConnection: '$(ServiceConnection)'
+                        subscriptionId: '$(subscriptionId)'
+                        resourceGroupName: '$(resourceGroupName)'
+                        location: '$(SetVariables.locationOut)'
+                        csmFile: '$(rootPath)/StorageAccount/StorageAccount.json'
+                        csmParametersFile: '$(rootPath)/StorageAccount/StorageAccount.parameters.json'
+                        overrideParameters: '$(SetVariables.overrideParametersstorageaccount)' 
+                  - ${{ if eq(parameters.createFunctionApp, true) }}:  
+                    - task: AzureResourceManagerTemplateDeployment@3
+                      displayName: 'Function App deployment'
+                      inputs:
+                        azureResourceManagerConnection: '$(ServiceConnection)'
+                        subscriptionId: '$(subscriptionId)'
+                        resourceGroupName: '$(resourceGroupName)'
+                        location: '$(SetVariables.locationOut)'
+                        csmFile: '$(rootPath)/Function App/FunctionApp.json'
+                        csmParametersFile: '$(rootPath)/Function App/FunctionApp.parameters.json'
+                        overrideParameters: '$(SetVariables.overrideParametersfunctionapp)' 
+                    - task: AzureCLI@2
+                      displayName: "Adding ActionGroup Network restriction rule to Function App"
+                      inputs:
+                        azureSubscription: $(ServiceConnection)
+                        scriptType: ps
+                        scriptLocation: inlineScript
+                        inlineScript: |
+                            az functionapp config access-restriction add -g $(resourceGroupName) -n $(SetVariables.FunctionAppName) --priority 100 --service-tag ActionGroup -r ActionGroup
+                  - ${{ if eq(parameters.createGrafanaFunctionApp, true) }}:  
+                    - task: AzureResourceManagerTemplateDeployment@3
+                      displayName: 'Grafana Function App deployment'
+                      inputs:
+                        azureResourceManagerConnection: '$(ServiceConnection)'
+                        subscriptionId: '$(subscriptionId)'
+                        resourceGroupName: '$(resourceGroupName)'
+                        location: '$(SetVariables.locationOut)'
+                        csmFile: '$(rootPath)/Function App/FunctionApp.json'
+                        csmParametersFile: '$(rootPath)/Function App/FunctionApp.parameters.json'
+                        overrideParameters: '$(SetVariables.overrideParametersgrafanafunctionapp)'  
+                    - task: AzurePowerShell@5
+                      name: GetPublicIP
+                      displayName: "Getting Polaris Public IP Prefix value"
+                      inputs:
+                        azureSubscription: $(ProdOpsServiceConnection)
+                        ScriptType: InlineScript
+                        Inline: |
+                          $pulicIPPrefixVal = Get-AzPublicIpPrefix -ResourceGroupName $(PublicIPResourceGroup) -Name $(PublicIPPrefix) | Select IPPrefix
+                          $IPRange = $pulicIPPrefixVal.IPPrefix
+                          Write-Output "##vso[task.setvariable variable=pulicIPPrefix;isOutput=true]$IPRange"
+                          Write-Host $pulicIPPrefixVal.IPPrefix
+                        azurePowerShellVersion: LatestVersion
+                    - task: AzureCLI@2
+                      displayName: "Adding Polaris Public IP Prefix Network restriction rule to Function App"
+                      inputs:
+                        azureSubscription: $(ServiceConnection)
+                        scriptType: ps
+                        scriptLocation: inlineScript
+                        inlineScript: |
+                          az functionapp config access-restriction add -g $(resourceGroupName) -n $(SetVariables.GrafanaFuncAppName) --priority 100 --ip-address '$(GetPublicIP.pulicIPPrefix)' --rule-name Allow_Grafana                            
+                  - ${{ if eq(parameters.createSqlServer, true) }}:                                                              
+                    - task: AzureResourceManagerTemplateDeployment@3
+                      displayName: 'Sql Server deployment'
+                      inputs:
+                        azureResourceManagerConnection: '$(ServiceConnection)'
+                        subscriptionId: '$(subscriptionId)'
+                        resourceGroupName: '$(resourceGroupName)'
+                        location: '$(SetVariables.locationOut)'
+                        csmFile: '$(rootPath)/SqlDb/SQLDb.json'
+                        csmParametersFile: '$(rootPath)/SqlDb/SQLDb.parameters.json'
+                        overrideParameters: '$(SetVariables.overrideParameterssqlserver)'
+                        deploymentOutputs: DatabaseARMOutput
+
+                    - task: AzurePowerShell@5
+                      displayName: 'Create secret - Database Connection String'
+                      inputs:
+                        azureSubscription: '$(ServiceConnection)'
+                        ScriptPath: '$(System.DefaultWorkingDirectory)/Providence-main/Daimler.Providence.Infrastructure/Daimler.Providence.Infrastructure/ARM Templates/KeyVault/Scripts/CreateSecrets.ps1'
+                        ScriptArguments: '-SecretName DBConnectionString -SecretValue $(SetVariables.connectionstringsqlserver) -VaultName $(SetVariables.keyvaultNameOut) -ResourceGroupName $(resourceGroupName)'
+                        azurePowerShellVersion: LatestVersion
+                        deploymentMode: Incremental
+
+                  - ${{ if eq(parameters.storageAccountVA, true) }}:                                                              
+                    - task: AzureResourceManagerTemplateDeployment@3
+                      displayName: 'Storage VA Role & Container Creation'
+                      inputs:
+                        azureResourceManagerConnection: '$(ServiceConnection)'
+                        subscriptionId: '$(subscriptionId)'
+                        resourceGroupName: '$(resourceGroupName)'
+                        location: '$(SetVariables.locationOut)'
+                        csmFile: '$(rootPath)/StorageAccount/StorageAccountVA.json'
+                        csmParametersFile: '$(rootPath)/StorageAccount/StorageAccountVA.parameters.json'
+                        overrideParameters: '$(SetVariables.overrideParametersstorageaccountva)'    
+                  - ${{ if eq(parameters.storageAccountVA, true) }}:   
+                    - ${{ if or(eq(parameters.envName, 'STG-CHINA'), eq(parameters.envName, 'PROD-CHINA')) }}:                                                           
+                      - task: AzureResourceManagerTemplateDeployment@3
+                        displayName: 'Storage VA Role & Container Creation for china east 2'
+                        inputs:
+                          azureResourceManagerConnection: '$(ServiceConnection)'
+                          subscriptionId: '$(subscriptionId)'
+                          resourceGroupName: '$(resourceGroupName)'
+                          location: '$(SetVariables.locationOut)'
+                          csmFile: '$(rootPath)/StorageAccount/StorageAccountVA.json'
+                          csmParametersFile: '$(rootPath)/StorageAccount/StorageAccountVA.parameters.json'
+                          overrideParameters: '$(SetVariables.overrideParametersstorageaccountva)'
+                      - task: AzureResourceManagerTemplateDeployment@3
+                        displayName: 'Storage VA Role & Container Creation for china north 3'
+                        inputs:
+                          azureResourceManagerConnection: '$(ServiceConnection)'
+                          subscriptionId: '$(subscriptionId)'
+                          resourceGroupName: '$(resourceGroupName)'
+                          location: '$(SetVariables.locationOut)'
+                          csmFile: '$(rootPath)/StorageAccount/StorageAccountVA.json'
+                          csmParametersFile: '$(rootPath)/StorageAccount/StorageAccountVA.parameters.json'
+                          overrideParameters: '$(SetVariables.overrideParametersstorageaccountvacnnorth)'                          
+                    - ${{ else }}:  
+                      - task: AzureResourceManagerTemplateDeployment@3
+                        displayName: 'Storage VA Role & Container Creation'
+                        inputs:
+                          azureResourceManagerConnection: '$(ServiceConnection)'
+                          subscriptionId: '$(subscriptionId)'
+                          resourceGroupName: '$(resourceGroupName)'
+                          location: '$(SetVariables.locationOut)'
+                          csmFile: '$(rootPath)/StorageAccount/StorageAccountVA.json'
+                          csmParametersFile: '$(rootPath)/StorageAccount/StorageAccountVA.parameters.json'
+                          overrideParameters: '$(SetVariables.overrideParametersstorageaccountva)' 
+
+                  - ${{ if eq(parameters.sqlServerVA, true) }}:                                                                   
+                    - task: AzureResourceManagerTemplateDeployment@3
+                      displayName: 'Sql Server VA deployment'
+                      inputs:
+                        azureResourceManagerConnection: '$(ServiceConnection)'
+                        subscriptionId: '$(subscriptionId)'
+                        resourceGroupName: '$(resourceGroupName)'
+                        location: '$(SetVariables.locationOut)'
+                        csmFile: '$(rootPath)/SqlDb/SQLDbVA.json'
+                        csmParametersFile: '$(rootPath)/SqlDb/SQLDbVA.parameters.json'
+                        overrideParameters: '$(SetVariables.overrideParameterssqlserverva)'
+                        deploymentOutputs: DatabaseARMOutput                                                               
+      - ${{ if or(eq(parameters.createSQLTables, true), eq(parameters.createSQLInitData, true), eq(parameters.createMsiSid, true), eq(parameters.assignMsiUserAsAdmin, true), eq(parameters.assignMsiUserForStoredProc, true)) }}:
+        - deployment: windows_deployment_job
+          environment: Dev-Infra
+          displayName: ${{ parameters.envName }} SQL Data
+          dependsOn: linux_deployment_job  
+          variables:
+            msiClientId: $[ dependencies.linux_deployment_job.outputs['linux_deployment_job.RetrieveId.clientlIdOut'] ]
+            msiPrincipalId: $[ dependencies.linux_deployment_job.outputs['linux_deployment_job.RetrieveId.principalIdOut'] ]
+            sqlServerName: $[ dependencies.linux_deployment_job.outputs['linux_deployment_job.SetVariables.sqlserverNameOut'] ]
+            sqlDatabaseName: $[ dependencies.linux_deployment_job.outputs['linux_deployment_job.SetVariables.sqlDatabaseNameOut'] ]
+            msiName: $[ dependencies.linux_deployment_job.outputs['linux_deployment_job.SetVariables.msiNameOut'] ]
+          pool:
+            name: 'Azure Pipelines'
+            vmImage: 'windows-latest'
+          strategy:
+            runOnce:
+              deploy:
+                steps: 
+                    - checkout: self
+                    - task: PowerShell@2
+                      displayName: "Set SQL Server name"
+                      name: sqlServerPs
+                      inputs:
+                        targetType: 'inline'
+                        script: |
+                          
+                          Write-Host 'Msi name from other job is  $(msiName)'
+                          Write-Host 'msiClientId from other job is  $(msiClientId)'
+                          Write-Host 'msiPrincipalId from other job is  $(msiPrincipalId)'
+                          Write-Host 'sqlServerName from other job is  $(sqlServerName)'
+                          Write-Host 'sqlDatabaseName from other job is  $(sqlDatabaseName)'
+
+                          if( '${{ parameters.envName }}' -like '*CHINA*')
+                          {
+                            $sqlServerNameTemp = "$(sqlServerName).database.chinacloudapi.cn"
+                          } 
+                          else 
+                          {
+                            $sqlServerNameTemp = "$(sqlServerName).database.windows.net"
+                          }
+
+                          Write-Host 'SQL full name for the environment :' $sqlServerNameTemp
+
+                          Write-Output "##vso[task.setvariable variable=sqlServerFullName;isOutput=true]$sqlServerNameTemp" 
+                    - task: AzurePowerShell@5
+                      displayName: 'SQL firewall'
+                      inputs:
+                        azureSubscription: '$(ServiceConnection)'
+                        ScriptType: InlineScript
+                        Inline: |
+                          
+                          $firewallRules = (Get-AzSqlServerFirewallRule -ResourceGroupName $(resourceGroupName) -ServerName $(sqlServerName)).StartIpAddress
+                          
+                          $IP = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
+                          Write-Host "Firewall rules :: " $firewallRules
+                          Write-Host "Ip Hosted agent :: " $IP
+                          
+                          if($firewallRules -notcontains $IP){
+                                  Write-Host "Adding following AppService IP: $IP to firewall rules."
+                                  New-AzSqlServerFirewallRule -ResourceGroupName $(resourceGroupName) -ServerName $(sqlServerName) -FirewallRuleName "Pipeline $IP" -StartIpAddress $IP -EndIpAddress $IP
+                          }
+                        azurePowerShellVersion: LatestVersion                                          
+                    - ${{ if eq(parameters.createSQLTables, true) }}:                                                                   
+                      - task: SqlDacpacDeploymentOnMachineGroup@0
+                        displayName: 'Create table in SQL Server'
+                        inputs:
+                          DacpacFile: '$(System.DefaultWorkingDirectory)/Providence-main/Daimler.Providence.Backend/Daimler.Providence.Database.Schema/PostDeployment/providencedev.dacpac'
+                          ServerName: '$(sqlServerPs.sqlServerFullName)'
+                          DatabaseName: '$(sqlDatabaseName)'
+                          AuthScheme: sqlServerAuthentication
+                          SqlUsername: '$(SqlServer-Admin-Username)'
+                          SqlPassword: '$(SqlServer-Admin-Password)'
+                    - ${{ if eq(parameters.createSQLInitData, true) }}:                                                                   
+                      - task: SqlDacpacDeploymentOnMachineGroup@0
+                        displayName: 'Create Data in SQL Server'
+                        inputs:
+                          TaskType: sqlInline
+                          InlineSql: |
+                            ALTER DATABASE SCOPED CONFIGURATION SET PARAMETER_SNIFFING = OFF; 
+                            GO
+                            
+                            /*Database masterdata*/
+                            
+                            /*Table State*/
+                            SET IDENTITY_INSERT [State] ON
+                            GO                        
+                            
+                            INSERT INTO [State] (Id, [Name])  
+                            SELECT *  FROM (VALUES (1, 'OK'), (2, 'WARNING'), (3, 'ERROR')) AS S1 (Id, [Name])
+                            EXCEPT
+                            SELECT Id, [Name] FROM [State]
+                            GO
+
+                            SET IDENTITY_INSERT [State] OFF
+                            GO
+
+                            /*Table ComponentType*/
+                            SET IDENTITY_INSERT ComponentType ON
+                            GO
+
+                            INSERT INTO ComponentType (Id, [Name])  
+                            SELECT *  FROM (VALUES (1, 'AZURE'), (2, 'EXTERNAL'), (3, 'Check'), (4, 'Action'), (5, 'Environment'), (6, 'Service'), (7, 'Component')) AS S1 (Id, [Name])
+                            EXCEPT
+                            SELECT Id, [Name] FROM ComponentType
+                            GO
+
+                            SET IDENTITY_INSERT ComponentType OFF
+                            GO
+
+                          ServerName: '$(sqlServerPs.sqlServerFullName)'
+                          DatabaseName: '$(sqlDatabaseName)'
+                          AuthScheme: sqlServerAuthentication
+                          SqlUsername: '$(SqlServer-Admin-Username)'
+                          SqlPassword: '$(SqlServer-Admin-Password)'
+                    - ${{ if eq(parameters.createMsiSid, true) }}:                                                                   
+                      - task: PowerShell@2
+                        displayName: "Generate secret identifier (SID) of the msi"
+                        name: generateSqlSid
+                        inputs:
+                          targetType: 'inline'
+                          script: |
+                              Write-Host "Client id from var :: $(msiClientId)"
+                              $clientId = "$(msiClientId)"
+                              Write-Host "Client id received is " $clientId
+                              
+                              # #$clientId = "18454b67-f6f5-4f99-991c-89c11ca7bb77"
+                              [guid]$guid = [System.Guid]::Parse($clientId)
+
+                              foreach ($byte in $guid.ToByteArray())
+                              {
+                                  $byteGuid += [System.String]::Format("{0:X2}", $byte)
+                              }
+                              $sid = "0x" + $byteGuid
+                              Write-Host "SID generated is :: " $sid
+                              Write-Output "##vso[task.setvariable variable=secretIdentifier;isOutput=true]$sid"
+                              Write-Output "##vso[task.setvariable variable=environmentOut;isOutput=true]$environment"                   
+                    - ${{ if eq(parameters.assignMsiUserAsAdmin, true) }}:                                                                   
+                      - task: SqlDacpacDeploymentOnMachineGroup@0
+                        displayName: 'Assign role to managed identity to admin '
+                        inputs:
+                          TaskType: sqlInline
+                          InlineSql: |
+                            CREATE USER [$(msiName)] WITH default_schema=[dbo], SID=$(generateSqlSid.secretIdentifier), TYPE=E;
+                            ALTER ROLE db_datareader ADD MEMBER [$(msiName)];
+                            ALTER ROLE db_datawriter ADD MEMBER [$(msiName)];
+                            GO                          
+                          ServerName: '$(sqlServerPs.sqlServerFullName)'
+                          DatabaseName: '$(sqlDatabaseName)'
+                          AuthScheme: sqlServerAuthentication
+                          SqlUsername: '$(SqlServer-Admin-Username)'
+                          SqlPassword: '$(SqlServer-Admin-Password)'
+                    - ${{ if eq(parameters.assignMsiUserForStoredProc, true) }}:                                                                   
+                      - task: SqlDacpacDeploymentOnMachineGroup@0
+                        displayName: 'Assign execute for SP for the msi user'
+                        inputs:
+                          TaskType: sqlInline
+                          InlineSql: |
+                            /* Grant execute permissions to SPs, all the SPs here. */
+                            Grant execute on [dbo].[DeleteExpiredStatetransitions] to [$(msiName)]
+                          
+                          ServerName: '$(sqlServerPs.sqlServerFullName)'
+                          DatabaseName: '$(sqlDatabaseName)'
+                          AuthScheme: sqlServerAuthentication
+                          SqlUsername: '$(SqlServer-Admin-Username)'
+                          SqlPassword: '$(SqlServer-Admin-Password)'                          
+                    - task: AzurePowerShell@5
+                      displayName: 'Remove SQL firewall'
+                      inputs:
+                        azureSubscription: '$(ServiceConnection)'
+                        ScriptType: InlineScript
+                        Inline: |
+                          $firewallRules = (Get-AzSqlServerFirewallRule -ResourceGroupName $(resourceGroupName) -ServerName $(sqlServerName)).FirewallRuleName
+                          
+                          foreach ($rule in $firewallRules)
+                          {
+                            Write-Host "Removing : $rule from firewall rules."
+                          
+                            Remove-AzSqlServerFirewallRule -FirewallRuleName $rule -ServerName $(sqlServerName) -ResourceGroupName $(resourceGroupName)
+                          }
+                          
+                        azurePowerShellVersion: LatestVersion

@@ -1,0 +1,314 @@
+{
+	"info": {
+		"_postman_id": "3a0d48e3-a150-4540-92da-4ed351a8de4b",
+		"name": "ProvidenceService SmokeTest",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"item": [
+				{
+					"name": "Get Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"bearer-token\", \"Bearer \"+jsonData.access_token);",
+									"",
+									"pm.test(\"Token received\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "resource",
+									"value": "{{bearer-client-id}}",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "{{bearer-client-id}}",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "{{bearer-client-secret}}",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "username\n",
+									"value": "{{bearer-username}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{bearer-password}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://login.windows.net/{{bearer-tenant-id}}/oauth2/token",
+							"protocol": "https",
+							"host": [
+								"login",
+								"windows",
+								"net"
+							],
+							"path": [
+								"{{bearer-tenant-id}}",
+								"oauth2",
+								"token"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tests",
+			"item": [
+				{
+					"name": "Availability Tests",
+					"item": [
+						{
+							"name": "Test Service availability",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response should be: Ok (200)\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{HOST}}/api/test/service",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"test",
+										"service"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Test Eventhub availability",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response should be: Ok (200)\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{HOST}}/api/test/eventhub",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"test",
+										"eventhub"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Test Database availability",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response should be: Ok (200)\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{HOST}}/api/test/database",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"test",
+										"database"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Test StorageAccount availability",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response should be: Ok (200)\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{HOST}}/api/test/storageaccount",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"test",
+										"storageaccount"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	]
+}

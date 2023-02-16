@@ -1,0 +1,17 @@
+<ng-container>
+  <mat-toolbar class="wiki-header">
+    <div class="wiki-home-button" [routerLink]="['/']"><img class="home-icon" src="assets/img/star.png"/><p style="text-align: justify;">Monitoring Help Center</p></div>
+  </mat-toolbar>
+  <mat-sidenav-container class="wiki-container">
+
+    <mat-sidenav #sidenav mode="side" opened="true" class="wiki-sidenav" [fixedInViewport]="true" [fixedTopGap]="0" [fixedBottomGap]="0">
+
+      <app-navigation [myCallback]="theBoundCallback"></app-navigation>
+    </mat-sidenav>
+    <mat-sidenav-content>
+
+      <div #dataContainer class="wiki-content"></div>
+      <mat-toolbar class="wiki-content-footer"></mat-toolbar>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</ng-container>

@@ -1,0 +1,487 @@
+﻿# Pipeline file structure: https://docs.microsoft.com/en-us/azure/devops/pipelines/yaml-schema
+# Task List: https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks
+
+parameters:
+- name: PoolName
+  default: ''
+- name: DependsOn
+  default: 'Build'
+- name: EnvName
+  default: ''
+- name: ServiceConnection
+  default: ''
+- name: Location
+  default: ''
+- name: rootPath
+  default: ''
+  
+stages:
+- stage: ${{ parameters.EnvName }}Alerts
+  displayName: Deploy alerts to ${{ parameters.EnvName }}
+  dependsOn: ${{ parameters.DependsOn }}
+  pool: 
+    name: ${{ parameters.PoolName }}
+    
+  jobs:
+    - deployment: PkiAlertsDeployment
+      environment: '${{ parameters.EnvName }}'
+      displayName: PKI Alerts Deployment to ${{ parameters.EnvName }}
+      strategy:
+        runOnce:
+          deploy:
+           steps:             
+             - task: AzurePowerShell@5
+               displayName: 'Scheduled Query Error -  E2Emon_PKI_CSGPSLA_DEV_Error_TLSRegAuthAPIStatus'
+               inputs:
+                 azureSubscription: ${{ parameters.ServiceConnection }}
+                 ScriptPath: '${{ parameters.rootPath }}/CreateAlert-ScheduledQuery.ps1'
+                 ScriptArguments: >
+                    -AlertName "E2Emon_PKI_CSGPSLA_DEV_Error_TLSRegAuthAPIStatus"
+                    -AlertDescription "TLS Registration API Health Status"
+                    -AlertSeverity $(Severity_Error) 
+                    -AlertResourceGroupName $(ResourceGroupNameSharedE2E)            
+                    -Query "exceptions | where operation_Name contains 'GET /health'" 
+                    -Operator $(OperatorGreaterThan) 
+                    -Threshold "0" 
+                    -ActiongroupName $(ActionGroupNameE2E) 
+                    -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E)  
+                    -Location $(Location) 
+                    -Frequency $(Frequency_5M) 
+                    -WindowSize $(WindowSize_5M)  
+                    -TimeAggregation $(TimeAggregationCount) 
+                    -TargetResource "ai-dev-obsw-2-ra" 
+                    -TargetResourceGroupName $(TargetResourceGroupPKIShared) 
+                    -TargetResourceType $(TargetResourceTypeComponents)
+                    -Environment $(Environment) 
+                    -CheckId "CSGPDEVSLARAAPISTATUS" 
+                    -ComponentId "CSGPDEVSLARAAPI"
+                 azurePowerShellVersion: LatestVersion
+               enabled: true
+
+             - task: AzurePowerShell@5
+               displayName: 'Scheduled Query Ok -  E2Emon_PKI_CSGPSLA_DEV_Ok_TLSRegAuthAPIStatus'
+               inputs:
+                 azureSubscription: ${{ parameters.ServiceConnection }}
+                 ScriptPath: '${{ parameters.rootPath }}/CreateAlert-ScheduledQuery.ps1'
+                 ScriptArguments: >
+                    -AlertName "E2Emon_PKI_CSGPSLA_DEV_Ok_TLSRegAuthAPIStatus" 
+                    -AlertDescription "TLS Registration API Health Status" 
+                    -AlertSeverity $(Severity_Information) 
+                    -AlertResourceGroupName $(ResourceGroupNameSharedE2E)  
+                    -Query "requests | where url contains 'https://registration-authority.eu.dev.private.csg.daimler-truck.com:443/health' and operation_Name contains 'GET /health' and success == true" 
+                    -Operator $(OperatorGreaterThan) 
+                    -Threshold "0"
+                    -ActiongroupName $(ActionGroupNameE2E) 
+                    -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E)  
+                    -Location $(Location) 
+                    -Frequency $(Frequency_5M) 
+                    -WindowSize $(WindowSize_5M)  
+                    -TimeAggregation $(TimeAggregationCount) 
+                    -TargetResource "ai-dev-obsw-2-ra" 
+                    -TargetResourceGroupName $(TargetResourceGroupPKIShared) 
+                    -TargetResourceType $(TargetResourceTypeComponents) 
+                    -Environment $(Environment)_${{ parameters.EnvName }}_${{ parameters.Location }}
+                    -CheckId "CSGPDEVSLARAAPISTATUS" 
+                    -ComponentId "CSGPDEVSLARAAPI"
+                 azurePowerShellVersion: LatestVersion
+               enabled: true
+
+             - task: AzurePowerShell@5
+               displayName: 'Scheduled Query Error -  E2Emon_PKI_CSGPSLA_DEV_Error_CheckTLSManagementRegAPIStatus'
+               inputs:
+                 azureSubscription: ${{ parameters.ServiceConnection }}
+                 ScriptPath: '${{ parameters.rootPath }}/CreateAlert-ScheduledQuery.ps1'
+                 ScriptArguments: >
+                    -AlertName "E2Emon_PKI_CSGPSLA_DEV_Error_CheckTLSManagementRegAPIStatus" 
+                    -AlertDescription "TLS Management API Health Status" 
+                    -AlertSeverity $(Severity_Error) 
+                    -AlertResourceGroupName $(ResourceGroupNameSharedE2E) 
+                    -Query "exceptions | where operation_Name contains 'GET /api/health'"
+                    -Operator $(OperatorGreaterThan) 
+                    -Threshold "0" 
+                    -ActiongroupName $(ActionGroupNameE2E)
+                    -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                    -Location $(Location) 
+                    -Frequency $(Frequency_5M) 
+                    -WindowSize $(WindowSize_5M) 
+                    -TimeAggregation $(TimeAggregationCount) 
+                    -TargetResource "ai-dev-obsw-2-ramgmt" 
+                    -TargetResourceGroupName $(TargetResourceGroupPKIShared) 
+                    -TargetResourceType $(TargetResourceTypeComponents) 
+                    -Environment $(Environment)
+                    -CheckId "CSGPSLADEVCHKTLSMNGAPISTATUS" 
+                    -ComponentId "CSGPSLADEVCHKTLSAPI"
+                 azurePowerShellVersion: LatestVersion
+               enabled: true
+
+             - task: AzurePowerShell@5
+               displayName: 'Scheduled Query Ok -  E2Emon_PKI_CSGPSLA_DEV_Ok_CheckTLSManagementRegAPIStatus'
+               inputs:
+                 azureSubscription: ${{ parameters.ServiceConnection }}
+                 ScriptPath: '${{ parameters.rootPath }}/CreateAlert-ScheduledQuery.ps1'
+                 ScriptArguments: >
+                    -AlertName "E2Emon_PKI_CSGPSLA_DEV_Ok_CheckTLSManagementRegAPIStatus"
+                    -AlertDescription "TLS Management API Health Status" 
+                    -AlertSeverity $(Severity_Information) 
+                    -AlertResourceGroupName $(ResourceGroupNameSharedE2E)  
+                    -Query "requests | where url contains 'http://registration-management.eu.dev.private.csg.daimler-truck.com/api/health' and operation_Name contains 'GET /api/health' and success == true"
+                    -Operator $(OperatorGreaterThan)
+                    -Threshold "0" 
+                    -ActiongroupName $(ActionGroupNameE2E) 
+                    -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E)  
+                    -Location $(Location) 
+                    -Frequency $(Frequency_5M)
+                    -WindowSize $(WindowSize_5M)  
+                    -TimeAggregation $(TimeAggregationCount) 
+                    -TargetResource "ai-dev-obsw-2-ramgmt"
+                    -TargetResourceGroupName $(TargetResourceGroupPKIShared)
+                    -TargetResourceType $(TargetResourceTypeComponents) 
+                    -Environment $(Environment) 
+                    -CheckId "CSGPSLADEVCHKTLSMNGAPISTATUS"
+                    -ComponentId "CSGPSLADEVCHKTLSAPI"
+                 azurePowerShellVersion: LatestVersion
+               enabled: true
+
+             - task: AzurePowerShell@5
+               displayName: 'Scheduled Query POD -  E2Emon_PKI_CSGPSLA_DEV_RA_PODSTATUS'
+               inputs:
+                 azureSubscription: ${{ parameters.ServiceConnection }}
+                 ScriptPath: '${{ parameters.rootPath }}/CreateAlert-ScheduledQuery.ps1'
+                 ScriptArguments: >
+                    -AlertName "E2Emon_PKI_CSGPSLA_DEV_RA_PODSTATUS" 
+                    -AlertDescription "This alert triggered for the number of the Registration-authority Processor Pods are running in last 10 mins"
+                    -AlertSeverity $(Severity_Information) 
+                    -AlertResourceGroupName $(ResourceGroupNameSharedE2E)  
+                    -Query "KubePodInventory | where Name contains 'registration-authority' and ContainerStatus contains 'running' | distinct Name" 
+                    -Operator "GreaterThanOrEqual" 
+                    -Threshold "0" 
+                    -ActiongroupName $(ActionGroupNameE2E) 
+                    -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E)  
+                    -Location $(Location) 
+                    -Frequency $(Frequency_10M)
+                    -WindowSize $(WindowSize_10M) 
+                    -TimeAggregation $(TimeAggregationCount) 
+                    -TargetResource "csg-aks-dev-eu"
+                    -TargetResourceGroupName "csg-weu-dev-k8s"
+                    -TargetResourceType $(TargetResourceTypeManagedClusters)
+                    -Environment $(Environment)
+                    -CheckId "CSGPDEVSLARAPODSTATUSRUN"
+                    -ComponentId "CSGPDEVSLARAPODSTATUS"
+                 azurePowerShellVersion: LatestVersion
+               enabled: true
+
+             - task: AzurePowerShell@5
+               displayName: 'Scheduled Query POD -  E2Emon_PKI_CSGPSLA_DEV_RM_PODSTATUS'
+               inputs:
+                 azureSubscription: ${{ parameters.ServiceConnection }}
+                 ScriptPath: '${{ parameters.rootPath }}/CreateAlert-ScheduledQuery.ps1'
+                 ScriptArguments: >
+                    -AlertName "E2Emon_PKI_CSGPSLA_DEV_RM_PODSTATUS" 
+                    -AlertDescription "This alert triggered for the number of the Registration-management Processor Pods are running in last 10 mins"
+                    -AlertSeverity $(Severity_Information)
+                    -AlertResourceGroupName $(ResourceGroupNameSharedE2E)  
+                    -Query "KubePodInventory | where Name contains 'registration-management' and ContainerStatus contains 'running' | distinct Name" 
+                    -Operator "GreaterThanOrEqual" 
+                    -Threshold "0" 
+                    -ActiongroupName $(ActionGroupNameE2E) 
+                    -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                    -Location $(Location)
+                    -Frequency $(Frequency_10M)
+                    -WindowSize $(WindowSize_10M)
+                    -TimeAggregation $(TimeAggregationCount)
+                    -TargetResource "csg-aks-dev-eu" 
+                    -TargetResourceGroupName "csg-weu-dev-k8s"
+                    -TargetResourceType $(TargetResourceTypeManagedClusters)
+                    -Environment $(Environment)
+                    -CheckId "CSGPDEVSLARMPODSTATUSRUN"
+                    -ComponentId "CSGPDEVSLARMPODSTATUS"
+                 azurePowerShellVersion: LatestVersion
+               enabled: true
+
+             - task: AzurePowerShell@5
+               displayName: 'Metric Alert Error -  E2Emon_PKI_CSGPSLA_DEV_Error_CheckRAAppGW_HealthyHost'
+               inputs:
+                 azureSubscription: ${{ parameters.ServiceConnection }}
+                 ScriptPath: '${{ parameters.rootPath }}/CreateAlert-MetricRules.ps1'
+                 ScriptArguments: >
+                    -AlertRuleName "E2Emon_PKI_CSGPSLA_DEV_Error_CheckRAAppGW_HealthyHost" 
+                    -AlertRuleDescription "Triggered when healthy host count is less than or equal to .7 for app gateway appgateway-weu-dev-obsw-2"
+                    -Severity $(Severity_Error)
+                    -ResourceGroupName $(ResourceGroupNameSharedE2E)  
+                    -Operator $(OperatorLessThanOrEqual) 
+                    -Threshold "0.7" 
+                    -ActiongroupName $(ActionGroupNameE2E)
+                    -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E)  
+                    -Location $(Location_Global)
+                    -Frequency $(WindowSize_15M) 
+                    -WindowSize $(WindowSize_15M)
+                    -TimeAggregation $(TimeAggregationAverage)
+                    -TargetResource "appgateway-weu-dev-obsw-2"
+                    -TargetResourceGroupName "csg-weu-dev-obsw-2-pki"
+                    -TargetResourceType $(TargetResourceTypeAppGateWay)
+                    -Environment $(Environment)
+                    -CheckId "CSGPSLADEVCHKAPPGATEHEALTHSTATUS"
+                    -ComponentId "CSGPSLADEVCHKAPPGATEHEALTH" 
+                    -MeticRuleName $(MeticRuleNameHealthyHostCount)
+                 azurePowerShellVersion: LatestVersion
+               enabled: true
+
+             - task: AzurePowerShell@5
+               displayName: 'Metric Alert Ok -  E2Emon_PKI_CSGPSLA_DEV_Ok_CheckRAAppGW_HealthyHost'
+               inputs:
+                 azureSubscription: ${{ parameters.ServiceConnection }}
+                 ScriptPath: '${{ parameters.rootPath }}/CreateAlert-MetricRules.ps1'
+                 ScriptArguments: >
+                    -AlertRuleName "E2Emon_PKI_CSGPSLA_DEV_Ok_CheckRAAppGW_HealthyHost" 
+                    -AlertRuleDescription "Triggered when healthy host count is greater than 0.7 for appgateway-weu-dev-obsw-2"
+                    -Severity $(Severity_Information)
+                    -ResourceGroupName $(ResourceGroupNameSharedE2E) 
+                    -Operator $(OperatorGreaterThan)
+                    -Threshold "0.7"
+                    -ActiongroupName $(ActionGroupNameE2E)
+                    -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                    -Location $(Location_Global) 
+                    -Frequency $(WindowSize_15M)
+                    -WindowSize $(WindowSize_15M)
+                    -TimeAggregation $(TimeAggregationAverage)
+                    -TargetResource "appgateway-weu-dev-obsw-2"
+                    -TargetResourceGroupName "csg-weu-dev-obsw-2-pki"
+                    -TargetResourceType $(TargetResourceTypeAppGateWay)
+                    -Environment $(Environment)
+                    -CheckId "CSGPSLADEVCHKAPPGATEHEALTHSTATUS"
+                    -ComponentId "CSGPSLADEVCHKAPPGATEHEALTH"
+                    -MeticRuleName $(MeticRuleNameHealthyHostCount)
+                 azurePowerShellVersion: LatestVersion
+               enabled: true
+
+             - task: AzurePowerShell@5
+               displayName: 'Metric Alert Error -  E2Emon_PKI_CSGPSLA_DEV_Error_CheckRACosmosDB_Availability'
+               inputs:
+                 azureSubscription: ${{ parameters.ServiceConnection }}
+                 ScriptPath: '${{ parameters.rootPath }}/CreateAlert-MetricRules.ps1'
+                 ScriptArguments: >
+                    -AlertRuleName "E2Emon_PKI_CSGPSLA_DEV_Error_CheckRACosmosDB_Availability" 
+                    -AlertRuleDescription "Trigger when service availability for cosmos db cosmos-dev-obsw-2-pki-test2 is less than or equal to 70%"
+                    -Severity $(Severity_Error)
+                    -ResourceGroupName $(ResourceGroupNameSharedE2E) 
+                    -Operator $(OperatorLessThanOrEqual)
+                    -Threshold "70"
+                    -ActiongroupName $(ActionGroupNameE2E)
+                    -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                    -Location $(Location_Global) 
+                    -Frequency $(Frequency_5M)
+                    -WindowSize $(WindowSize_1H) 
+                    -TimeAggregation $(TimeAggregationAverage) 
+                    -TargetResource "cosmos-dev-obsw-2-pki-test2"
+                    -TargetResourceGroupName $(TargetResourceGroupPKIShared) 
+                    -TargetResourceType $(TargetResourceTypeDatabaseAcc) 
+                    -Environment $(Environment) 
+                    -CheckId "CSGPSLADEVCHKCOSDBSTATUS"
+                    -ComponentId "CSGPSLADEVCHKCOSDB"
+                    -MeticRuleName $(MeticRuleNameServiceAvailability)
+                 azurePowerShellVersion: LatestVersion
+               enabled: true
+
+             - task: AzurePowerShell@5
+               displayName: 'Metric Alert Ok -  E2Emon_PKI_CSGPSLA_DEV_Ok_CheckRACosmosDB_Availability'
+               inputs:
+                 azureSubscription: ${{ parameters.ServiceConnection }}
+                 ScriptPath: '${{ parameters.rootPath }}/CreateAlert-MetricRules.ps1'
+                 ScriptArguments: >
+                    -AlertRuleName "E2Emon_PKI_CSGPSLA_DEV_Ok_CheckRACosmosDB_Availability" 
+                    -AlertRuleDescription "Trigger when service availability for cosmos db cosmos-dev-obsw-2-pki-test2 is greater than 70%"
+                    -Severity $(Severity_Information)
+                    -ResourceGroupName $(ResourceGroupNameSharedE2E)  
+                    -Operator $(OperatorGreaterThan)
+                    -Threshold "70" 
+                    -ActiongroupName $(ActionGroupNameE2E)
+                    -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                    -Location $(Location_Global)
+                    -Frequency $(Frequency_5M)
+                    -WindowSize $(WindowSize_1H) 
+                    -TimeAggregation $(TimeAggregationAverage)
+                    -TargetResource "cosmos-dev-obsw-2-pki-test2"
+                    -TargetResourceGroupName $(TargetResourceGroupPKIShared)
+                    -TargetResourceType $(TargetResourceTypeDatabaseAcc) 
+                    -Environment $(Environment) 
+                    -CheckId "CSGPSLADEVCHKCOSDBSTATUS" 
+                    -ComponentId "CSGPSLADEVCHKCOSDB" 
+                    -MeticRuleName $(MeticRuleNameServiceAvailability)
+                 azurePowerShellVersion: LatestVersion
+               enabled: true
+
+             - task: AzurePowerShell@5
+               displayName: 'Metric Alert Error -  E2Emon_PKI_CSGPSLA_DEV_Error_CheckRMCosmosDB_Availability'
+               inputs:
+                 azureSubscription: ${{ parameters.ServiceConnection }}
+                 ScriptPath: '${{ parameters.rootPath }}/CreateAlert-MetricRules.ps1'
+                 ScriptArguments: >
+                    -AlertRuleName "E2Emon_PKI_CSGPSLA_DEV_Error_CheckRMCosmosDB_Availability" 
+                    -AlertRuleDescription "Trigger when service availability for cosmos db pki-dev-obsw-2 is less than or equal to 70%" 
+                    -Severity $(Severity_Error)
+                    -ResourceGroupName $(ResourceGroupNameSharedE2E)  
+                    -Operator $(OperatorLessThanOrEqual)
+                    -Threshold "70"
+                    -ActiongroupName $(ActionGroupNameE2E)
+                    -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E)  
+                    -Location $(Location_Global)
+                    -Frequency $(Frequency_1M)
+                    -WindowSize $(WindowSize_1H)
+                    -TimeAggregation $(TimeAggregationAverage)
+                    -TargetResource "pki-dev-obsw-2" 
+                    -TargetResourceGroupName $(TargetResourceGroupPKIShared) 
+                    -TargetResourceType $(TargetResourceTypeDatabaseAcc) 
+                    -Environment $(Environment) 
+                    -CheckId "CSGPSLADEVCHKRMCOSDBSTATUS"
+                    -ComponentId "CSGPSLADEVCHKRMCOSDB" 
+                    -MeticRuleName $(MeticRuleNameServiceAvailability)
+                 azurePowerShellVersion: LatestVersion
+               enabled: true
+
+             - task: AzurePowerShell@5
+               displayName: 'Metric Alert Ok -  E2Emon_PKI_CSGPSLA_DEV_Ok_CheckRMCosmosDB_Availability'
+               inputs:
+                 azureSubscription: ${{ parameters.ServiceConnection }}
+                 ScriptPath: '${{ parameters.rootPath }}/CreateAlert-MetricRules.ps1'
+                 ScriptArguments: >
+                    -AlertRuleName "E2Emon_PKI_CSGPSLA_DEV_Ok_CheckRMCosmosDB_Availability_Pipeline"
+                    -AlertRuleDescription "Trigger when service availability for cosmos db pki-dev-obsw-2 is greater than 70%"
+                    -Severity $(Severity_Information) 
+                    -ResourceGroupName $(ResourceGroupNameSharedE2E)  
+                    -Operator $(OperatorGreaterThan) 
+                    -Threshold "70"
+                    -ActiongroupName $(ActionGroupNameE2E) 
+                    -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                    -Location $(Location_Global) 
+                    -Frequency $(Frequency_5M)
+                    -WindowSize $(WindowSize_1H)
+                    -TimeAggregation $(TimeAggregationAverage) 
+                    -TargetResource "pki-dev-obsw-2"
+                    -TargetResourceGroupName $(TargetResourceGroupPKIShared)
+                    -TargetResourceType $(TargetResourceTypeDatabaseAcc)
+                    -Environment $(Environment)
+                    -CheckId "CSGPSLADEVCHKRMCOSDBSTATUS"
+                    -ComponentId "CSGPSLADEVCHKRMCOSDB"
+                    -MeticRuleName $(MeticRuleNameServiceAvailability)
+                 azurePowerShellVersion: LatestVersion
+               enabled: true
+
+             - task: AzurePowerShell@5
+               displayName: 'Metric Alert Error -  E2Emon_PKI_CSGPSLA_DEV_ERROR_StorageAccountAvailability'
+               inputs:
+                 azureSubscription: ${{ parameters.ServiceConnection }}
+                 ScriptPath: '${{ parameters.rootPath }}/CreateAlert-MetricRules.ps1'
+                 ScriptArguments: >
+                    -AlertRuleName "E2Emon_PKI_CSGPSLA_DEV_ERROR_StorageAccountAvailability"
+                    -AlertRuleDescription "Whenever storageaccountdevobsw2 availability is less than or equal to 70%"
+                    -Severity $(Severity_Error) 
+                    -ResourceGroupName $(ResourceGroupNameSharedE2E) 
+                    -Operator $(OperatorLessThanOrEqual) 
+                    -Threshold "70" 
+                    -ActiongroupName $(ActionGroupNameE2E)
+                    -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E)  
+                    -Location $(Location_Global) 
+                    -Frequency $(Frequency_1M)
+                    -WindowSize $(WindowSize_5M) 
+                    -TimeAggregation $(TimeAggregationMinimum)
+                    -TargetResource "storageaccountdevobsw2"
+                    -TargetResourceGroupName $(TargetResourceGroupPKIShared) 
+                    -TargetResourceType $(TargetResourceTypeStorageAccount)
+                    -Environment $(Environment)
+                    -CheckId "CSGPSLADEVDBOBSWSTATUS" 
+                    -ComponentId "CSGPSLADEVDBOBSW" 
+                    -MeticRuleName $(MeticRuleNameAvailability)
+                 azurePowerShellVersion: LatestVersion
+               enabled: true
+
+             - task: AzurePowerShell@5
+               displayName: 'Metric Alert Ok -  E2Emon_PKI_CSGPSLA_DEV_Ok_StorageAccountAvailability'
+               inputs:
+                 azureSubscription: ${{ parameters.ServiceConnection }}
+                 ScriptPath: '${{ parameters.rootPath }}/CreateAlert-MetricRules.ps1'
+                 ScriptArguments: >
+                    -AlertRuleName "E2Emon_PKI_CSGPSLA_DEV_Ok_StorageAccountAvailability"
+                    -AlertRuleDescription "Whenever availability is greater than 70%" 
+                    -Severity $(Severity_Information)
+                    -ResourceGroupName $(ResourceGroupNameSharedE2E)  
+                    -Operator $(OperatorGreaterThan) 
+                    -Threshold "70" 
+                    -ActiongroupName $(ActionGroupNameE2E)
+                    -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                    -Location $(Location_Global) 
+                    -Frequency $(Frequency_1M) 
+                    -WindowSize $(WindowSize_5M)  
+                    -TimeAggregation $(TimeAggregationMinimum) 
+                    -TargetResource "storageaccountdevobsw2"
+                    -TargetResourceGroupName $(TargetResourceGroupPKIShared)
+                    -TargetResourceType $(TargetResourceTypeStorageAccount)
+                    -Environment $(Environment)
+                    -CheckId "CSGPSLADEVDBOBSWSTATUS" 
+                    -ComponentId "CSGPSLADEVDBOBSW" 
+                    -MeticRuleName $(MeticRuleNameAvailability)
+                 azurePowerShellVersion: LatestVersion
+               enabled: true
+
+             - task: AzurePowerShell@5
+               displayName: 'Metric Alert Error -  E2Emon_PKI_CSGPSLA_DEV_Error_CheckRAEventGrid_DroppedEvents'
+               inputs:
+                 azureSubscription: ${{ parameters.ServiceConnection }}
+                 ScriptPath: '${{ parameters.rootPath }}/CreateAlert-MetricAlertWithTwoCondition.ps1'
+                 ScriptArguments: >
+                    -AlertRuleName "E2Emon_PKI_CSGPSLA_DEV_Error_CheckRAEventGrid_DroppedEvents"
+                    -AlertRuleDescription "Trigger when dropped events are greater than zero and delivered events is less than zero for event grid evgt-dev-obsw-2-pki"
+                    -Severity $(Severity_Error)
+                    -ResourceGroupName $(ResourceGroupNameSharedE2E) 
+                    -Operator $(OperatorGreaterThan)
+                    -Threshold "0" 
+                    -ActiongroupName $(ActionGroupNameE2E)
+                    -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                    -Location $(Location_Global)
+                    -Frequency $(Frequency_5M)
+                    -WindowSize $(WindowSize_15M)
+                    -TimeAggregation $(TimeAggregationTotal)
+                    -TargetResource "evgt-dev-obsw-2-pki"
+                    -TargetResourceGroupName $(TargetResourceGroupPKIShared) 
+                    -TargetResourceType $(TargetResourceTypeEventGridTopics) 
+                    -Environment $(Environment) 
+                    -CheckId "CSGPDEVSLACHKRAEVNTGRDSTATUS" 
+                    -ComponentId "CSGPDEVSLACHKRAEVNTGRD" 
+                    -MeticRuleName $(MeticRuleNameDroppedEventCount) 
+                    -Threshold1 "0" 
+                    -Operator1 $(OperatorLessThanOrEqual) 
+                    -MeticRuleName1 $(MeticRuleNameDeliverySuccessCount) 
+                    -TimeAggregation1 $(TimeAggregationTotal)
+                 azurePowerShellVersion: LatestVersion
+               enabled: true
+               
+             - task: AzurePowerShell@5
+               displayName: 'Metric Alert Ok -  E2Emon_PKI_CSGPSLA_DEV_Ok_CheckRAEventGrid_DroppedEvents'
+               inputs:
+                 azureSubscription: ${{ parameters.ServiceConnection }}
+                 ScriptPath: '${{ parameters.rootPath }}/CreateAlert-MetricAlertWithTwoCondition.ps1'
+                 ScriptArguments: >
+                    -AlertRuleName "E2Emon_PKI_CSGPSLA_DEV_Ok_CheckRAEventGrid_DroppedEvents" 
+                    -AlertRuleDescription "Trigger when delivered events are greater than zero and delivered events is less than equal to zero for event grid evgt-dev-obsw-2-pki"
+                    -Severity $(Severity_Information)
+                    -ResourceGroupName $(ResourceGroupNameSharedE2E)  
+                    -Operator $(OperatorGreaterThan) 
+                    -Threshold "0" 
+                    -ActiongroupName $(ActionGroupNameE2E)
+                    -ActionGroupResourceGroupName $(ResourceGroupNameSharedE2E) 
+                    -Location $(Location_Global)
+                    -Frequency $(Frequency_5M) 
+                    -WindowSize $(WindowSize_15M) 
+                    -TimeAggregation $(TimeAggregationTotal) 
+                    -TargetResource "evgt-dev-obsw-2-pki" 
+                    -TargetResourceGroupName $(TargetResourceGroupPKIShared)
+                    -TargetResourceType $(TargetResourceTypeEventGridTopics) 
+                    -Environment $(Environment) 
+                    -CheckId "CSGPDEVSLACHKRAEVNTGRDSTATUS"
+                    -ComponentId "CSGPDEVSLACHKRAEVNTGRD" 
+                    -MeticRuleName $(MeticRuleNameDeliverySuccessCount) 
+                    -Threshold1 "0" 
+                    -Operator1 $(OperatorLessThanOrEqual) 
+                    -MeticRuleName1 $(MeticRuleNameDroppedEventCount) 
+                    -TimeAggregation1 $(TimeAggregationTotal)
+                 azurePowerShellVersion: LatestVersion
+               enabled: true

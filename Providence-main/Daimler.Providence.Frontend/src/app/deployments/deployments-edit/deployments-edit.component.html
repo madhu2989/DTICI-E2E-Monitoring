@@ -1,0 +1,243 @@
+<ngx-loading [show]="showloadingIndicator" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+<h1 mat-dialog-title style="margin-bottom: 0px;">{{singleDeployment ? 'Deployment' : 'Deployment Set'}}</h1>
+<mat-dialog-content>
+  <form #inputFieldsForm="ngForm">
+    <div fxLayout="column" class="checkerInput" fxFlex="100">
+      <div style="margin: 15px">
+          <div fxLayout="column">
+            <mat-form-field style="margin-top: 3px;">
+              <input matInput placeholder="Description" name="description" [(ngModel)]="currentDeployment.description" required>
+              <mat-error>Please enter a deployment description</mat-error>
+            </mat-form-field>
+            <mat-form-field style="margin-top: 3px;">
+              <input matInput placeholder="Short Description" name="shortDescription" [(ngModel)]="currentDeployment.shortDescription" required maxlength="50">
+              <mat-error>Please enter a short description</mat-error>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-select matInput placeholder="Environment Name" name="subscriptionId" [(ngModel)]="currentDeployment.environmentSubscriptionId" required [disabled]="data.mode === 'edit'" (selectionChange)="environmentSelectionChanged($event.value)">
+                <mat-option *ngFor="let environment of environments" value="{{environment.subscriptionId}}">{{environment.name}}</mat-option>        
+              </mat-select>
+              <mat-error>Please select the environment name</mat-error>
+            </mat-form-field>           
+
+            <mat-form-field class="elementid-chip-list">
+              <mat-chip-list #chipList aria-label="ElementId selection" [disabled]="!currentDeployment.environmentSubscriptionId">
+                <mat-chip
+                  *ngFor="let chipElementId of chipElementIds"
+                  [selectable]="chipSelectable"
+                  [removable]="chipRemovable"
+                  (removed)="removeChipElementId(chipElementId)" class="elementid-chip">
+                  <div class="elementid-chip-text"> {{chipElementId}} </div>
+                  <mat-icon matChipRemove *ngIf="chipRemovable">cancel</mat-icon>
+                </mat-chip>
+                <input
+                  placeholder="ElementId(s)"
+                  #chipElementIdInput
+                  [formControl]="chipElementIdCtrl"
+                  [matAutocomplete]="auto"
+                  [matChipInputFor]="chipList"
+                  [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                  (matChipInputTokenEnd)="addChipElementId($event)">
+              </mat-chip-list>
+              <mat-autocomplete #auto="matAutocomplete" (optionSelected)="chipElementIdSelected($event)">
+                <mat-option *ngFor="let chipElementId of chipFilteredElementIds | async" [value]="chipElementId">
+                  {{chipElementId}}
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+
+            <mat-radio-group aria-label="Select an option" [(ngModel)]="singleDeployment" name="radiogroup">
+              <mat-radio-button [value]="true" class="endDateArea">Once</mat-radio-button>
+              <mat-radio-button [value]="false" name="serieCheck" class="endDateArea">Serie</mat-radio-button>
+            </mat-radio-group>
+
+            <div *ngIf="singleDeployment">
+            <mat-divider style="margin: 15px 0 15px 0"></mat-divider>
+            <div fxLayout="row" fxLayoutAlign="left center">
+              <div fxFlex="10" class="dateItem">Start Date: </div> 
+              <mat-form-field fxFlex="30" class="dateItem">
+                <input matInput [matDatepicker]="startPicker" placeholder="Choose a date" [(ngModel)]="startDate" name="startDate" required>
+                <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                <mat-datepicker #startPicker></mat-datepicker>
+                <mat-error>Please choose a start date.</mat-error>                
+              </mat-form-field>
+              <form fxFlex="60" [formGroup]="startTimeFormGroup">
+                <mat-form-field>
+                  <input matInput name="startTime" placeholder="Start time" formControlName="startTimeCtrl">
+                  <mat-error>Please specify the start time in the format: hh:mm</mat-error>
+                  <mat-hint>For example: 12:33</mat-hint>
+                </mat-form-field>
+              </form>
+            </div>
+              <div fxLayout="row" fxLayoutAlign="left center">
+                <div fxFlex="10" class="dateItem">End Date: </div>
+                <mat-form-field fxFlex="30" class="dateItem">
+                  <input matInput [max]="maxDate" [matDatepicker]="endPicker" placeholder="Choose a date" [(ngModel)]="endDate" name="endDate" required>
+                  <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #endPicker></mat-datepicker>
+                  <mat-error>Please choose an end date.</mat-error>                
+                </mat-form-field>
+                <form fxFlex="60" [formGroup]="endTimeFormGroup">
+                  <mat-form-field>
+                    <input matInput name="endTime" placeholder="End time" formControlName="endTimeCtrl">
+                    <mat-error>Please specify the expiration time in the format: hh:mm</mat-error>
+                    <mat-hint>For example: 12:33</mat-hint>
+                  </mat-form-field>
+                </form>
+              </div>
+              <mat-form-field>
+                <input matInput placeholder="Close Reason" name="closeReason" [(ngModel)]="currentDeployment.closeReason" [disabled]="!endDate">
+              </mat-form-field>
+            </div>
+
+            <div *ngIf="!singleDeployment">
+              <mat-divider style="margin: 15px 0 15px 0"></mat-divider>
+              <div style="font-size: 16px; margin-bottom: 15px">
+                Deployment Duration
+              </div>
+              <div style="display: flex; flex-direction: row;">
+                <form [formGroup]="startTimeFormGroup">
+                  <mat-form-field>
+                    <input matInput name="startTime" placeholder="Start time" formControlName="startTimeCtrl" required>
+                    <mat-error>Please specify the start time in the format: hh:mm</mat-error>
+                    <mat-hint>For example: 12:33</mat-hint>
+                  </mat-form-field>
+                </form>
+                <form [formGroup]="endTimeFormGroup" style="margin: 0 0 0 20px">
+                  <mat-form-field>
+                    <input matInput name="endTime" placeholder="End time" formControlName="endTimeCtrl" required>
+                    <mat-error>Please specify the expiration time in the format: hh:mm</mat-error>
+                    <mat-hint>For example: 12:33</mat-hint>
+                  </mat-form-field>
+                </form>
+                <mat-form-field style="margin: 0 0 0 20px">
+                  <input matInput placeholder="Close Reason" name="closeReason" [(ngModel)]="currentDeployment.closeReason">
+                </mat-form-field>
+              </div>
+
+              <mat-divider style="margin: 15px 0 15px 0"></mat-divider>
+
+              <div style="font-size: 16px; margin-bottom: 5px">
+                Pattern of rescheduling
+              </div>
+              <div style="display: flex; flex-direction: row;">
+                <mat-radio-group style="display: flex; flex-direction: column" [(ngModel)]="schedulePattern" name="schedulePattern" (change)="filterstartDatePicker()">
+                  <mat-radio-button class="scheduling-radio-button" value="daily">Daily</mat-radio-button>
+                  <mat-radio-button class="scheduling-radio-button" value="weekly">Weekly</mat-radio-button>
+                  <mat-radio-button class="scheduling-radio-button" value="monthly">Monthly</mat-radio-button>
+                </mat-radio-group>
+                <mat-divider vertical style="margin: 0 40px 0 20px;"></mat-divider>
+                <div *ngIf="schedulePattern === 'daily'">
+                  <div style="display: flex; flex-direction: row;">
+                    <div style="margin: 17px 0 0 0">Every</div>
+                    <mat-form-field style="margin: 0 15px 0 15px; padding: 0; width: 40px !important">
+                      <input matInput type="number" max="100" min="1" name="dayInterval" [(ngModel)]="repeatInterval"> 
+                    </mat-form-field>
+                    <div style="margin: 17px 0 0 0">Days</div> 
+                  </div> 
+                  <mat-hint>Here you can specify in which frequency the deployment will occur. For example if you set it to 1 or leave it empty the deployment will occur every day, if you set it to 2 it will occur every second day.</mat-hint>
+                </div>
+                <div *ngIf="schedulePattern === 'weekly'">
+                  <div style="display: flex; flex-direction: row;">
+                    <div style="margin: 17px 0 0 0">Every</div>
+                    <mat-form-field style="margin: 0 15px 0 15px; padding: 0; width: 40px !important">
+                      <input matInput type="number" max="100" min="1" name="weekInterval" [(ngModel)]="repeatInterval"> 
+                    </mat-form-field>
+                    <div style="margin: 17px 0 0 0">Weeks</div> 
+                  </div> 
+                  <div style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between">
+                      <mat-checkbox [(ngModel)]="monday.checked" name="mo">{{monday.name}}</mat-checkbox>
+                      <mat-checkbox [(ngModel)]="tuesday.checked" name="tu" >{{tuesday.name}}</mat-checkbox>
+                      <mat-checkbox [(ngModel)]="wednesday.checked" name="we" >{{wednesday.name}}</mat-checkbox>
+                      <mat-checkbox [(ngModel)]="thursday.checked" name="th" >{{thursday.name}}</mat-checkbox>
+                      <mat-checkbox [(ngModel)]="friday.checked" name="fr" >{{friday.name}}</mat-checkbox>
+                      <mat-checkbox [(ngModel)]="saturday.checked" name="sa" >{{saturday.name}}</mat-checkbox>
+                      <mat-checkbox [(ngModel)]="sunday.checked" name="su" >{{sunday.name}}</mat-checkbox>
+                  </div>
+                </div>
+                <div *ngIf="schedulePattern === 'monthly'">
+                  <div style="display: flex; flex-direction: row;">
+                    <div style="margin: 17px 0 0 0">Every</div>
+                    <mat-form-field style="margin: 0 15px 0 15px; padding: 0; width: 40px !important">
+                      <input matInput type="number" max="100" min="1" name="monthInterval" [(ngModel)]="repeatInterval"> 
+                    </mat-form-field>
+                    <div style="margin: 17px 0 0 0">Months</div> 
+                    <mat-divider vertical style="margin: 0 40px 0 20px;"></mat-divider>
+                    <div style="margin: 17px 0 0 0">On the</div>
+                    <mat-form-field style="margin: 0 15px 0 15px; padding: 0; width: 80px !important">
+                      <mat-select matInput [(ngModel)]="weekDayOfMonth" name="weekDayOfMonth">
+                        <mat-option value="0">Day of month</mat-option> 
+                        <mat-option value="1">First</mat-option> 
+                        <mat-option value="2">Second</mat-option> 
+                        <mat-option value="3">Third</mat-option> 
+                        <mat-option value="4">Fourth</mat-option> 
+                        <mat-option value="5">Fifth</mat-option> 
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-divider vertical style="margin: 0 40px 0 20px;"></mat-divider>
+                    <div *ngIf="weekDayOfMonth === '0'" style="display: flex; flex-direction: row;">
+                      <div style="margin: 17px 0 0 0">Day Nr.</div>
+                      <mat-form-field style="margin: 0 15px 0 15px; padding: 0; width: 40px !important">
+                        <input matInput  max="31" min="1" name="repeatOnMonthDay" [(ngModel)]="repeatOnMonthDay"> 
+                      </mat-form-field>
+                    </div>
+                  </div>
+                  <div *ngIf="weekDayOfMonth && weekDayOfMonth !== '0'" style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between; margin-top: 10px;">
+                      <mat-checkbox [(ngModel)]="monday.checked" name="mo" >{{monday.name}}</mat-checkbox>
+                      <mat-checkbox [(ngModel)]="tuesday.checked" name="tu" >{{tuesday.name}}</mat-checkbox>
+                      <mat-checkbox [(ngModel)]="wednesday.checked" name="we" >{{wednesday.name}}</mat-checkbox>
+                      <mat-checkbox [(ngModel)]="thursday.checked" name="th" >{{thursday.name}}</mat-checkbox>
+                      <mat-checkbox [(ngModel)]="friday.checked" name="fr">{{friday.name}}</mat-checkbox>
+                      <mat-checkbox [(ngModel)]="saturday.checked" name="sa" >{{saturday.name}}</mat-checkbox>
+                      <mat-checkbox [(ngModel)]="sunday.checked" name="su">{{sunday.name}}</mat-checkbox>
+                  </div>
+
+                </div>
+
+              </div>
+              
+              <mat-divider style="margin: 15px 0 15px 0"></mat-divider>
+
+              <div style="font-size: 16px; margin-bottom: 5px">
+                Duration
+              </div>
+              <div fxLayout="row">
+              <div fxLayout="row" fxLayoutAlign="left center">
+                <div class="dateItem">Start Date: </div> 
+                <mat-form-field class="dateItem">
+                  <input matInput [matDatepickerFilter]="deploymentSetStartFilter" [matDatepicker]="startPickerDeploymenSet" placeholder="Choose a date" [(ngModel)]="startDate" name="startDateDeploymenSet" required>
+                  <mat-datepicker-toggle matSuffix [for]="startPickerDeploymenSet"></mat-datepicker-toggle>
+                  <mat-datepicker #startPickerDeploymenSet></mat-datepicker>
+                  <mat-error>Please choose a start date.</mat-error>                
+                </mat-form-field>
+              </div>
+              <mat-divider vertical style="margin: 0 40px 0 20px;"></mat-divider>
+              <mat-radio-group style="display: flex; flex-direction: column" [(ngModel)]="endOfSeries" name="endOfSeries">
+                <mat-radio-button value="endless" matTooltip="The maximum duration of a deployment set is one year. After that, you have to update the set or create a new one.">
+                  <div>No Enddate</div>
+                </mat-radio-button>
+                <mat-radio-button value="endDate">
+                  <div fxLayout="row" fxLayoutAlign="left center">
+                    <div class="dateItem">End Date: </div>
+                    <mat-form-field class="dateItem">
+                      <input matInput [max]="maxDate" [matDatepicker]="endPickerDeploymenSet" placeholder="Choose a date" [(ngModel)]="endDate" name="endDateDeploymenSet" [disabled]="endOfSeries === 'endless'" required>
+                      <mat-datepicker-toggle matSuffix [for]="endPickerDeploymenSet"></mat-datepicker-toggle>
+                      <mat-datepicker #endPickerDeploymenSet></mat-datepicker>
+                      <mat-error>Please choose a valid end date.</mat-error>                
+                    </mat-form-field>
+                  </div>
+                </mat-radio-button>
+              </mat-radio-group>
+            </div>
+
+            </div>
+          </div>
+      </div>
+    </div>
+  </form>
+
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onSaveClick()" [disabled]="!validate()">Save</button>
+  <button mat-button (click)="onCancelClick()">Cancel</button>
+</mat-dialog-actions>

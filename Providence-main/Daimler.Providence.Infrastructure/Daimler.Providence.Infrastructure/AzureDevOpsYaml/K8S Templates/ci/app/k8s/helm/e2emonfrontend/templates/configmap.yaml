@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+data:
+  environment.json: |-
+   {
+     "aadTenant": "#{vars.AadTenantId}#", 
+     "aadClientId": "#{vars.E2EAADApplicationId}#",
+     "configEndpoint": "#{vars.E2EBackendConfigEndPoint}#",
+     "dataEndpoint": "#{vars.E2EBackendDataEndPoint}#", 
+     "signalREndpoint": "#{vars.E2EBackendSignalREndPoint}#", 
+     "versionReleaseName": "#{vars.VersionReleaseName}#",
+     "versionBuildNumber": "#{vars.VersionBuildNumber}#",
+     "instrumentationKey": "",
+     "houseKeepingInterval": "#{vars.HouseKeepingInterval}#",
+     "historyDuration": "#{vars.HistoryDuration}#",
+     "instance":"#{vars.Instance}#"
+   }

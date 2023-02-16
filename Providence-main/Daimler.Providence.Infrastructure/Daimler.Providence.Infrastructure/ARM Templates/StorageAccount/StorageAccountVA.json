@@ -1,0 +1,100 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "Storage_Account_Name": {
+      "defaultValue": "",
+      "type": "String"
+    },
+    "Built_In_Role_ID": {
+      "type": "string",
+      "metadata": {
+        "description": "Built-in role to assign"
+      }
+    },
+    "SqlPrincipal_Id": {
+      "type": "string",
+      "metadata": {
+        "description": "Role Principal Id"
+      }
+    },
+    "Location": {
+      "type": "String"
+    },
+    "Subscription_Id": {
+      "type": "string",
+      "metadata": {
+        "description": "Subscription Id"
+      }
+    }
+  },
+  "variables": {
+    "Built_In_Role_Type": "[concat('/subscriptions/', parameters('Subscription_Id'), '/providers/Microsoft.Authorization/roleDefinitions/',  parameters('Built_In_Role_ID'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-09-01",
+      "name": "[parameters('Storage_Account_Name')]",
+      "kind": "Storage",
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "location": "[parameters('Location')]"
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices",
+      "apiVersion": "2021-09-01",
+      "name": "[concat(parameters('Storage_Account_Name'), '/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('Storage_Account_Name'))]"
+      ],
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "properties": {
+        "cors": {
+          "corsRules": []
+        },
+        "deleteRetentionPolicy": {
+          "allowPermanentDelete": false,
+          "enabled": false
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2021-09-01",
+      "name": "[concat(parameters('Storage_Account_Name'), '/default/sql-vulnerability-assessment')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('Storage_Account_Name'), 'default')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('Storage_Account_Name'))]"
+      ],
+      "properties": {
+        "immutableStorageWithVersioning": {
+          "enabled": false
+        },
+        "defaultEncryptionScope": "$account-encryption-key",
+        "denyEncryptionScopeOverride": false,
+        "publicAccess": "None"
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[guid(resourceGroup().id,parameters('Storage_Account_Name'), parameters('SqlPrincipal_Id'))]",
+      "scope": "[concat('Microsoft.Storage/storageAccounts', '/',parameters('Storage_Account_Name'))]",
+      "dependsOn": [
+        "[parameters('Storage_Account_Name')]"
+      ],
+      "properties": {
+        "roleDefinitionId": "[variables('Built_In_Role_Type')]",
+        "principalId": "[parameters('SqlPrincipal_Id')]"
+        //"roleDefinitionId": "[concat('/subscriptions/','8900235a-4634-414a-9ca6-0b391bac3eef', '/providers/Microsoft.Authorization/roleDefinitions/', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
+        //"principalId": "ab2643fc-8068-44a9-8c54-c4e030744b0a"
+      }
+    }    
+  ]
+}

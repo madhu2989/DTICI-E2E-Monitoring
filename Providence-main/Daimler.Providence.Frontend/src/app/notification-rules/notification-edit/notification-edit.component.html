@@ -1,0 +1,80 @@
+<ngx-loading [show]="showloadingIndicator" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+<h1 mat-dialog-title style="margin-bottom: 0px;">Notification Rule</h1>
+<mat-slide-toggle name="activationState" [(ngModel)]="currentNotificationRule.isActive" style="margin: 5px;">Activation</mat-slide-toggle>
+<mat-dialog-content style="overflow: hidden">
+  <mat-horizontal-stepper [linear]='true' #stepper style="margin: 0px;">
+    <mat-step>
+        <ng-template matStepLabel>
+          <div>Params</div>
+        </ng-template>
+      <form #inputFieldsForm="ngForm">
+        <div fxLayout="column" class="checkerInput" fxFlex="100">
+          <div style="margin: 15px">
+              <div fxLayout="column">
+                  <mat-form-field style="width: 50%;">
+                    <mat-select matInput placeholder="Environment Name" name="subscriptionId" [(ngModel)]="currentNotificationRule.environmentSubscriptionId" required>
+                      <mat-option *ngFor="let environment of environments" value="{{environment.subscriptionId}}">{{environment.name}}</mat-option>        
+                    </mat-select>
+                    <mat-error>Please select the environment name</mat-error>
+                  </mat-form-field>
+                <div fxLAyout="row">
+                  <div fxFlex="30" fxLayoutAlign="start center">
+                      Notification Interval (min):
+                  </div>
+                  <div fxFlex="70">
+                    <mat-slider name="timerange" style="width: 80%" thumbLabel tickInterval="1" min="1" max="90" [(ngModel)]="currentNotificationRule.notificationInterval"></mat-slider>
+                  </div>
+                </div>
+                <div fxLayout="row">
+                  <div fxLayout="column" style="width: 50%">
+                    <h4>Levels</h4>
+                    <mat-checkbox name="environment" [(ngModel)]="notificationRuleProps.environment">Environment</mat-checkbox>
+                    <mat-checkbox name="service" [(ngModel)]="notificationRuleProps.service">Service</mat-checkbox>
+                    <mat-checkbox name="action" [(ngModel)]="notificationRuleProps.action">Action</mat-checkbox>
+                    <mat-checkbox name="component" [(ngModel)]="notificationRuleProps.component">Component</mat-checkbox>
+                  </div>
+                  <div fxLayout="row" style="width: 50%">
+                    <div fxLayout="column" style="width: 50%">
+                      <h4>States</h4>
+                      <mat-checkbox name= "error" [(ngModel)]="notificationRuleProps.error">ERROR</mat-checkbox>
+                      <mat-checkbox name="warn" [(ngModel)]="notificationRuleProps.warning">WARNING</mat-checkbox>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </div>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step>
+      <ng-template matStepLabel>
+        <div>Addresses</div>
+      </ng-template>
+      <div fxLayout="row" fxLayoutAlign="space-between center" style="margin-bottom: 10px;">
+        <div fxLayout="column">
+          <form [formGroup]="newAddressFormGroup">
+            <mat-form-field>
+              <input #mailInput matInput placeholder="Enter a new Address" name="componentType" required formControlName="newAdressCtrl">
+            </mat-form-field>
+            <!-- <mat-error *ngIf="!this.emailRegex.test(addressToAdd) && !minimumFilterCount">Please enter a valid e-mail address</mat-error> -->
+          </form>
+        </div>
+        <!-- <app-crud-toolbar style="margin-bottom: 20px;" [settingsButtonVisible]="false" [deleteButtonVisible]="deleteButtonVisible" [deleteButtonActive]="true" 
+        [editButtonVisible]="false" [addButtonVisible]="true" [addButtonActive]="this.emailRegex.test(mailInput.value)" (add)="addNewMail()" (delete)="deleteMail()"></app-crud-toolbar> -->
+        <app-crud-toolbar style="margin-bottom: 20px;" [settingsButtonVisible]="false" [deleteButtonVisible]="deleteButtonVisible" [deleteButtonActive]="true" 
+        [editButtonVisible]="false" [addButtonVisible]="true" [addButtonActive]="true" (add)="addNewMail()" (delete)="deleteMail()"></app-crud-toolbar>
+      </div>
+      <div fxLayout="column">
+        <ag-grid-angular class="ag-theme-material ag-grid" [gridOptions]="gridOptions" [enableSorting]="true" [rowSelection]="rowSelection">
+        </ag-grid-angular>
+      </div>
+      <div class="errorMsg" *ngIf="!minimumFilterCount">Please specify at least one filter</div>
+    </mat-step>
+  </mat-horizontal-stepper>
+
+</mat-dialog-content>
+<mat-dialog-actions>
+  <!-- <button mat-button (click)="onSaveClick()" [disabled]="!currentNotificationRule.environmentSubscriptionId || !minimumFilterCount || !checkMinimumLevels() || !checkMinimumStates()">Save</button> -->
+  <button mat-button (click)="onSaveClick()" [disabled]="false">Save</button>
+  <button mat-button (click)="onCancelClick()">Cancel</button>
+</mat-dialog-actions>

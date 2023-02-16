@@ -1,0 +1,11 @@
+parameters:
+  versionNumber: ''
+  tagVersion: ''
+  subscriptionDocker: ''
+stages:
+
+- stage: BuildFunctionApp
+  displayName: 'Build Function App'
+  pool: CSG Windows
+  jobs:
+  - template: Stages/Jobs/app.service.functionapp.build.job.yml

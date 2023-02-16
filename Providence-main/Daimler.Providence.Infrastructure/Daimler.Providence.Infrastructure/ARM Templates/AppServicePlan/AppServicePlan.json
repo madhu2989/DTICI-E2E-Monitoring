@@ -1,0 +1,63 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "Location": {
+      "type": "String"
+    },
+    "App_Service_Plan_Name": {
+      "type": "String"
+    },
+    "Sku_Name": {
+      "type": "string",
+      "defaultValue": "P1v2"
+    },
+    "Sku_Tier": {
+      "type": "string",
+      "defaultValue": "PremiumV2"
+    },
+    "Sku_Size": {
+      "type": "string",
+      "defaultValue": "P1v2"
+    },
+    "Sku_Family": {
+      "type": "string",
+      "defaultValue": "Pv2"
+    },
+    "Sku_Capacity": {
+      "type": "int",
+      "defaultValue": 1
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2021-03-01",
+      "name": "[parameters('App_Service_Plan_Name')]",
+      "location": "[parameters('Location')]",
+      "tags": {
+        "e2emon": "API"
+      },
+      "sku": {
+        "name": "[parameters('Sku_Name')]",
+        "tier": "[parameters('Sku_Tier')]",
+        "size": "[parameters('Sku_Size')]",
+        "family": "[parameters('Sku_Family')]",
+        "capacity": "[parameters('Sku_Capacity')]"
+      },
+      "kind": "app",
+      "properties": {
+        "perSiteScaling": false,
+        "elasticScaleEnabled": false,
+        "maximumElasticWorkerCount": 1,
+        "isSpot": false,
+        "reserved": false,
+        "isXenon": false,
+        "hyperV": false,
+        "targetWorkerCount": 0,
+        "targetWorkerSizeId": 0,
+        "zoneRedundant": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|AnyCPU">
+      <Configuration>Debug</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|AnyCPU">
+      <Configuration>Release</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>57b5b915-6130-4598-bc08-7577eb833dff</ProjectGuid>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PrepareForBuildDependsOn>
+    </PrepareForBuildDependsOn>
+  </PropertyGroup>
+  <Import Condition=" Exists('Deployment.targets') " Project="Deployment.targets" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
+  <!-- vertag<:>start tokens<:>maj.min -->
+  <Import Condition=" Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Deployment\1.1\DeploymentProject.targets') " Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Deployment\1.1\DeploymentProject.targets" />
+  <!-- vertag<:>end -->
+  <ItemGroup>
+    <None Include="Alert Logic Apps\Api Connections\apiconnection.json" />
+    <None Include="Alert Logic Apps\Api Connections\apiconnection.parameters.json" />
+    <None Include="Alert Logic Apps\Logic Apps V2\logicapps.json" />
+    <None Include="Alert Logic Apps\Logic Apps V2\logicapps.parameters.json" />
+    <None Include="Alert Logic Apps\Logic Apps\logicapps.parameters.json" />
+    <None Include="Alert Logic Apps\Logic Apps\logicapps.json" />
+    <None Include="Deployment.targets">
+      <Visible>False</Visible>
+    </None>
+    <None Include="EventHub Logic Apps\Api Connections\apiconnection.json" />
+    <None Include="EventHub Logic Apps\Api Connections\apiconnection.parameters.json" />
+    <None Include="EventHub Logic Apps\Logic Apps\logicapps.parameters.json" />
+    <None Include="EventHub Logic Apps\Logic Apps\logicapps.json" />
+    <None Include="Storage Account\storageaccount.json" />
+    <None Include="Storage Account\storageaccount.parameters.json" />
+  </ItemGroup>
+  <Target Name="GetReferenceAssemblyPaths" />
+</Project>

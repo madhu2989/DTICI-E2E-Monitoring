@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backendapp-config
+data:
+ appsettings.json: |-
+  {
+    "Logging": {
+      "LogLevel": {
+        "Default": "Information",
+        "Microsoft": "Warning",
+        "Microsoft.Hosting.Lifetime": "Information"
+      }
+    },
+    "AppSettings": {
+      "Environment": "#{vars.EnvShort}#",
+      "Region":  "#{vars.RegionShort}#",
+      "TenantId": "#{vars.AadTenantId}#",
+      "EnterpriseApplication-AppId": "#{vars.E2EAADApplicationId}#",
+      "RunAutoRefresh": #{vars.RunAutoRefresh}#,
+      "AutoRefreshJobIntervalInSeconds": #{vars.AutoRefreshJobIntervalInSeconds}#,
+      "RunAutoReset": #{vars.RunAutoReset}#,
+      "AutoResetJobIntervalInSeconds": "#{vars.AutoResetJobIntervalInSeconds}#",
+      "RunDeleteExpiredStatetransitions": #{vars.RunDeleteExpiredStatetransitions}#,
+      "RunDeleteExpiredDeployments": #{vars.RunDeleteExpiredDeployments}#,
+      "RunDeleteExpiredChangelogs": #{vars.RunDeleteExpiredChangelogs}#,
+      "RunDeleteUnassignedComponents": #{vars.RunDeleteUnassignedComponents}#,
+      "CutOffTimeRangeInWeeks": #{vars.CutOffTimeRangeInWeeks}#,
+      "LogSqlQuery": #{vars.LogSqlQuery}#,
+      "LogElapsedTime": #{vars.LogElapsedTime}#,
+      "MaxElapsedTimeInMinutes": "#{vars.MaxElapsedTimeInMinutes}#",
+      "EmailNotificationJobIntervalInSeconds": #{vars.EmailNotificationJobIntervalInSeconds}#,
+      "StateIncreaseJobIntervalInSeconds": #{vars.StateIncreaseJobIntervalInSeconds}#,
+      "UpdateDeploymentsJobIntervalInSeconds": #{vars.UpdateDeploymentsJobIntervalInSeconds}#,
+      "DaimlerRelayUsername": "#{vars.DaimlerRelayUsername}#",
+      "DaimlerRelayPassword": "#{vars.DaimlerRelayPassword}#",
+      "EnableEventHubReader": #{vars.EnableEventHubReader}#,
+      "ApplicationInsightsInstrumentationKey": "",
+      "ManagedIdentity": "#{vars.MSI_CLIENT_ID}#",
+      "EventHubName": "#{vars.EventHubName}#",
+      "StorageUrlPath": "#{vars.StorageUrlPath}#",
+      "EventHubQualifiedNameSpace": "#{vars.EventHubQualifiedNameSpace}#",
+      "AppInsightsConnectionString": #{vars.AppInsightsConnectionString}#,
+      "AuthBaseUrl":"#{vars.AuthBaseUrl}#"
+    },
+    "ConnectionStrings": {
+      "DatabaseConnectionString": #{vars.DatabaseConnectionString}# 
+    }
+  }

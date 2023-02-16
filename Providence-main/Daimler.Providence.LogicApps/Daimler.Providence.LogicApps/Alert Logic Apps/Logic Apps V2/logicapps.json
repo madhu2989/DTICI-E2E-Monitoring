@@ -1,0 +1,477 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "projectResourcePrefix": { "type": "string" },
+    "projectEnvironment": { "type": "string" },
+    "logAnalytics_Name": { "type": "string" },
+    "logAnalytics_ResourceGroupName": { "type": "string" },
+    "logAnalytics_CustomLogName": { "type": "string" },
+    "logicApp_MetricAlert_RunLatencyThreshold": { "type": "int" },
+    "logicApp_MetricAlert_RunsFailedThreshold": { "type": "int" }
+  },
+  "variables": {
+    "LogicApp_MetricAlert_Name": "[concat(parameters('projectResourcePrefix'), 'metricalertV2', parameters('projectEnvironment'))]",
+    "ActionGroup_MetricAlert_Name": "[concat(parameters('projectResourcePrefix'), '-ag-healthstate-metricalerts-V2-', parameters('projectEnvironment'))]",
+    "ActionGroup_SendErrorsOnFailedLogicAppRuns_Name": "[concat(parameters('projectResourcePrefix'), '-ag-healthstate-senderroremail-', parameters('projectEnvironment'))]",
+    "API_Connection_LogAnalytics_Write": "[concat(parameters('projectResourcePrefix'), '-api-logicapp-loganalytics-W-', parameters('projectEnvironment'))]"
+  },
+  "resources": [
+    {
+      "name": "[variables('LogicApp_MetricAlert_Name')]",
+      "type": "Microsoft.Logic/workflows",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-07-01",
+      "comments": "Process Metric Alerts",
+      "tags": {},
+      "scale": null,
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "$connections": {
+              "defaultValue": {},
+              "type": "Object"
+            },
+            "CustomLogName": {
+              "type": "string"
+            }
+          },
+          "triggers": {
+            "manual": {
+              "type": "Request",
+              "kind": "Http",
+              "inputs": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "properties": {
+                        "context": {
+                          "properties": {
+                            "condition": {
+                              "properties": {
+                                "allOf": {
+                                  "items": {
+                                    "properties": {
+                                      "dimensions": {
+                                        "items": {
+                                          "properties": {
+                                            "name": {
+                                              "type": "string"
+                                            },
+                                            "value": {
+                                              "type": "string"
+                                            }
+                                          },
+                                          "required": [
+                                            "name",
+                                            "value"
+                                          ],
+                                          "type": "object"
+                                        },
+                                        "type": "array"
+                                      },
+                                      "metricName": {
+                                        "type": "string"
+                                      },
+                                      "metricValue": {
+                                        "type": "number"
+                                      },
+                                      "operator": {
+                                        "type": "string"
+                                      },
+                                      "threshold": {
+                                        "type": "string"
+                                      },
+                                      "timeAggregation": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "metricName",
+                                      "dimensions",
+                                      "operator",
+                                      "threshold",
+                                      "timeAggregation",
+                                      "metricValue"
+                                    ],
+                                    "type": "object"
+                                  },
+                                  "type": "array"
+                                },
+                                "windowSize": {
+                                  "type": "string"
+                                }
+                              },
+                              "type": "object"
+                            },
+                            "conditionType": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "id": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "portalLink": {
+                              "type": "string"
+                            },
+                            "resourceGroupName": {
+                              "type": "string"
+                            },
+                            "resourceId": {
+                              "type": "string"
+                            },
+                            "resourceName": {
+                              "type": "string"
+                            },
+                            "resourceType": {
+                              "type": "string"
+                            },
+                            "subscriptionId": {
+                              "type": "string"
+                            },
+                            "timestamp": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "properties": {
+                          "properties": {},
+                          "type": "object"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "version": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "schemaId": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "actions": {
+            "Condition": {
+              "actions": {
+                "Build_custom_Log_JSON": {
+                  "inputs": {
+                    "AlertName": "@{string(triggerBody()?['data']['context']['name'])}",
+                    "CheckID": "MetricAlert",
+                    "CheckVersion": "1.0.0.0",
+                    "ComponentID": "@{split(triggerBody()?['data']['context']['description'],'##')[1]}",
+                    "CustomField1": "@{triggerBody()?['data']['context']['portalLink']}",
+                    "CustomField2": "https://portal.azure.com/#blade/Microsoft_Azure_Monitoring/UpdateVNextAlertRuleBlade/ruleInputs/%7B%22alertId%22%3A%22@{replace(replace(triggerBody()?['data']?['context']?['id'],'/','%2F'),' ','%20')}%22%7D",
+                    "CustomField3": "AlertRuleDescription : @{triggerBody()?['data']['context']['description']}",
+                    "CustomField4": "AlertSeverity : @{triggerBody()?['data']['context']['severity']}",
+                    "CustomField5": "Metric Alert V2",
+                    "Description": "@{split(triggerBody()?['data']['context']['description'],'##')[3]}",
+                    "LogicAppName": "@{workflow().name}",
+                    "LogicAppVersion": "1.0.0.0",
+                    "OriginSubscriptionID": "@{triggerBody()?['data']['context']['subscriptionId']}",
+                    "RecordID": "@{guid()}",
+                    "RecordVersionNumber": "3",
+                    "SourceTimeStamp": "@{triggerBody()?['data']['context']['timestamp']}",
+                    "State": "@{if(equals(triggerBody()?['data']['status'],'Activated'),if(lessOrEquals(int(triggerBody()?['data']['context']['severity']),3),'WARNING','ERROR'),'OK')}"
+                  },
+                  "runAfter": {},
+                  "type": "Compose"
+                },
+                "Send_Data": {
+                  "inputs": {
+                    "body": "@{outputs('Build_custom_Log_JSON')}",
+                    "headers": {
+                      "Log-Type": "@{parameters('CustomLogName')}"
+                    },
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['azureloganalyticsdatacollector']['connectionId']"
+                      }
+                    },
+                    "method": "post",
+                    "path": "/api/logs"
+                  },
+                  "runAfter": {
+                    "Build_custom_Log_JSON": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "ApiConnection"
+                }
+              },
+              "else": {
+                "actions": {
+                  "Build_custom_Log_JSON_based_on_old_V1_metric_alerts": {
+                    "inputs": {
+                      "AlertName": "@{triggerBody()?['context']?['name']}",
+                      "CheckID": "MetricAlert",
+                      "CheckVersion": "1.0.0.0",
+                      "ComponentID": "@{triggerBody()?['context']?['resourceId']}",
+                      "CustomField1": "PortalLink : @{triggerBody()?['context']?['portalLink']}",
+                      "CustomField2": "AlertRuleID : @{triggerBody()?['context']?['id']}",
+                      "CustomField3": "AlertRuleDescription : @{triggerBody()?['context']?['description']}",
+                      "CustomField4": "",
+                      "CustomField5": "Metric alert classic",
+                      "Description": "Metric'@{triggerBody()?['context']['condition']['metricName']}'is'@{triggerBody()?['context']['condition']['operator']}''@{triggerBody()?['context']['condition']['threshold']}'for'@{triggerBody()?['context']['condition']['timeAggregation']}'",
+                      "LogicAppName": "@{workflow().name}",
+                      "LogicAppVersion": "1.0.0.0",
+                      "OriginSubscriptionID": "@{triggerBody()?['context']?['subscriptionId']}",
+                      "RecordID": "@{guid()}",
+                      "RecordVersionNumber": "3",
+                      "SourceTimeStamp": "@{triggerBody()?['context']?['timestamp']}",
+                      "State": "@{if(equals(triggerBody()?['status'],'Activated'),'Error','OK')}"
+                    },
+                    "runAfter": {},
+                    "type": "Compose"
+                  },
+                  "Send_old_metric_Alert_data": {
+                    "inputs": {
+                      "body": "@{outputs('Build_custom_Log_JSON_based_on_old_V1_metric_alerts')}",
+                      "headers": {
+                        "Log-Type": "@{parameters('CustomLogName')}"
+                      },
+                      "host": {
+                        "connection": {
+                          "name": "@parameters('$connections')['azureloganalyticsdatacollector']['connectionId']"
+                        }
+                      },
+                      "method": "post",
+                      "path": "/api/logs"
+                    },
+                    "runAfter": {
+                      "Build_custom_Log_JSON_based_on_old_V1_metric_alerts": [
+                        "Succeeded"
+                      ]
+                    },
+                    "type": "ApiConnection"
+                  }
+                }
+              },
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@triggerBody()?['schemaId']",
+                      "AzureMonitorMetricAlert"
+                    ]
+                  }
+                ]
+              },
+              "runAfter": {},
+              "type": "If"
+            }
+          },
+          "outputs": {}
+        },
+        "parameters": {
+          "$connections": {
+            "value": {
+              "azureloganalyticsdatacollector": {
+                "connectionId": "[resourceId('Microsoft.Web/connections', variables('API_Connection_LogAnalytics_Write'))]",
+                "connectionName": "azureloganalyticsdatacollector",
+                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azureloganalyticsdatacollector')]"
+              }
+            }
+          },
+          "CustomLogName": { "value": "[parameters('LogAnalytics_CustomLogName')]" }
+        }
+      },
+      "resources": [
+        {
+          "type": "providers/diagnosticSettings",
+          "name": "Microsoft.Insights/Diagnostic",
+          "dependsOn": [
+            "[resourceId('Microsoft.Logic/workflows', variables('LogicApp_MetricAlert_Name'))]"
+          ],
+          "apiVersion": "2017-05-01-preview",
+          "properties": {
+            "name": "DiagnosticSettings",
+            "workspaceId": "[resourceId(parameters('logAnalytics_ResourceGroupName'),'microsoft.operationalinsights/workspaces',parameters('logAnalytics_Name'))]",
+            "logs": [
+              {
+                "category": "WorkflowRuntime",
+                "enabled": true,
+                "retentionPolicy": {
+                  "days": 0,
+                  "enabled": false
+                }
+              }
+            ],
+            "metrics": [
+              {
+                "timeGrain": "PT1M",
+                "enabled": true,
+                "retentionPolicy": {
+                  "enabled": false,
+                  "days": 0
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[variables('ActionGroup_SendErrorsOnFailedLogicAppRuns_Name')]",
+      "type": "Microsoft.Insights/actionGroups",
+      "location": "Global",
+      "apiVersion": "2018-03-01",
+      "comments": "Action Group for sending Error E-Mails to Tooling Team.",
+      "tags": {},
+      "scale": null,
+      "properties": {
+        "groupShortName": "HS-ALERTING",
+        "enabled": true,
+        "emailReceivers": [
+          {
+            "name": "Tooling Team",
+            "emailAddress": "dw_415_fts-dev-advance-tooling@daimler.com",
+            "useCommonAlertSchema": true
+          }
+        ],
+        "smsReceivers": [],
+        "webhookReceivers": [],
+        "itsmReceivers": [],
+        "azureAppPushReceivers": [],
+        "automationRunbookReceivers": [],
+        "voiceReceivers": [],
+        "logicAppReceivers": [],
+        "azureFunctionReceivers": []
+      }
+    },
+    {
+      "name": "[variables('ActionGroup_MetricAlert_Name')]",
+      "type": "Microsoft.Insights/actionGroups",
+      "location": "Global",
+      "apiVersion": "2018-03-01",
+      "comments": "Action Group for calling LogicApp via Webhook",
+      "tags": {},
+      "scale": null,
+      "properties": {
+        "groupShortName": "HS-METRIC",
+        "enabled": true,
+        "emailReceivers": [],
+        "smsReceivers": [],
+        "webhookReceivers": [],
+        "itsmReceivers": [],
+        "azureAppPushReceivers": [],
+        "automationRunbookReceivers": [],
+        "voiceReceivers": [],
+        "logicAppReceivers": [
+          {
+            "name": "[variables('LogicApp_MetricAlert_Name')]",
+            "resourceId": "[resourceId('Microsoft.Logic/workflows', variables('LogicApp_MetricAlert_Name'))]",
+            "callbackUrl": "[listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', variables('LogicApp_MetricAlert_Name'), 'manual'), '2016-06-01').value]"
+          }
+        ],
+        "azureFunctionReceivers": []
+      }
+    },
+    {
+      "comments": "LogicApp - RunLatency Alert",
+      "type": "Microsoft.Insights/metricAlerts",
+      "name": "[concat('Logic App ', variables('LogicApp_MetricAlert_Name'), ' Alert - RunLatency greater than desired Threshold')]",
+      "apiVersion": "2018-03-01",
+      "location": "global",
+      "tags": { "displayName": "Metric Alert - MetricAlert - RunLatency" },
+      "scale": null,
+      "properties": {
+        "description": "Logic App run latency is above the desired threshold",
+        "severity": 1,
+        "enabled": true,
+        "scopes": [
+          "[resourceId('Microsoft.Logic/workflows', variables('LogicApp_MetricAlert_Name'))]"
+        ],
+        "evaluationFrequency": "PT1M",
+        "windowSize": "PT5M",
+        "criteria": {
+          "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
+          "allOf": [
+            {
+              "name": "Metric1",
+              "metricNamespace": "Microsoft.Logic/workflows",
+              "metricName": "RunLatency",
+              "dimensions": [],
+              "operator": "GreaterThan",
+              "threshold": "[parameters('logicApp_MetricAlert_RunLatencyThreshold')]",
+              "timeAggregation": "Total",
+              "monitorTemplateType": 8
+            }
+          ]
+        },
+        "actions": [
+          {
+            "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('ActionGroup_MetricAlert_Name'))]",
+            "webHookProperties": {}
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('microsoft.insights/actionGroups', variables('ActionGroup_MetricAlert_Name'))]"
+      ]
+    },
+    {
+      "comments": "LogicApp - RunsFailed Alert",
+      "type": "Microsoft.Insights/metricAlerts",
+      "name": "[concat('Logic App ', variables('LogicApp_MetricAlert_Name'), ' Alert - RunsFailed greater than desired Threshold')]",
+      "apiVersion": "2018-03-01",
+      "location": "global",
+      "tags": { "displayName": "Metric Alert - MetricAlert - RunsFailed" },
+      "scale": null,
+      "properties": {
+        "description": "Logic App failed to run",
+        "severity": 1,
+        "enabled": true,
+        "scopes": [
+          "[resourceId('Microsoft.Logic/workflows', variables('LogicApp_MetricAlert_Name'))]"
+        ],
+        "evaluationFrequency": "PT1M",
+        "windowSize": "PT5M",
+        "criteria": {
+          "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
+          "allOf": [
+            {
+              "name": "Metric1",
+              "metricNamespace": "Microsoft.Logic/workflows",
+              "metricName": "RunsFailed",
+              "dimensions": [],
+              "operator": "GreaterThan",
+              "threshold": "[parameters('logicApp_MetricAlert_RunsFailedThreshold')]",
+              "timeAggregation": "Total",
+              "monitorTemplateType": 8
+            }
+          ]
+        },
+        "actions": [
+          {
+            "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('ActionGroup_SendErrorsOnFailedLogicAppRuns_Name'))]",
+            "webHookProperties": {}
+          },
+          {
+            "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('ActionGroup_MetricAlert_Name'))]",
+            "webHookProperties": {}
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('microsoft.insights/actionGroups', variables('ActionGroup_SendErrorsOnFailedLogicAppRuns_Name'))]",
+        "[resourceId('microsoft.insights/actionGroups', variables('ActionGroup_MetricAlert_Name'))]"
+      ]
+    }
+  ],
+  "outputs": {}
+}

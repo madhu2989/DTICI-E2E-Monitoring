@@ -1,0 +1,22 @@
+<div fxLayout="column" fxLayoutAlign="start start">
+  <div class="title-area">
+    <div class="text-large nodes-view-header">{{componentRootNode ? componentRootNode.name : ''}}</div>
+    <div *ngIf="componentRootNode">{{componentRootNode.componentType ? componentRootNode.componentType : 'Component'}}</div>
+    <div class="text-small">{{componentRootNode ? componentRootNode.description : ''}}</div>
+  </div>
+  <div *ngIf="componentRootNode" class="component-timeline">
+    <app-timeline [view]="view" [elementId]="componentRootNode.state.elementId ? componentRootNode.state.elementId : componentRootNode.elementId"
+      [checkId]="componentRootNode.state.checkId" [alertName]="componentRootNode.state.alertName" (selectedEvent)="receiveEvent($event)"
+      resize="true"></app-timeline>
+    <app-depoyment-window [view]="viewDW" [simpleVersion]="true" resize="true" [elementId]="componentRootNode.state.elementId ? componentRootNode.state.elementId : componentRootNode.elementId"></app-depoyment-window>
+  </div>
+  <div fxLayout="column" fxFlex class="node-check-detail-view-container">
+    <div>
+      <ag-grid-angular class="ag-theme-material" [rowData]="rowData" [columnDefs]="columnDefs" [enableSorting]="true" [enableFilter]="true"
+        [enableColResize]="true" [rowSelection]="rowSelection" [gridOptions]="gridOptions" (gridReady)="onGridReady($event)">
+      </ag-grid-angular>
+      <ngx-loading [show]="showloadingIndicator" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+    </div>
+  </div>
+
+</div>

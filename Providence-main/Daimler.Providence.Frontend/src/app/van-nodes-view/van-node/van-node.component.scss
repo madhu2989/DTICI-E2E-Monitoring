@@ -1,0 +1,231 @@
+@import '../../../assets/styles/globals.scss';
+
+@mixin square ($color) {
+    content: "";
+    width: 1.7rem; 
+    height: 1rem; 
+    float: right; 
+    border-radius: 0.2em;
+    margin: 0.2rem -2rem 0.2rem -2rem;
+    background: $color; 
+    position: absolute;
+}
+
+.tile-separator-horizontal {
+    width: 100%;
+    height: 0.1rem;
+    margin: 1rem 0 !important;
+    background-color:rgba(255, 255, 255, 0.1);
+}
+
+.van-nodes-title {
+    width: 25rem;
+}
+
+.van-nodes-content {
+    width: 20rem;
+}
+.serviceCount {
+    text-align: right; 
+ }
+
+.van-node-element {
+    cursor: pointer;
+}
+
+.element-title {
+    margin: 2rem 0;
+    font: 100 17px/14px Roboto, "Helvetica Neue", sans-serif;
+}
+
+.icon-error {
+    color: $color-error-red;
+    border-radius: 0.5em;
+    background-color: white;
+}
+
+.icon-warning {
+    color: $color-warn-orange;
+    border-radius: 0.5em;
+    background-color: white;
+}
+
+.icon-ok {
+    color: $color-ok-green;
+    border-radius: 0.5em;
+    background-color: white;
+}
+
+.header-subtitle {
+   overflow: hidden;
+      white-space: nowrap;
+     text-overflow: ellipsis;
+     margin-left: 31px;
+}
+
+ .node-overlay ::ng-deep .noDataOverlayText {
+     top: 92px;
+ }
+
+ mat-card-title {
+     margin-bottom: 0px;
+     white-space: nowrap;
+     text-overflow: ellipsis;
+ }
+
+ .childNodeName {
+     width: 100%;
+     overflow: hidden;
+      white-space: nowrap;
+     text-overflow: ellipsis;
+ }
+
+ .nodeCard {
+    margin: 3px;
+    background-color: #2B343A;
+    width: 25rem;
+    padding-bottom: 8px !important;
+  
+  .mat-card-title {
+      font-size: 18px !important;
+      width: 21rem;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  
+    mat-spinner {
+        margin-left: 50px;
+    }
+  }
+
+
+
+  .nodeCardServiceView {
+    margin: 3px;
+    background-color: #2B343A;
+    width: 25rem;
+    padding-bottom: 8px !important;
+  
+  .mat-card-title {
+      font-size: 18px !important;
+      width: 21rem;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  
+    mat-spinner {
+        margin-left: 50px;
+    }
+  }
+  
+
+  .child-node-summary {
+      margin-top: 10px;
+      height: 18px;
+  }
+
+    div  ::ng-deep .ngx-charts-outer.ng-trigger.ng-trigger-animationState {
+    position: absolute !important;
+    top: calc(50% - 30px) !important;
+    left: 0px;
+  }
+
+
+
+  .tooltip {
+    position: relative;
+    display: inline-block;
+    z-index: 10;
+  }
+  
+  .tooltip .tooltiptext {
+    visibility: hidden;
+    background-color: rgba(109, 109, 109, 0.7);
+    padding: 5px;
+    border-radius: 2px;
+   
+    top: 110%;
+    left: 10%; 
+    position: absolute;
+    font:12px/12px Roboto, "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: initial;
+  }
+  
+  .tooltip:hover .tooltiptext {
+    visibility: visible;
+  }
+
+  .title-tooltip {
+    position: relative;
+    display: inline-block;
+    z-index: 10;
+  }
+  
+  .title-tooltip .title-tooltiptext {
+    visibility: hidden;
+    background-color: rgba(109, 109, 109, 0.7);
+    padding: 5px;
+    border-radius: 2px;
+   
+    top: 110%;
+    left: 10%; 
+    position: absolute;
+    font:12px/12px Roboto, "Helvetica Neue", sans-serif;
+  }
+  
+  .title-tooltip:hover .title-tooltiptext {
+    visibility: visible;
+  }
+
+
+  .childNode-tooltip {
+    position: relative;
+    display: inline-block;
+    z-index: 10;
+  }
+  
+  .childNode-tooltip .childNode-tooltiptext {
+    visibility: hidden;
+    background-color: rgba(109, 109, 109, 0.7);
+    padding: 5px;
+    border-radius: 2px;
+    font-weight: normal;
+   
+    top: 30%;
+    left: 10%; 
+    position: absolute;
+    font-family: Roboto, sans-serif;
+    font-size: 12px;
+  }
+  
+  .childNode-tooltip:hover .childNode-tooltiptext {
+    visibility: visible;
+  }
+
+
+  .checks-tooltip {
+    position: relative;
+    display: inline-block;
+    z-index: 10;
+  }
+  
+  .checks-tooltip .checks-tooltiptext {
+    visibility: hidden;
+    background-color: rgba(109, 109, 109, 0.7);
+    padding: 5px;
+    border-radius: 2px;
+    font-weight: normal;
+    z-index: 10;
+   
+    top: 30%;
+    left: 10%; 
+    position: absolute;
+    font-family: Roboto, sans-serif;
+    font-size: 12px;
+  }
+  
+  .checks-tooltip:hover .checks-tooltiptext {
+    visibility: visible;
+  }

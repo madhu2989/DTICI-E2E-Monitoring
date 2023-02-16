@@ -1,0 +1,24 @@
+parameters:
+  stage: ''
+  subscription: ''
+  subscriptionDocker: ''  
+  subscriptionAks: ''
+  tagVersion: ''
+  locationShortCsg: ''
+  versionNumber: ''
+  azureDevOpsEnvironment: ''
+  forceDeployment: ''
+
+jobs:
+
+  - template: e2e.monitoring.job.app.deploy-csg.yml
+    parameters:
+      subscription: '${{ parameters.subscription }}'
+      subscriptionDocker: '${{ parameters.subscriptionDocker }}'
+      subscriptionAks: '${{ parameters.subscriptionAks }}'
+      azureDevOpsEnvironment: '${{ parameters.azureDevOpsEnvironment }}'
+      stage: '${{ parameters.stage }}'
+      locationShortCsg: '${{ parameters.locationShortCsg }}'
+      tagVersion: '${{ parameters.tagVersion }}'
+      versionNumber: '${{ parameters.versionNumber }}'
+      forceDeployment: '${{ parameters.forceDeployment }}'

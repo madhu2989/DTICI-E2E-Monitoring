@@ -1,0 +1,233 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "IsPublicAccessEnabled": {
+      "type": "string",
+      "defaultValue": "Enabled"
+    },
+    "Location": {
+      "type": "string"
+    },
+    "MinimalTlsVersion": {
+      "type": "string",
+      "defaultValue": "1.2"
+    },
+    "RestrictOutboundNetworkAccess": {
+      "type": "string",
+      "defaultValue": "Disabled"
+    },
+    "SQL_Admin_Login": {
+      "type": "string"
+    },
+    "SQL_Server_Name": {
+      "type": "string",
+      "metadata": {
+        "description": "Sql Server Name"
+      }
+    },
+    "SQL_Database_Name": {
+      "type": "string",
+      "metadata": {
+        "description": "Sql Database Name"
+      }
+    },
+    "Subscription_Id": {
+      "type": "string"
+    },
+    "SQL_Admin_Password": {
+      "type": "securestring",
+      "defaultValue": "Providence@123!"
+    },
+    "VNet_Name": {
+      "type": "string",
+      "metadata": {
+        "description": "VNet Name"
+      }
+    },
+    "Subnet_Name": {
+      "type": "string",
+      "metadata": {
+        "description": "Subnet Name"
+      }
+    },
+    "Vnet_ResourceGroup_Name": {
+      "type": "string"
+    },
+    "Vnet_SubscriptionId_Id": {
+      "type": "string"
+    },
+    "MSI_Id": {
+      "type": "string",
+      "metadata": {
+        "description": "MSI ID"
+      }
+    },
+    "MSI_Administrator_Type": {
+      "type": "string",
+      "metadata": {
+        "description": "MSI Administrator Type"
+      }
+    },
+    "MSI_Principal_Type": {
+      "type": "string",
+      "metadata": {
+        "description": "MSI Principal Type"
+      }
+    },
+    "MSI_Login": {
+      "type": "string",
+      "metadata": {
+        "description": "MSI Principal Login"
+      }
+    },
+    "MSI_SID": {
+      "type": "string",
+      "metadata": {
+        "description": "MSI SID"
+      }
+    },
+    "MSI_Tenant_Id": {
+      "type": "string",
+      "metadata": {
+        "description": "MSI Tenant Id"
+      }
+    },
+    "MSI_AzureADOnlyAuthentication": {
+      "type": "bool",
+      "metadata": {
+        "description": "MSI SID"
+      }
+    },
+    "MSI_ResourceGroup_Name": {
+      "type": "String"
+    },
+    "MSI_ID_PrincipleId": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "MSI_ID_ResourceId": "[resourceId(parameters('MSI_ResourceGroup_Name'),'Microsoft.ManagedIdentity/userAssignedIdentities', parameters('MSI_Id'))]",
+    "Virtual_Network_Subnet_Id": "[concat(resourceId(parameters('Vnet_SubscriptionId_Id'),parameters('Vnet_ResourceGroup_Name'),'Microsoft.Network/virtualNetworks', parameters('VNet_Name')), '/subnets/',parameters('Subnet_Name'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2021-08-01-preview",
+      "name": "[parameters('SQL_Server_Name')]",
+      "location": "[parameters('Location')]",
+      "tags": {
+        "Availability": "A1",
+        "Confidentiality": "C3.2",
+        "Export": "E2",
+        "Integrity": "I1",
+        "Recovery": "R1",
+        "owner": "E2Emon"
+      },
+      "kind": "v12.0",
+      "identity": {
+        "type": "SystemAssigned,UserAssigned",
+        "userAssignedIdentities": {
+          "[variables('MSI_ID_ResourceId')]": {}
+        }
+      },
+      "properties": {
+        "administratorLogin": "[parameters('SQL_Admin_Login')]",
+        "administratorLoginPassword": "[parameters('SQL_Admin_Password')]",
+        "version": "12.0",
+        "minimalTlsVersion": "[parameters('MinimalTlsVersion')]",
+        "publicNetworkAccess": "[parameters('IsPublicAccessEnabled')]",
+        "primaryUserAssignedIdentityId": "[variables('MSI_ID_ResourceId')]",
+        "administrators": {
+          "administratorType": "[parameters('MSI_Administrator_Type')]",
+          "principalType": "[parameters('MSI_Principal_Type')]",
+          "login": "[parameters('MSI_Login')]",
+          "sid": "[parameters('MSI_SID')]",
+          "tenantId": "[parameters('MSI_Tenant_Id')]",
+          "azureADOnlyAuthentication": "[parameters('MSI_AzureADOnlyAuthentication')]"
+        },
+        "restrictOutboundNetworkAccess": "[parameters('RestrictOutboundNetworkAccess')]"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/administrators",
+      "apiVersion": "2022-02-01-preview",
+      "name": "[concat(parameters('SQL_Server_Name'), '/ActiveDirectory')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('SQL_Server_Name'))]"
+      ],
+      "properties": {
+        "administratorType": "[parameters('MSI_Administrator_Type')]",
+        "login": "[parameters('MSI_Login')]",
+        "sid": "[parameters('MSI_SID')]",
+        "tenantId": "[parameters('MSI_Tenant_Id')]"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases",
+      "apiVersion": "2021-08-01-preview",
+      "name": "[concat(parameters('SQL_Server_Name'), '/', parameters('SQL_Database_Name'))]",
+      "location": "[parameters('Location')]",
+      "tags": {
+        "Availability": "A1",
+        "Confidentiality": "C3.2",
+        "Export": "E2",
+        "Integrity": "I1",
+        "Recovery": "R1",
+        "owner": "E2Emon"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('SQL_Server_Name'))]"
+      ],
+      "sku": {
+        "capacity": 200,
+        "name": "Standard",
+        "tier": "Standard"
+      },
+      "kind": "v12.0,user",
+      "properties": {
+        "collation": "SQL_Latin1_General_CP1_CI_AS",
+        "maxSizeBytes": 2147483648,
+        "catalogCollation": "SQL_Latin1_General_CP1_CI_AS",
+        "zoneRedundant": false,
+        "readScale": "Disabled",
+        "requestedBackupStorageRedundancy": "Geo",
+        "maintenanceConfigurationId": "[concat('/subscriptions/', parameters('Subscription_Id'), '/providers/Microsoft.Maintenance/publicMaintenanceConfigurations/SQL_Default')]",
+        "isLedgerOn": false
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/virtualNetworkRules",
+      "apiVersion": "2021-08-01-preview",
+      "name": "[concat(parameters('SQL_Server_Name'), '/BackendVNetRule')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('SQL_Server_Name'))]"
+      ],
+      "properties": {
+        "virtualNetworkSubnetId": "[variables('Virtual_Network_Subnet_Id')]",
+        "ignoreMissingVnetServiceEndpoint": true
+      }
+    }
+  ],
+  "outputs": {
+    "sqlServerFqdn": {
+      "type": "string",
+      "value": "[reference(concat('Microsoft.Sql/servers/', parameters('SQL_Server_Name'))).fullyQualifiedDomainName]"
+    },
+    "dbAdoConnectionString": {
+      "type": "string",
+      "value": "[concat('Server=tcp:',reference(concat('Microsoft.Sql/servers/', parameters('SQL_Server_Name'))).fullyQualifiedDomainName,',1433;Initial Catalog=',parameters('SQL_Database_Name'),';Persist Security Info=False;User ID=',reference(concat('Microsoft.Sql/servers/', parameters('SQL_Server_Name'))).administratorLogin,';Password=',parameters('SQL_Admin_Password'),';MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False')]"
+    },
+
+    "DatabaseConnectionString": {
+      "type": "string",
+      "value": "[concat('Server=tcp:', parameters('SQL_Server_Name'), '.database.windows.net; Authentication=Active Directory Managed Identity; User Id=', parameters('MSI_ID_PrincipleId'), ';Initial Catalog=', parameters('SQL_Database_Name'), '; Encrypt=True;MultipleActiveResultSets=true;Max Pool Size=200;')]"
+    },
+
+    "sqlIdentity": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Sql/servers',parameters('SQL_Server_Name')), '2015-05-01-preview', 'Full').identity.principalId]"
+    }
+  }
+
+}

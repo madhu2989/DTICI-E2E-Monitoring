@@ -1,0 +1,47 @@
+# E2E Monitoring Crew, 2022
+
+# This is the entry point for the YAML pipeline
+
+parameters:
+  versionNumber: ''
+  tagVersion: ''
+  subscriptionDocker: ''
+  stageName: ''
+
+stages:
+  - stage: '${{ parameters.stageName }}'
+    pool: $(pool)
+    displayName: '${{ parameters.stageName }}'
+    jobs:
+      #- template: jobs/e2e.monitoring.job.app.unit.test.yml
+      #  parameters:
+      #    versionNumber: '${{ parameters.versionNumber }}'
+      #    tagVersion: '${{ parameters.tagVersion }}'
+
+      - template: jobs/e2e.monitoring.job.app.docker.build-csg.yml
+        parameters:
+          jobName: 'backend'
+          versionNumber: '${{ parameters.versionNumber }}'
+          tagVersion: '${{ parameters.tagVersion }}'
+          subscription: '${{ parameters.subscriptionDocker }}'
+          dockerFile: 'Providence-main/Daimler.Providence.Backend/Dockerfile'
+          repository: 'e2eMonitoring-backend'
+          imageName: 'e2e-monitoring-backend-service'
+
+      - template: jobs/e2e.monitoring.job.app.docker.build-csg.yml
+        parameters:
+          jobName: 'frontend'
+          versionNumber: '${{ parameters.versionNumber }}'
+          tagVersion: '${{ parameters.tagVersion }}'
+          subscription: '${{ parameters.subscriptionDocker }}'
+          dockerFile: 'Providence-main/Daimler.Providence.Frontend/Dockerfile'
+          repository: 'e2eMonitoring-frontend'
+          imageName: 'e2e-monitoring-frontend-service'      
+
+      #- job: git_tag
+      #  dependsOn: [docker_build_app_csg_io, docker_build_app_csg_cn]
+      #  displayName: 'git tag'
+      #  steps:
+      #    - bash: make tag tagVersion="${{ parameters.tagVersion }}" committer-pat=$(System.AccessToken)
+      #      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+      #      displayName: "Git Tag"

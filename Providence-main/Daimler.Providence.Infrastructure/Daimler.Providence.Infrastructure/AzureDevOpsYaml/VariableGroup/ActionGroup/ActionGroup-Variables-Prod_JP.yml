@@ -1,0 +1,10 @@
+variables: 
+  - name: ActionGroupName
+    value: csg-prod-mon-ag01-jpe
+  - name: ActionGroupResourceGroupName
+    value: csg-jpe-prod-e2e-mon-shared
+  - name: Location
+    value: japaneast
+  - name: FAResourceGroupName
+    value: csg-jpe-stg-e2e-mon
+

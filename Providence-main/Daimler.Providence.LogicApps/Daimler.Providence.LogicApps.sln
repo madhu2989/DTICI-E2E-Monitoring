@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.779
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "Daimler.Providence.LogicApps", "Daimler.Providence.LogicApps\Daimler.Providence.LogicApps.deployproj", "{57B5B915-6130-4598-BC08-7577EB833DFF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{57B5B915-6130-4598-BC08-7577EB833DFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57B5B915-6130-4598-BC08-7577EB833DFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57B5B915-6130-4598-BC08-7577EB833DFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57B5B915-6130-4598-BC08-7577EB833DFF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ABD1EE58-7AA8-4790-9E73-750CF604A181}
+	EndGlobalSection
+EndGlobal

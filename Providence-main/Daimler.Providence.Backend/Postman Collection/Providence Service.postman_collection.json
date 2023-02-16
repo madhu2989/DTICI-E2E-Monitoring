@@ -1,0 +1,3354 @@
+{
+	"info": {
+		"_postman_id": "90817b6f-11f8-436b-9917-b071ead9a950",
+		"name": "Providence Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Alert(s)",
+			"item": [
+				{
+					"name": "Send Ok",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var current_timestamp = new Date();",
+									"postman.setEnvironmentVariable(\"current_timestamp\", current_timestamp.toISOString());",
+									"",
+									"var randomRecordID = guid();",
+									"postman.setEnvironmentVariable(\"random_guid\", randomRecordID);",
+									"",
+									"function guid() {",
+									"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +",
+									"    s4() + '-' + s4() + s4() + s4();",
+									"}",
+									"",
+									"function s4() {",
+									"  return Math.floor((1 + Math.random()) * 0x10000)",
+									"    .toString(16)",
+									"    .substring(1);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"subscriptionId\": \"{{environment_subscriptionid}}\",\n\t\"checkId\" : \"string\",\n\t\"alertName\" : \"string\",\n\t\"componentId\": \"string\",\n    \"Description\" : \"string\",\n    \"state\": \"OK\",\n    \"Sourcetimestamp\": \"{{current_timestamp}}\",\n    \"TimeGenerated\": \"{{current_timestamp}}\",\n    \"RecordID\": \"{{random_guid}}\"\n}"
+						},
+						"url": {
+							"raw": "{{HOST}}/api/alerts",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"alerts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send Warning",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var current_timestamp = new Date();",
+									"postman.setEnvironmentVariable(\"current_timestamp\", current_timestamp.toISOString());",
+									"",
+									"var randomRecordID = guid();",
+									"postman.setEnvironmentVariable(\"random_guid\", randomRecordID);",
+									"",
+									"function guid() {",
+									"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +",
+									"    s4() + '-' + s4() + s4() + s4();",
+									"}",
+									"",
+									"function s4() {",
+									"  return Math.floor((1 + Math.random()) * 0x10000)",
+									"    .toString(16)",
+									"    .substring(1);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"subscriptionId\": \"{{environment_subscriptionid}}\",\n\t\"checkId\" : \"string\",\n\t\"alertName\" : \"string\",\n\t\"componentId\": \"string\",\n    \"Description\" : \"string\",\n    \"state\": \"WARNING\",\n    \"Sourcetimestamp\": \"{{current_timestamp}}\",\n    \"TimeGenerated\": \"{{current_timestamp}}\",\n    \"RecordID\": \"{{random_guid}}\"\n}"
+						},
+						"url": {
+							"raw": "{{HOST}}/api/alerts",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"alerts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send Error",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var current_timestamp = new Date();",
+									"postman.setEnvironmentVariable(\"current_timestamp\", current_timestamp.toISOString());",
+									"",
+									"var randomRecordID = guid();",
+									"postman.setEnvironmentVariable(\"random_guid\", randomRecordID);",
+									"",
+									"function guid() {",
+									"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +",
+									"    s4() + '-' + s4() + s4() + s4();",
+									"}",
+									"",
+									"function s4() {",
+									"  return Math.floor((1 + Math.random()) * 0x10000)",
+									"    .toString(16)",
+									"    .substring(1);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"subscriptionId\": \"{{environment_subscriptionid}}\",\n\t\"checkId\" : \"string\",\n\t\"alertName\" : \"string\",\n\t\"componentId\": \"string\",\n    \"Description\" : \"string\",\n    \"state\": \"ERROR\",\n    \"Sourcetimestamp\": \"{{current_timestamp}}\",\n    \"TimeGenerated\": \"{{current_timestamp}}\",\n    \"RecordID\": \"{{random_guid}}\"\n}"
+						},
+						"url": {
+							"raw": "{{HOST}}/api/alerts",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"alerts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Queued AlertMessages",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var current_timestamp = new Date();",
+									"postman.setEnvironmentVariable(\"current_timestamp\", current_timestamp.toISOString());",
+									"",
+									"var randomRecordID = guid();",
+									"postman.setEnvironmentVariable(\"random_guid\", randomRecordID);",
+									"",
+									"function guid() {",
+									"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +",
+									"    s4() + '-' + s4() + s4() + s4();",
+									"}",
+									"",
+									"function s4() {",
+									"  return Math.floor((1 + Math.random()) * 0x10000)",
+									"    .toString(16)",
+									"    .substring(1);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/alerts/{{environment_subscriptionid}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"alerts",
+								"{{environment_subscriptionid}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "AlertComment(s)",
+			"item": [
+				{
+					"name": "Get AlertComments",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/alertComments",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"alertComments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get AlertComments By StateTransitionRecordId",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/alertComments/{{recordId}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"alertComments",
+								"{{recordId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add AlertComment",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"user\": \"string\",\r\n  \"comment\": \"string\",\r\n  \"state\": 0,\r\n  \"recordId\": \"80289f59-4ffa-b6a5-30cb-7806573e6243\"\r\n}"
+						},
+						"url": {
+							"raw": "{{HOST}}/api/alertComments",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"alertComments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update AlertComment",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"user\": \"string\",\r\n  \"comment\": \"string\",\r\n  \"state\": 0\r\n}"
+						},
+						"url": {
+							"raw": "{{HOST}}/api/alertComments/{{id}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"alertComments",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete AlertComment",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{HOST}}/api/alertComments/{{id}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"alertComments",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "AlertIgnore(s)",
+			"item": [
+				{
+					"name": "Get AlertIgnore",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/alertIgnores/{{id}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"alertIgnores",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get AlertIgnores",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/alertIgnores",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"alertIgnores"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add AlertIgnore",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var current_timestamp = new Date();",
+									"postman.setEnvironmentVariable(\"current_timestamp\", current_timestamp.toISOString());",
+									"",
+									"var expire_timestamp = new Date(new Date().getTime() + 3600000);",
+									"postman.setEnvironmentVariable(\"expire_timestamp\", expire_timestamp.toISOString());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"string\",\r\n  \"environmentSubscriptionId\": \"{{environment_subscriptionid}}\",\r\n  \"creationDate\": \"{{current_timestamp}}\",\r\n  \"expirationDate\": \"{{expire_timestamp}}\",\r\n  \"ignoreCondition\": {\r\n \t  \"checkId\" : \"string\",\r\n \t  \"componentId\" : \"string\",\r\n      \"Description\" : \"string\",\r\n      \"state\": \"string\",\r\n      \"CustomField1\": \"string\",\r\n      \"CustomField2\": \"string\",\r\n      \"CustomField3\": \"string\",\r\n      \"CustomField4\": \"string\",\r\n      \"CustomField5\": \"string\",\r\n      \"AlertName\": \"string\"\r\n\t}\r\n}"
+						},
+						"url": {
+							"raw": "{{HOST}}/api/alertIgnores/",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"alertIgnores",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update AlertIgnore",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var current_timestamp = new Date();",
+									"postman.setEnvironmentVariable(\"current_timestamp\", current_timestamp.toISOString());",
+									"",
+									"var expire_timestamp = new Date(new Date().getTime() + 3600000);",
+									"postman.setEnvironmentVariable(\"expire_timestamp\", expire_timestamp.toISOString());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"string\",\r\n  \"environmentSubscriptionId\": \"{{environment_subscriptionid}}\",\r\n  \"expirationDate\": \"{{expire_timestamp}}\",\r\n  \"ignoreCondition\": {\r\n \t  \"checkId\" : \"string\",\r\n \t  \"componentId\" : \"string\",\r\n      \"Description\" : \"string\",\r\n      \"state\": \"string\",\r\n      \"CustomField1\": \"string\",\r\n      \"CustomField2\": \"string\",\r\n      \"CustomField3\": \"string\",\r\n      \"CustomField4\": \"string\",\r\n      \"CustomField5\": \"string\",\r\n      \"AlertName\": \"string\"\r\n\t}\r\n}"
+						},
+						"url": {
+							"raw": "{{HOST}}/api/alertIgnores/{{id}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"alertIgnores",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete AlertIgnore",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{HOST}}/api/alertIgnores/{{id}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"alertIgnores",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ChangeLog(s)",
+			"item": [
+				{
+					"name": "Get ChangeLogs",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/changelogs?startDate={{startDate}}&endDate={{endDate}}&changelogId={{changelogId}}&elementId={{elementId}}&environmentName={{environmentName}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"changelogs"
+							],
+							"query": [
+								{
+									"key": "startDate",
+									"value": "{{startDate}}"
+								},
+								{
+									"key": "endDate",
+									"value": "{{endDate}}"
+								},
+								{
+									"key": "changelogId",
+									"value": "{{changelogId}}"
+								},
+								{
+									"key": "elementId",
+									"value": "{{elementId}}"
+								},
+								{
+									"key": "environmentName",
+									"value": "{{environmentName}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Configuration(s)",
+			"item": [
+				{
+					"name": "Get Configurations",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/configurations/{{environment_subscriptionid}}?configurationKey={{configurationKey}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"configurations",
+								"{{environment_subscriptionid}}"
+							],
+							"query": [
+								{
+									"key": "configurationKey",
+									"value": "{{configurationKey}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Configuration",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"environmentSubscriptionId\": \"{{environment_subscriptionid}}\",\r\n\t\"key\": \"string\",\r\n\t\"value\": 0,\r\n\t\"description\": \"string\"\r\n}"
+						},
+						"url": {
+							"raw": "{{HOST}}/api/configurations",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Configuration",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"value\": 0,\r\n\t\"description\": \"string\"\r\n}"
+						},
+						"url": {
+							"raw": "{{HOST}}/api/configurations/{{environment_subscriptionid}}/{{key}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"configurations",
+								"{{environment_subscriptionid}}",
+								"{{key}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Configuration",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/configurations/{{environment_subscriptionid}}/{{key}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"configurations",
+								"{{environment_subscriptionid}}",
+								"{{key}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Deployment(s)",
+			"item": [
+				{
+					"name": "Get Deployments",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/deployments",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"deployments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Deployments History",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/deployments/history/{{environment_name}}?startDate={{startDate}}&endDate={{endDate}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"deployments",
+								"history",
+								"{{environment_name}}"
+							],
+							"query": [
+								{
+									"key": "startDate",
+									"value": "{{startDate}}"
+								},
+								{
+									"key": "endDate",
+									"value": "{{endDate}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Deployment",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var current_timestamp = new Date();",
+									"postman.setEnvironmentVariable(\"start_timestamp\", current_timestamp.toISOString());",
+									"",
+									"var expire_timestamp = new Date(new Date().getTime() + 1200000);",
+									"postman.setEnvironmentVariable(\"end_timestamp\", expire_timestamp.toISOString());",
+									"",
+									"var expire_timestamp = new Date(new Date().getTime() + 3600000);",
+									"postman.setEnvironmentVariable(\"repeat_timestamp\", expire_timestamp.toISOString());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"environmentsubscriptionId\": \"{{environment_subscriptionid}}\",\n\t\"description\": \"string\",\n\t\"shortDescription\": \"string\",\n\t\"startDate\" : \"{{start_timestamp}}\",\n\t\"endDate\" : \"{{end_timestamp}}\",\n\t\"closeReason\": \"string\",\n\t\"elementIds\": [\"component1\",\"component2\"],\n\t\"repeatInformation\": \n\t{\n\t\t\"repeatType\": 0,\n\t\t\"repeatInterval\": 0,\n\t\t\"repeatOnSameWeekDayCount\": false,\n\t\t\"repeatUntil\": \"{{repeat_timestamp}}\"\n\t}\n}"
+						},
+						"url": {
+							"raw": "{{HOST}}/api/deployments",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"deployments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Deployment",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var current_timestamp = new Date();",
+									"postman.setEnvironmentVariable(\"start_timestamp\", current_timestamp.toISOString());",
+									"",
+									"var expire_timestamp = new Date(new Date().getTime() + 1200000);",
+									"postman.setEnvironmentVariable(\"end_timestamp\", expire_timestamp.toISOString());",
+									"",
+									"var expire_timestamp = new Date(new Date().getTime() + 3600000);",
+									"postman.setEnvironmentVariable(\"repeat_timestamp\", expire_timestamp.toISOString());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"description\": \"string\",\n\t\"shortDescription\": \"string\",\n\t\"startDate\" : \"{{start_timestamp}}\",\n\t\"endDate\" : \"{{end_timestamp}}\",\n\t\"closeReason\": \"string\",\n\t\"notificationdelay\": 0,\n\t\"repeatInformation\": \n\t{\n\t\t\"repeatType\": 0,\n\t\t\"repeatInterval\": 0,\n\t\t\"repeatOnSameWeekDayCount\": false,\n\t\t\"repeatUntil\": \"{{repeat_timestamp}}\"\n\t}\n}"
+						},
+						"url": {
+							"raw": "{{HOST}}/api/deployments/{{environment_subscriptionid}}/{{id}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"deployments",
+								"{{environment_subscriptionid}}",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Deployment",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{HOST}}/api/deployments/{{environment_subscriptionid}}/{{id}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"deployments",
+								"{{environment_subscriptionid}}",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Environment(s)",
+			"item": [
+				{
+					"name": "Get Environment",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/environments/{{environment_name}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"environments",
+								"{{environment_name}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Environments",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/environments?showDemo={{showDemo}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"environments"
+							],
+							"query": [
+								{
+									"key": "showDemo",
+									"value": "{{showDemo}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get StateManagerContent",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/statemanagers/{{environment_subscriptionid}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"statemanagers",
+								"{{environment_subscriptionid}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "History",
+			"item": [
+				{
+					"name": "Get StateTransition",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/statetransitions/{{id}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"statetransitions",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get StateTransitions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/statetransitions/history/{{environment_name}}?extendedModel={{extendedModel}}&includeChecks={{includeChecks}}&elementId={{elementId}}&startDate={{startDate}}&endDate={{endDate}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"statetransitions",
+								"history",
+								"{{environment_name}}"
+							],
+							"query": [
+								{
+									"key": "extendedModel",
+									"value": "{{extendedModel}}"
+								},
+								{
+									"key": "includeChecks",
+									"value": "{{includeChecks}}"
+								},
+								{
+									"key": "elementId",
+									"value": "{{elementId}}"
+								},
+								{
+									"key": "startDate",
+									"value": "{{startDate}}"
+								},
+								{
+									"key": "endDate",
+									"value": "{{endDate}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Import/Export",
+			"item": [
+				{
+					"name": "Export",
+					"item": [
+						{
+							"name": "Export Environment",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/environmentUpdate?environmentSubscriptionId={{environment_subscriptionid}}",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"environmentUpdate"
+									],
+									"query": [
+										{
+											"key": "environmentSubscriptionId",
+											"value": "{{environment_subscriptionid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Import",
+					"item": [
+						{
+							"name": "Update Environment",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n   \"services\":[\r\n      {\r\n         \"actions\":[\r\n            \"action1\"\r\n         ],\r\n         \"elementId\":\"service1\",\r\n         \"name\":\"Service 1\",\r\n         \"description\":\"Service1\"\r\n      }\r\n   ],\r\n   \"actions\":[\r\n      {\r\n         \"components\":[\r\n            \"component1\"\r\n         ],\r\n         \"elementId\":\"action1\",\r\n         \"name\":\"Action 1\",\r\n         \"description\":\"Action1\"\r\n      }\r\n   ],\r\n   \"components\":[\r\n      {\r\n         \"componentType\":null,\r\n         \"elementId\":\"component1\",\r\n         \"name\":\"Component 1\",\r\n         \"description\":\"Component1\"\r\n      }\r\n   ],\r\n   \"checks\":[\r\n      {\r\n         \"vstsLink\":\"VSTSLINK\",\r\n         \"frequency\":80,\r\n         \"elementId\":\"check1\",\r\n         \"name\":\"Check 1\",\r\n         \"description\":\"Check1\"\r\n      }\r\n   ]\r\n}"
+								},
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/environmentUpdate?environmentId={{environment_id}}&instance_name={{environment_name}}&environmentSubscriptionId={{environment_subscriptionid}}&replace=False",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"environmentUpdate"
+									],
+									"query": [
+										{
+											"key": "environmentId",
+											"value": "{{environment_id}}"
+										},
+										{
+											"key": "instance_name",
+											"value": "{{environment_name}}"
+										},
+										{
+											"key": "environmentSubscriptionId",
+											"value": "{{environment_subscriptionid}}"
+										},
+										{
+											"key": "replace",
+											"value": "False"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Replace Partial Environment",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n   \"services\":[\r\n      {\r\n         \"actions\":[\r\n            \"action1\"\r\n         ],\r\n         \"elementId\":\"service1\",\r\n         \"name\":\"Service 1\",\r\n         \"description\":\"Service1\"\r\n      }\r\n   ],\r\n   \"actions\":[\r\n      {\r\n         \"components\":[\r\n            \"component1\"\r\n         ],\r\n         \"elementId\":\"action1\",\r\n         \"name\":\"Action 1\",\r\n         \"description\":\"Action1\"\r\n      }\r\n   ],\r\n   \"components\":[\r\n      {\r\n         \"componentType\":null,\r\n         \"elementId\":\"component1\",\r\n         \"name\":\"Component 1\",\r\n         \"description\":\"Component1\"\r\n      }\r\n   ],\r\n   \"checks\":[\r\n      {\r\n         \"vstsLink\":\"VSTSLINK\",\r\n         \"frequency\":80,\r\n         \"elementId\":\"check1\",\r\n         \"name\":\"Check 1\",\r\n         \"description\":\"Check1\"\r\n      }\r\n   ]\r\n}"
+								},
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/environmentUpdate?instance_name={{environment_name}}&environmentSubscriptionId={{environment_subscriptionid}}&replace=True",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"environmentUpdate"
+									],
+									"query": [
+										{
+											"key": "instance_name",
+											"value": "{{environment_name}}"
+										},
+										{
+											"key": "environmentSubscriptionId",
+											"value": "{{environment_subscriptionid}}"
+										},
+										{
+											"key": "replace",
+											"value": "True"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Replace Whole Environment",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n   \"services\":[\r\n      {\r\n         \"actions\":[\r\n            \"action1\"\r\n         ],\r\n         \"elementId\":\"service1\",\r\n         \"name\":\"Service 1\",\r\n         \"description\":\"Service1\"\r\n      }\r\n   ],\r\n   \"actions\":[\r\n      {\r\n         \"components\":[\r\n            \"component1\"\r\n         ],\r\n         \"elementId\":\"action1\",\r\n         \"name\":\"Action 1\",\r\n         \"description\":\"Action1\"\r\n      }\r\n   ],\r\n   \"components\":[\r\n      {\r\n         \"componentType\":null,\r\n         \"elementId\":\"component1\",\r\n         \"name\":\"Component 1\",\r\n         \"description\":\"Component1\"\r\n      }\r\n   ],\r\n   \"checks\":[\r\n      {\r\n         \"vstsLink\":\"VSTSLINK\",\r\n         \"frequency\":80,\r\n         \"elementId\":\"check1\",\r\n         \"name\":\"Check 1\",\r\n         \"description\":\"Check1\"\r\n      }\r\n   ]\r\n}"
+								},
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/environmentUpdate?instance_name={{environment_name}}&environmentSubscriptionId={{environment_subscriptionid}}&replace=All",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"environmentUpdate"
+									],
+									"query": [
+										{
+											"key": "instance_name",
+											"value": "{{environment_name}}"
+										},
+										{
+											"key": "environmentSubscriptionId",
+											"value": "{{environment_subscriptionid}}"
+										},
+										{
+											"key": "replace",
+											"value": "All"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Maintenance",
+			"item": [
+				{
+					"name": "Get OpenThreads",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/maintenance/threads",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"maintenance",
+								"threads"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Memory",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/maintenance/memory",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"maintenance",
+								"memory"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get CPU",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/maintenance/cpu",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"maintenance",
+								"cpu"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/maintenance",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"maintenance"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "MasterData",
+			"item": [
+				{
+					"name": "Environments",
+					"item": [
+						{
+							"name": "Get Environment",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/environments?elementId={{environment_subscriptionid}}",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"environments"
+									],
+									"query": [
+										{
+											"key": "elementId",
+											"value": "{{environment_subscriptionid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Environments",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/environments",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"environments"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "AddEnvironment",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"{{environment_name}}\",\r\n  \"description\": \"Richards Dev Environment\",\r\n  \"elementId\": \"{{environment_subscriptionid}}\",\r\n  \"isDemo\": false\r\n}"
+								},
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/environments/",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"environments",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "UpdateEnvironment",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"{{environment_name}}\",\r\n  \"description\": \"string\",\r\n  \"isDemo\": false,\r\n  \"checks\": [],\r\n  \"services\": []\r\n}"
+								},
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/environments?elementId={{environment_subscriptionid}}",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"environments"
+									],
+									"query": [
+										{
+											"key": "elementId",
+											"value": "{{environment_subscriptionid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "DeleteEnvironment",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/environments?elementId={{environment_subscriptionid}}",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"environments"
+									],
+									"query": [
+										{
+											"key": "elementId",
+											"value": "{{environment_subscriptionid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Services",
+					"item": [
+						{
+							"name": "GetService",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/services?elementId={{elementId}}&environmentSubscriptionId={{environment_subscriptionid}}",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"services"
+									],
+									"query": [
+										{
+											"key": "elementId",
+											"value": "{{elementId}}"
+										},
+										{
+											"key": "environmentSubscriptionId",
+											"value": "{{environment_subscriptionid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Services",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/services?environmentSubscriptionId={{environment_subscriptionid}}",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"services"
+									],
+									"query": [
+										{
+											"key": "environmentSubscriptionId",
+											"value": "{{environment_subscriptionid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add Service",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"string\",\r\n  \"description\": \"string\",\r\n  \"environmentSubscriptionId\": \"{{environment_subscriptionid}}\",\r\n  \"elementId\": \"string\",\r\n  \"actions\": [],\r\n  \"checks\": []\r\n}"
+								},
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/services/",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"services",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Service",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"string\",\r\n  \"description\": \"string\",\r\n  \"actions\": [],\r\n  \"checks\": []\r\n}"
+								},
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/services?elementId={{elementId}}&environmentSubscriptionId={{environment_subscriptionid}}",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"services"
+									],
+									"query": [
+										{
+											"key": "elementId",
+											"value": "{{elementId}}"
+										},
+										{
+											"key": "environmentSubscriptionId",
+											"value": "{{environment_subscriptionid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Service",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/environments?elementId={{elementId}}&environmentSubscriptionId={{environment_subscriptionid}}",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"environments"
+									],
+									"query": [
+										{
+											"key": "elementId",
+											"value": "{{elementId}}"
+										},
+										{
+											"key": "environmentSubscriptionId",
+											"value": "{{environment_subscriptionid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Actions",
+					"item": [
+						{
+							"name": "Get Action",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/actions?elementId={{elementId}}&environmentSubscriptionId={{environment_subscriptionid}}",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"actions"
+									],
+									"query": [
+										{
+											"key": "elementId",
+											"value": "{{elementId}}"
+										},
+										{
+											"key": "environmentSubscriptionId",
+											"value": "{{environment_subscriptionid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Actions",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/actions?environmentSubscriptionId={{environment_subscriptionid}}",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"actions"
+									],
+									"query": [
+										{
+											"key": "environmentSubscriptionId",
+											"value": "{{environment_subscriptionid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add Action",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"string\",\r\n  \"description\": \"string\",\r\n  \"environmentSubscriptionId\": \"{{environment_subscriptionid}}\",\r\n  \"elementId\": \"string\",\r\n  \"serviceElementId\": \"string\",\r\n  \"checks\": [],\r\n  \"components\": []\r\n}"
+								},
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/actions/",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"actions",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Action",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"string\",\r\n  \"description\": \"string\",\r\n  \"serviceElementId\": \"string\",\r\n  \"checks\": [],\r\n  \"components\": []\r\n}"
+								},
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/actions?elementId={{elementId}}&environmentSubscriptionId={{environment_subscriptionid}}",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"actions"
+									],
+									"query": [
+										{
+											"key": "elementId",
+											"value": "{{elementId}}"
+										},
+										{
+											"key": "environmentSubscriptionId",
+											"value": "{{environment_subscriptionid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Action",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/actions?elementId={{elementId}}&environmentSubscriptionId={{environment_subscriptionid}}",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"actions"
+									],
+									"query": [
+										{
+											"key": "elementId",
+											"value": "{{elementId}}"
+										},
+										{
+											"key": "environmentSubscriptionId",
+											"value": "{{environment_subscriptionid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Components",
+					"item": [
+						{
+							"name": "Get Component",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/components?elementId={{elementId}}&environmentSubscriptionId={{environment_subscriptionid}}",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"components"
+									],
+									"query": [
+										{
+											"key": "elementId",
+											"value": "{{elementId}}"
+										},
+										{
+											"key": "environmentSubscriptionId",
+											"value": "{{environment_subscriptionid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Components",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/components?environmentSubscriptionId={{environment_subscriptionid}}",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"components"
+									],
+									"query": [
+										{
+											"key": "environmentSubscriptionId",
+											"value": "{{environment_subscriptionid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add Component",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"string\",\r\n  \"description\": \"string\",\r\n  \"componentType\": \"string\",\r\n  \"environmentSubscriptionId\": \"{{environment_subscriptionid}}\",\r\n  \"elementId\": \"string\",\r\n  \"checks\": []\r\n}"
+								},
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/components/",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"components",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Component",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"string\",\r\n  \"description\": \"string\",\r\n  \"componentType\": \"string\",\r\n  \"environmentSubscriptionId\": \"string\",\r\n  \"checks\": []\r\n}"
+								},
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/components?elementId={{elementId}}&environmentSubscriptionId={{environment_subscriptionid}}",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"components"
+									],
+									"query": [
+										{
+											"key": "elementId",
+											"value": "{{elementId}}"
+										},
+										{
+											"key": "environmentSubscriptionId",
+											"value": "{{environment_subscriptionid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Component",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/components?elementId={{elementId}}&environmentSubscriptionId={{environment_subscriptionid}}",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"components"
+									],
+									"query": [
+										{
+											"key": "elementId",
+											"value": "{{elementId}}"
+										},
+										{
+											"key": "environmentSubscriptionId",
+											"value": "{{environment_subscriptionid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Checks",
+					"item": [
+						{
+							"name": "Get Check",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/checks?elementId={{elementId}}&environmentSubscriptionId={{environment_subscriptionid}}",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"checks"
+									],
+									"query": [
+										{
+											"key": "elementId",
+											"value": "{{elementId}}"
+										},
+										{
+											"key": "environmentSubscriptionId",
+											"value": "{{environment_subscriptionid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Checks",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/checks",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"checks"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add Check",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"string\",\r\n  \"description\": \"string\",\r\n  \"environmentSubscriptionId\": \"{{environment_subscriptionid}}\",\r\n  \"elementId\": \"string\",\r\n  \"vstsLink\": \"string\",\r\n  \"frequency\": 0\r\n}"
+								},
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/checks/",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"checks",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Check",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"string\",\r\n  \"description\": \"string\",\r\n  \"environmentSubscriptionId\": \"{{environment_subscriptionid}}\",\r\n  \"vstsLink\": \"string\",\r\n  \"frequency\": -1\r\n}"
+								},
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/checks?elementId={{elementId}}&environmentSubscriptionId={{environment_subscriptionid}}",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"checks"
+									],
+									"query": [
+										{
+											"key": "elementId",
+											"value": "{{elementId}}"
+										},
+										{
+											"key": "environmentSubscriptionId",
+											"value": "{{environment_subscriptionid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Check",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{bearer-token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{HOST}}/api/masterdata/checks?elementId={{elementId}}&environmentSubscriptionId={{environment_subscriptionid}}",
+									"host": [
+										"{{HOST}}"
+									],
+									"path": [
+										"api",
+										"masterdata",
+										"checks"
+									],
+									"query": [
+										{
+											"key": "elementId",
+											"value": "{{elementId}}"
+										},
+										{
+											"key": "environmentSubscriptionId",
+											"value": "{{environment_subscriptionid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "NotificationRule(s)",
+			"item": [
+				{
+					"name": "Get NotificationsRules",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/notificationRules",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"notificationRules"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get NotificationRule",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/notificationRules/{{id}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"notificationRules",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add NotificationRule",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"environmentSubscriptionId\": \"{{environment_subscriptionid}}\",\r\n  \"levels\": [\"Environment\",\"Service\",\"Action\",\"Component\"],\r\n  \"emailAddresses\": \"string\",\r\n  \"states\": [\"Error\",\"Ok\",\"Warning\"],\r\n  \"notificationInterval\": -1,\r\n  \"isActive\": true\r\n}"
+						},
+						"url": {
+							"raw": "{{HOST}}/api/notificationRules",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"notificationRules"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update NotificationRule",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"environmentSubscriptionId\": \"{{environment_subscriptionid}}\",\r\n  \"levels\": [\"Environment\",\"Service\",\"Action\",\"Component\"],\r\n  \"emailAddresses\": \"string\",\r\n  \"states\": [\"Error\",\"Ok\",\"Warning\"],\r\n  \"notificationInterval\": -1,\r\n  \"isActive\": true\r\n}"
+						},
+						"url": {
+							"raw": "{{HOST}}/api/notificationRules/{{id}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"notificationRules",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete NotificationRule",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{HOST}}/api/notificationRules/{{id}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"notificationRules",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Refresh Environment",
+			"item": [
+				{
+					"name": "Refresh Environment",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{HOST}}/api/refresh/{{environment_subscriptionid}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"refresh",
+								"{{environment_subscriptionid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Environments",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{HOST}}/api/refresh/",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"refresh",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reset Environment",
+			"item": [
+				{
+					"name": "Reset Environment",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{HOST}}/api/reset/{{environment_subscriptionid}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"reset",
+								"{{environment_subscriptionid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Environments",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{HOST}}/api/reset/",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"reset",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "SLA(s)",
+			"item": [
+				{
+					"name": "Get RAW SLA",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/sla/raw/{{environment_subscriptionid}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"sla",
+								"raw",
+								"{{environment_subscriptionid}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "InternalJob(s)",
+			"item": [
+				{
+					"name": "Start Internal Job",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var end_timestamp = new Date();\r",
+									"postman.setEnvironmentVariable(\"start_timestamp\", end_timestamp.toISOString());\r",
+									"\r",
+									"var start_timestamp = new Date(new Date().getTime() + 1200000);\r",
+									"postman.setEnvironmentVariable(\"end_timestamp\", start_timestamp.toISOString());\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n   \"type\": \"SLA\",\r\n   \"environmentSubscriptionId\": \"{{environment_subscriptionid}}\",\r\n   \"startDate\" : \"{{start_timestamp}}\",\r\n   \"endDate\" : \"{{end_timestamp}}\"\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{HOST}}/api/job",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"job"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Internal Job Data",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/job/{{id}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"job",
+								"{{id}}"
+							],
+							"query": [
+								{
+									"key": "slaHistory",
+									"value": "true",
+									"disabled": true
+								},
+								{
+									"key": "elementId",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Internal Jobs",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/job?type={{type}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"job"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "{{type}}",
+									"description": "Sla"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Internal Job",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/job/{{id}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"job",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "LicenseInformation",
+			"item": [
+				{
+					"name": "Get LicenseInformation",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/licenses",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"licenses"
+							],
+							"query": [
+								{
+									"key": "slaHistory",
+									"value": "true",
+									"disabled": true
+								},
+								{
+									"key": "elementId",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "StateIncreaseRule(s)",
+			"item": [
+				{
+					"name": "Get StateIncreaseRule",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/stateIncreaseRules/{{id}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"stateIncreaseRules",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get StateIncreaseRules",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/api/stateIncreaseRules",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"stateIncreaseRules"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add StateIncreaseRule",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"string\",\r\n    \"description\": \"string\",\r\n    \"environmentSubscriptionId\": \"{{environment_subscriptionid}}\",\r\n    \"checkId\": \"string\",\r\n    \"alertName\": \"string\",\r\n    \"componentId\": \"string\",\r\n    \"triggerTime\": -1,\r\n    \"isActive\": true\r\n}"
+						},
+						"url": {
+							"raw": "{{HOST}}/api/stateIncreaseRules/",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"stateIncreaseRules",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update StateIncreaseRule",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"string\",\r\n    \"description\": \"string\",\r\n    \"environmentSubscriptionId\": \"{{environment_subscriptionid}}\",\r\n    \"checkId\": \"string\",\r\n    \"alertName\": \"string\",\r\n    \"componentId\": \"string\",\r\n    \"triggerTime\": -1,\r\n    \"isActive\": true\r\n}"
+						},
+						"url": {
+							"raw": "{{HOST}}/api/stateIncreaseRules/{{id}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"stateIncreaseRules",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete StateIncreaseRule",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{HOST}}/api/stateIncreaseRules/{{id}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"stateIncreaseRules",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "POST Heartbeat",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var current_timestamp = new Date();",
+							"postman.setEnvironmentVariable(\"current_timestamp\", current_timestamp.toISOString());",
+							"",
+							"var randomRecordID = guid();",
+							"postman.setEnvironmentVariable(\"random_guid\", randomRecordID);",
+							"",
+							"function guid() {",
+							"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +",
+							"    s4() + '-' + s4() + s4() + s4();",
+							"}",
+							"",
+							"function s4() {",
+							"  return Math.floor((1 + Math.random()) * 0x10000)",
+							"    .toString(16)",
+							"    .substring(1);",
+							"}",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{bearer-token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n   \"subscriptionId\": \"{{environment_subscriptionid}}\",\r\n   \"checkId\" : \"HeartbeatAlert\",\r\n   \"description\" : \"Test Heartbeat\",\r\n   \"alertName\": \"Heartbeat\",\r\n   \"componentId\": \"Heartbeat\",\r\n   \"state\": \"OK\",\r\n   \"Sourcetimestamp\": \"{{current_timestamp}}\",\r\n   \"TimeGenerated\": \"{{current_timestamp}}\",\r\n   \"RecordID\": \"{{random_guid}}\"\r\n} \r\n"
+				},
+				"url": {
+					"raw": "{{HOST}}/api/alerts",
+					"host": [
+						"{{HOST}}"
+					],
+					"path": [
+						"api",
+						"alerts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"postman.setEnvironmentVariable(\"bearer-token\", \"Bearer \"+jsonData.access_token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "resource",
+							"value": "{{bearer-client-id}}",
+							"description": "EnterpriseApplication-AppId",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{bearer-client-id}}",
+							"description": "EnterpriseApplication-AppId",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{bearer-client-secret}}",
+							"description": "EnterpriseApplication-AppSecret",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"description": "password",
+							"type": "text"
+						},
+						{
+							"key": "username\n",
+							"value": "{{bearer-username}}",
+							"description": "CSTX Username",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{bearer-password}}",
+							"description": "CSTX UserPw",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://login.windows.net/{{bearer-tenant-id}}/oauth2/token",
+					"protocol": "https",
+					"host": [
+						"login",
+						"windows",
+						"net"
+					],
+					"path": [
+						"{{bearer-tenant-id}}",
+						"oauth2",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Token SP",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"postman.setEnvironmentVariable(\"bearer-token\", \"Bearer \"+jsonData.access_token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "resource",
+							"value": "{{bearer-client-id}}",
+							"description": "EnterpriseApplication-AppId",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{deployment-id}}",
+							"description": "DeploymentPrincipal-AppId",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{deployment-secret}}",
+							"description": "DeploymentPrincipal-AppSecret",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"description": "client_credentials",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://login.windows.net/{{bearer-tenant-id}}/oauth2/token",
+					"protocol": "https",
+					"host": [
+						"login",
+						"windows",
+						"net"
+					],
+					"path": [
+						"{{bearer-tenant-id}}",
+						"oauth2",
+						"token"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

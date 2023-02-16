@@ -1,0 +1,23 @@
+parameters:
+- name: "pool"
+  default: "CSG Linux"
+
+stages:
+- stage: ScanFrontEndApp
+  displayName: 'Scan Front End Application'
+  pool: ${{ parameters.pool }}
+  jobs:
+  - template: Stages/Jobs/Scan/app.service.frontend.scan.job.yml 
+
+
+- stage: ScanBackEndApp
+  displayName: 'Scan Back End Application'
+  pool: ${{ parameters.pool }}
+  jobs:
+  - template: Stages/Jobs/Scan/app.service.backend.scan.job.yml 
+
+
+ 
+
+  
+  

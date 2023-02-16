@@ -1,0 +1,23 @@
+variables:  
+  - name: AzureGroupSId
+    value: 84be0b2f-e620-4a89-945c-f680c7d77986
+  - name: K8sNamespace
+    value: prod-weu-e2e-mon
+  - name: objectId
+    value: 8327b169-1a6d-4bf4-b6bd-21c179f37ed3
+  - name: resourceGroupName
+    value: csg-weu-prod-e2e-mon
+  - name: resourceGroupNamemsi
+    value: csg-weu-prod-e2e-mon-msi
+  - name: ServiceConnection
+    value: csg-azure-prod-eu-e2e-monitoring
+  - name: SubNetName
+    value: polaris-k8s
+  - name: subscriptionId
+    value: f363028c-0c18-4fc1-b3da-addc4415a6dd
+  - name: TenantId
+    value: 9652d7c2-1ccf-4940-8151-4a92bd474ed0
+  - name: VNetName
+    value: vnet-weu-prod
+  - name: VNetResourceGroupName
+    value: csg-weu-prod-network

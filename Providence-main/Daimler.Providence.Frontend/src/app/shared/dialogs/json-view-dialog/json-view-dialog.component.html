@@ -1,0 +1,11 @@
+<h1 mat-dialog-title>{{data.title}}</h1>
+<div mat-dialog-content>
+  <div class="hover_class">
+    <pre style="white-space: pre-wrap;">{{data.message}}<mat-icon style="font-size: 14px;height: 14px; width: 14px;" (click)="copyText(data.message);$event.stopPropagation();"
+      aria-label="Info">file_copy</mat-icon></pre>
+  </div>
+</div>
+<div mat-dialog-actions fxLayoutAlign="center" fxAlign="row">
+  <button mat-button (click)="copyText(data.message);$event.stopPropagation();" cdkFocusInitial>Copy</button>
+  <button mat-button [mat-dialog-close] cdkFocusInitial>Close</button>
+</div>

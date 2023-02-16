@@ -1,0 +1,5 @@
+apiVersion: v2
+name: e2e-mon-backend
+description: A Helm chart library for the E2E Moinitoring Service
+version: 1.0.0
+engine: gotpl

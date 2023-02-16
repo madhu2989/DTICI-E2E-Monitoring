@@ -1,0 +1,256 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "Name": {
+      "type": "String"
+    },
+    "Location": {
+      "type": "string"
+    },
+    "App_Service_Plan_Name": {
+      "type": "String"
+    },
+    "VNet_Name": {
+      "type": "string"
+    },
+    "Subnet_Name": {
+      "type": "string"
+    },
+    "MSI_Id": {
+      "type": "String"
+    },
+    "MSI_ResourceGroup_Name": {
+      "type": "String"
+    },
+    "Suffix_Url": {
+      "type": "String",
+      "defaultValue": ".azurewebsites.net"
+    }
+  },
+  "variables": {
+    "MSI_ID_ResourceId": "[resourceId(parameters('MSI_ResourceGroup_Name'),'Microsoft.ManagedIdentity/userAssignedIdentities', parameters('MSI_Id'))]",
+    "Virtual_Network_Subnet_Id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('VNet_Name')), '/subnets/',parameters('Subnet_Name'))]",
+    "publishingUsername": "[concat('$',parameters('Name'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-03-01",
+      "name": "[parameters('Name')]",
+      "location": "[parameters('Location')]",
+      "tags": {
+        "Availability": "A1",
+        "Confidentiality": "C3.2",
+        "Export": "E2",
+        "Integrity": "I2",
+        "Recovery": "R1",
+        "Project": "E2Emon"
+      },
+      "kind": "functionapp",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[variables('MSI_ID_ResourceId')]": {}
+        }
+      },
+      "properties": {
+        "enabled": true,
+        "hostNameSslStates": [
+          {
+            "name": "[concat(parameters('Name'), parameters('Suffix_Url'))]",
+            "sslState": "Disabled",
+            "hostType": "Standard"
+          },
+          {
+            "name": "[concat(parameters('Name'), '.scm', parameters('Suffix_Url'))]",
+            "sslState": "Disabled",
+            "hostType": "Repository"
+          }
+        ],
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('App_Service_Plan_Name'))]",
+        "reserved": false,
+        "isXenon": false,
+        "hyperV": false,
+        "vnetRouteAllEnabled": true,
+        "vnetImagePullEnabled": false,
+        "vnetContentShareEnabled": false,
+        "siteConfig": {
+          "numberOfWorkers": 1,
+          "acrUseManagedIdentityCreds": false,
+          "alwaysOn": false,
+          "http20Enabled": false,
+          "functionAppScaleLimit": 0,
+          "minimumElasticInstanceCount": 1
+        },
+        "scmSiteAlsoStopped": false,
+        "clientAffinityEnabled": false,
+        "clientCertEnabled": false,
+        "clientCertMode": "Required",
+        "hostNamesDisabled": false,
+        "customDomainVerificationId": "973AACC2EBC2A37B6817108B4AF677B86D8AFD266700002E4A792B9E887B7142",
+        "containerSize": 1536,
+        "dailyMemoryTimeQuota": 0,
+        "httpsOnly": true,
+        "redundancyMode": "None",
+        "storageAccountRequired": false,
+        "virtualNetworkSubnetId": "[variables('Virtual_Network_Subnet_Id')]",
+        "keyVaultReferenceIdentity": "SystemAssigned"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+      "apiVersion": "2022-03-01",
+      "name": "[concat(parameters('Name'), '/ftp')]",
+      "location": "[parameters('Location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('Name'))]"
+      ],
+      "tags": {
+        "Availability": "A1",
+        "Confidentiality": "C3.2",
+        "Export": "E2",
+        "Integrity": "I2",
+        "Recovery": "R1",
+        "Project": "E2Emon"
+      },
+      "properties": {
+        "allow": true
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+      "apiVersion": "2022-03-01",
+      "name": "[concat(parameters('Name'), '/scm')]",
+      "location": "[parameters('Location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('Name'))]"
+      ],
+      "tags": {
+        "Availability": "A1",
+        "Confidentiality": "C3.2",
+        "Export": "E2",
+        "Integrity": "I2",
+        "Recovery": "R1",
+        "Project": "E2Emon"
+      },
+      "properties": {
+        "allow": true
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2022-03-01",
+      "name": "[concat(parameters('Name'), '/web')]",
+      "location": "[parameters('Location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('Name'))]"
+      ],
+      "tags": {
+        "Availability": "A1",
+        "Confidentiality": "C3.2",
+        "Export": "E2",
+        "Integrity": "I2",
+        "Recovery": "R1",
+        "Project": "E2Emon"
+      },
+      "properties": {
+        "numberOfWorkers": 1,
+        "defaultDocuments": [
+          "Default.htm",
+          "Default.html",
+          "Default.asp",
+          "index.htm",
+          "index.html",
+          "iisstart.htm",
+          "default.aspx",
+          "index.php"
+        ],
+        "netFrameworkVersion": "v4.0",
+        "requestTracingEnabled": false,
+        "remoteDebuggingEnabled": false,
+        "httpLoggingEnabled": false,
+        "acrUseManagedIdentityCreds": false,
+        "logsDirectorySizeLimit": 35,
+        "detailedErrorLoggingEnabled": false,
+        "publishingUsername": "[variables('publishingUsername')]",
+        "scmType": "VSTSRM",
+        "use32BitWorkerProcess": true,
+        "webSocketsEnabled": false,
+        "alwaysOn": false,
+        "managedPipelineMode": "Integrated",
+        "virtualApplications": [
+          {
+            "virtualPath": "/",
+            "physicalPath": "site\\wwwroot",
+            "preloadEnabled": false
+          }
+        ],
+        "loadBalancing": "LeastRequests",
+        "experiments": {
+          "rampUpRules": []
+        },
+        "autoHealEnabled": false,
+        "vnetName": "[concat('FuncApp_',parameters('VNet_Name'))]",
+        "vnetRouteAllEnabled": true,
+        "vnetPrivatePortsCount": 0,
+        "localMySqlEnabled": false,
+        "xManagedServiceIdentityId": 29580,
+        "ipSecurityRestrictions": [
+          {
+            "ipAddress": "Any",
+            "action": "Deny",
+            "priority": 2147483647,
+            "name": "Deny all",
+            "description": "Deny all access"
+          }
+        ],
+        "scmIpSecurityRestrictions": [
+          {
+            "ipAddress": "Any",
+            "action": "Allow",
+            "priority": 2147483647,
+            "name": "Allow all",
+            "description": "Allow all access"
+          }
+        ],
+        "scmIpSecurityRestrictionsUseMain": true,
+        "http20Enabled": false,
+        "minTlsVersion": "1.2",
+        "scmMinTlsVersion": "1.0",
+        "ftpsState": "FtpsOnly",
+        "preWarmedInstanceCount": 1,
+        "functionAppScaleLimit": 0,
+        "functionsRuntimeScaleMonitoringEnabled": false,
+        "minimumElasticInstanceCount": 1,
+        "azureStorageAccounts": {}
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/hostNameBindings",
+      "apiVersion": "2022-03-01",
+      "name": "[concat(parameters('Name'), '/', parameters('Name'), parameters('Suffix_Url'))]",
+      "location": "[parameters('Location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('Name'))]"
+      ],
+      "properties": {
+        "siteName": "[parameters('Name')]",
+        "hostNameType": "Verified"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/virtualNetworkConnections",
+      "apiVersion": "2022-03-01",
+      "name": "[concat(parameters('Name'), '/FuncApp_',parameters('VNet_Name'))]",
+      "location": "[parameters('Location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('Name'))]"
+      ],
+      "properties": {
+        "vnetResourceId": "[variables('Virtual_Network_Subnet_Id')]",
+        "isSwift": true
+      }
+    }
+  ]
+}

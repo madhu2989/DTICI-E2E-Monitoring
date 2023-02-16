@@ -1,0 +1,705 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "projectResourcePrefix": { "type": "string" },
+    "projectEnvironment": { "type": "string" },
+    "providenceEventHubName": { "type": "string" },
+    "logicApp_NameSuffix": { "type": "string" },
+    "logAnalytics_Name": { "type": "string" },
+    "logAnalytics_ResourceGroupName": { "type": "string" },
+    "logAnalytics_CustomLogName": { "type": "string" },
+    "logicApp_QueryWindowOverlapTime": { "type": "string" },
+    "logicApp_Hourly_QueryWindowOverlapTime": { "type": "string" },
+    "logicApp_RunLatencyThreshold": { "type": "int" },
+    "logicApp_RunsFailedThreshold": { "type": "int" },
+    "logicApp_Hourly_RunLatencyThreshold": { "type": "int" },
+    "logicApp_Hourly_RunsFailedThreshold": { "type": "int" }
+  },
+  "variables": {
+    "LogicApp_Name": "[concat(parameters('projectResourcePrefix'),'sendtoeventhub', parameters('logicApp_NameSuffix'))]",
+    "LogicApp_Hourly_Name": "[concat(parameters('projectResourcePrefix'),'sendtoeventhubhourly', parameters('logicApp_NameSuffix'))]",
+    "ActionGroup_MetricAlert_Name": "[concat(parameters('projectResourcePrefix'),'-ag-healthstate-metricalerts-', parameters('projectEnvironment'))]",
+    "ActionGroup_SendErrorsOnFailedLogicAppRuns_Name": "[concat(parameters('projectResourcePrefix'), '-ag-healthstate-senderroremail-', parameters('projectEnvironment'))]",
+    "API_Connection_EventHub_Write": "[concat(parameters('projectResourcePrefix'),'-api-logicapp-eventhub-W-',parameters('logicApp_NameSuffix'))]",
+    "API_Connection_StorageAccount_RW": "[concat(parameters('projectResourcePrefix'),'-api-logicapp-storage-RW-',parameters('projectEnvironment'))]",
+    "API_Connection_LogAnalytics_Read": "[concat(parameters('projectResourcePrefix'),'-api-logicapp-loganalytics-R-',parameters('projectEnvironment'))]",
+    "API_Connection_StorageAccount_BlobTimestamp": "[concat('eventhubtimestamp-',parameters('logicApp_NameSuffix'))]",
+    "API_Connection_StorageAccount_Container": "advancemonitoring"
+  },
+  "resources": [
+    {
+      "name": "[variables('LogicApp_Name')]",
+      "type": "Microsoft.Logic/workflows",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-07-01",
+      "comments": "Write to Providence EventHub Logic App",
+      "tags": {},
+      "scale": null,
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "BlobContainer": {
+              "defaultValue": {},
+              "type": "string"
+            },
+            "BlobTimestamp": {
+              "defaultValue": {},
+              "type": "string"
+            },
+            "CustomLogFile": {
+              "defaultValue": {},
+              "type": "string"
+            },
+            "EventHubName": {
+              "defaultValue": {},
+              "type": "string"
+            },
+            "LAResourceGroupName": {
+              "defaultValue": {},
+              "type": "string"
+            },
+            "LASubscriptionID": {
+              "defaultValue": {},
+              "type": "string"
+            },
+            "LAWorkspaceName": {
+              "defaultValue": {},
+              "type": "string"
+            },
+            "LAEventHubQueryWindowOverlapTimeString": {
+              "defaultValue": "0m",
+              "type": "String"
+            },
+            "$connections": {
+              "defaultValue": {},
+              "type": "Object"
+            }
+          },
+          "triggers": {
+            "Recurrence": {
+              "recurrence": {
+                "frequency": "Minute",
+                "interval": 1
+              },
+              "type": "Recurrence"
+            }
+          },
+          "actions": {
+            "Check_if_array_contains_values": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "greater": [
+                      "@length(body('Run_query_and_list_results')?['value'])",
+                      0
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Create_Output_Record": {
+                  "type": "Compose",
+                  "inputs": "@body('Run_query_and_list_results')?['value'][0]",
+                  "runAfter": {}
+                },
+                "Create_TimeStamp_Blob": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['azureblob']['connectionId']"
+                      }
+                    },
+                    "method": "post",
+                    "body": "@outputs('Create_Output_Record')",
+                    "path": "/datasets/default/files",
+                    "queries": {
+                      "folderPath": "@concat('/',parameters('BlobContainer'))",
+                      "name": "@parameters('BlobTimestamp')",
+                      "queryParametersSingleEncoded": true
+                    }
+                  },
+                  "runAfter": {
+                    "Create_Output_Record": [
+                      "Succeeded"
+                    ]
+                  },
+                  "runtimeConfiguration": {
+                    "contentTransfer": {
+                      "transferMode": "Chunked"
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Scope": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Convert_blob_content_to_JSON": {
+              "type": "Compose",
+              "inputs": "@{json(body('Get_Timestamp_Record_From_Blob'))['IngestionTimeUTC']}",
+              "runAfter": {
+                "Get_Timestamp_Record_From_Blob": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Get_Timestamp_Record_From_Blob": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['azureblob']['connectionId']"
+                  }
+                },
+                "method": "get",
+                "path": "/datasets/default/files/@{encodeURIComponent(encodeURIComponent(concat('/',parameters('BlobContainer'),'/',parameters('BlobTimestamp'))))}/content",
+                "queries": {
+                  "inferContentType": true
+                }
+              },
+              "runAfter": {
+                "Initialize_QueryTimestamp_variable": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Initialize_QueryTimestamp_variable": {
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "QueryTimeStamp",
+                    "type": "String"
+                  }
+                ]
+              },
+              "runAfter": {}
+            },
+            "Scope": {
+              "type": "Scope",
+              "actions": {
+                "For_each": {
+                  "type": "Foreach",
+                  "foreach": "@body('Run_query_and_list_results')?['value']",
+                  "actions": {
+                    "Compose": {
+                      "type": "Compose",
+                      "inputs": "@items('For_each')",
+                      "runAfter": {}
+                    },
+                    "Send_event": {
+                      "type": "ApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connection": {
+                            "name": "@parameters('$connections')['eventhubs']['connectionId']"
+                          }
+                        },
+                        "method": "post",
+                        "body": {
+                          "ContentData": "@{base64(outputs('Compose'))}"
+                        },
+                        "path": "/@{encodeURIComponent(parameters('EventHubName'))}/events"
+                      },
+                      "runAfter": {
+                        "Compose": [
+                          "Succeeded"
+                        ]
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Run_query_and_list_results": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Run_query_and_list_results": {
+                  "runAfter": {},
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "body": "@{parameters('CustomLogFile')}\n| extend IngestionTimeUTC = ingestion_time()\n| where IngestionTimeUTC  >   (todatetime('@{variables('QueryTimestamp')}') - @{parameters('LAEventHubQueryWindowOverlapTimeString')} )\n| extend LogicAppName = '@{workflow().name}' \n| extend LogicAppQueryInterval = '@{parameters('LAEventHubQueryWindowOverlapTimeString')}'\n| project TimeGenerated, IngestionTimeUTC, LogicAppName, LogicAppQueryInterval, AlertName = AlertName_s, CheckID=CheckID_s, ComponentID=ComponentID_s, CustomField1=CustomField1_s, CustomField2=CustomField2_s , CustomField3=CustomField3_s, CustomField4=CustomField4_s, CustomField5=CustomField5_s, Description=Description_s, RecordID=RecordID_g, SubscriptionID = OriginSubscriptionID_g,  SourceTimeStamp = SourceTimeStamp_t, State = toupper(State_s)\n| order by IngestionTimeUTC desc\n",
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['azureloganalytics']['connectionId']"
+                      }
+                    },
+                    "method": "post",
+                    "path": "/queryOms",
+                    "queries": {
+                      "resourcegroups": "@parameters('LAResourceGroupName')",
+                      "subscriptions": "@parameters('LASubscriptionID')",
+                      "workspaces": "@parameters('LAWorkspaceName')"
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Set_variable_to_Blob_content": [
+                  "Succeeded",
+                  "Skipped"
+                ],
+                "Set_variable_to_current_time": [
+                  "Succeeded",
+                  "Skipped"
+                ]
+              }
+            },
+            "Set_variable_to_Blob_content": {
+              "type": "SetVariable",
+              "inputs": {
+                "name": "QueryTimeStamp",
+                "value": "@{outputs('Convert_blob_content_to_JSON')}"
+              },
+              "runAfter": {
+                "Convert_blob_content_to_JSON": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Set_variable_to_current_time": {
+              "type": "SetVariable",
+              "inputs": {
+                "name": "QueryTimeStamp",
+                "value": "@{addMinutes(utcNow(),-5)}"
+              },
+              "runAfter": {
+                "Get_Timestamp_Record_From_Blob": [
+                  "Failed",
+                  "TimedOut"
+                ]
+              }
+            }
+
+          },
+          "outputs": {}
+        },
+        "parameters": {
+          "BlobContainer": { "value": "[variables('API_Connection_StorageAccount_Container')]" },
+          "BlobTimestamp": { "value": "[variables('API_Connection_StorageAccount_BlobTimestamp')]" },
+          "CustomLogFile": { "value": "[concat(parameters('logAnalytics_CustomLogName'), '_CL')]" },
+          "EventHubName": { "value": "[parameters('providenceEventHubName')]" },
+          "LAResourceGroupName": { "value": "[parameters('logAnalytics_ResourceGroupName')]" },
+          "LASubscriptionID": { "value": "[subscription().subscriptionId]" },
+          "LAWorkspaceName": { "value": "[parameters('logAnalytics_Name')]" },
+          "LAEventHubQueryWindowOverlapTimeString": { "value": "[parameters('logicApp_QueryWindowOverlapTime')]" },
+          "$connections": {
+            "value": {
+              "azureblob": {
+                "connectionId": "[resourceId('Microsoft.Web/connections', variables('API_Connection_StorageAccount_RW'))]",
+                "connectionName": "[variables('API_Connection_StorageAccount_RW')]",
+                "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/', 'azureblob')]"
+              },
+              "azureloganalytics": {
+                "connectionId": "[resourceId('Microsoft.Web/connections', variables('API_Connection_LogAnalytics_Read'))]",
+                "connectionName": "[variables('API_Connection_LogAnalytics_Read')]",
+                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azureloganalytics')]"
+              },
+              "eventhubs": {
+                "connectionId": "[resourceId('Microsoft.Web/connections', variables('API_Connection_EventHub_Write'))]",
+                "connectionName": "[variables('API_Connection_EventHub_Write')]",
+                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/eventhubs')]"
+              }
+            }
+          }
+        }
+      },
+      "resources": [
+        {
+          "type": "providers/diagnosticSettings",
+          "name": "Microsoft.Insights/Diagnostic",
+          "dependsOn": [
+            "[resourceId('Microsoft.Logic/workflows', variables('LogicApp_Name'))]"
+          ],
+          "apiVersion": "2017-05-01-preview",
+          "properties": {
+            "name": "DiagnosticSettings",
+            "workspaceId": "[resourceId(parameters('logAnalytics_ResourceGroupName'), 'microsoft.operationalinsights/workspaces', parameters('logAnalytics_Name'))]",
+            "logs": [
+              {
+                "category": "WorkflowRuntime",
+                "enabled": true,
+                "retentionPolicy": {
+                  "days": 0,
+                  "enabled": false
+                }
+              }
+            ],
+            "metrics": [
+              {
+                "timeGrain": "PT1M",
+                "enabled": true,
+                "retentionPolicy": {
+                  "enabled": false,
+                  "days": 0
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[variables('LogicApp_Hourly_Name')]",
+      "type": "Microsoft.Logic/workflows",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-07-01",
+      "comments": "Write to Providence EventHub (hourly) Logic App",
+      "tags": {},
+      "scale": null,
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "CustomLogFile": {
+              "defaultValue": {},
+              "type": "string"
+            },
+            "EventHubName": {
+              "defaultValue": {},
+              "type": "string"
+            },
+            "LAResourceGroupName": {
+              "defaultValue": {},
+              "type": "string"
+            },
+            "LASubscriptionID": {
+              "defaultValue": {},
+              "type": "string"
+            },
+            "LAWorkspaceName": {
+              "defaultValue": {},
+              "type": "string"
+            },
+            "LAEventHubQueryWindowDurationTimeString": {
+              "defaultValue": "90m",
+              "type": "String"
+            },
+            "$connections": {
+              "defaultValue": {},
+              "type": "Object"
+            }
+          },
+          "triggers": {
+            "Recurrence": {
+              "recurrence": {
+                "frequency": "Minute",
+                "interval": 60
+              },
+              "type": "Recurrence"
+            }
+          },
+          "actions": {
+            "Scope": {
+              "actions": {
+                "For_each": {
+                  "actions": {
+                    "Compose": {
+                      "inputs": "@items('For_each')",
+                      "runAfter": {},
+                      "type": "Compose"
+                    },
+                    "Send_event": {
+                      "inputs": {
+                        "body": {
+                          "ContentData": "@{base64(outputs('Compose'))}"
+                        },
+                        "host": {
+                          "connection": {
+                            "name": "@parameters('$connections')['eventhubs']['connectionId']"
+                          }
+                        },
+                        "method": "post",
+                        "path": "/@{encodeURIComponent(parameters('EventHubName'))}/events"
+                      },
+                      "runAfter": {
+                        "Compose": [
+                          "Succeeded"
+                        ]
+                      },
+                      "type": "ApiConnection"
+                    }
+                  },
+                  "foreach": "@body('Run_query_and_list_results')?['value']",
+                  "runAfter": {
+                    "Run_query_and_list_results": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "Foreach"
+                },
+                "Run_query_and_list_results": {
+                  "inputs": {
+                    "body": "@{parameters('CustomLogFile')}\n| where CheckID_s <> 'HeartbeatAlert' \n| extend IngestionTimeUTC = ingestion_time()\n| where IngestionTimeUTC  >   ago(@{parameters('LAEventHubQueryWindowDurationTimeString')})\n| extend LogicAppName = '@{workflow().name}' \n| extend LogicAppQueryInterval = '@{parameters('LAEventHubQueryWindowDurationTimeString')}'\n| project TimeGenerated, IngestionTimeUTC, LogicAppName, LogicAppQueryInterval, AlertName = AlertName_s, CheckID=CheckID_s, ComponentID=ComponentID_s, CustomField1=CustomField1_s, CustomField2=CustomField2_s , CustomField3=CustomField3_s, CustomField4=CustomField4_s, CustomField5=CustomField5_s, Description=Description_s, RecordID=RecordID_g, SubscriptionID = OriginSubscriptionID_g,  SourceTimeStamp = SourceTimeStamp_t, State = toupper(State_s)\n| order by IngestionTimeUTC desc\n",
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['azureloganalytics']['connectionId']"
+                      }
+                    },
+                    "method": "post",
+                    "path": "/queryOms",
+                    "queries": {
+                      "resourcegroups": "@parameters('LAResourceGroupName')",
+                      "subscriptions": "@parameters('LASubscriptionID')",
+                      "workspaces": "@parameters('LAWorkspaceName')"
+                    }
+                  },
+                  "runAfter": {},
+                  "type": "ApiConnection"
+                }
+              },
+              "runAfter": {},
+              "type": "Scope"
+            }
+          },
+          "outputs": {}
+        },
+        "parameters": {
+          "CustomLogFile": { "value": "[concat(parameters('logAnalytics_CustomLogName'),'_CL')]" },
+          "EventHubName": { "value": "[parameters('providenceEventHubName')]" },
+          "LAResourceGroupName": { "value": "[parameters('logAnalytics_ResourceGroupName')]" },
+          "LASubscriptionID": { "value": "[subscription().subscriptionId]" },
+          "LAWorkspaceName": { "value": "[parameters('logAnalytics_Name')]" },
+          "LAEventHubQueryWindowDurationTimeString": { "value": "[parameters('logicApp_Hourly_QueryWindowOverlapTime')]" },
+          "$connections": {
+            "value": {
+              "azureblob": {
+                "connectionId": "[resourceId('Microsoft.Web/connections', variables('API_Connection_StorageAccount_RW'))]",
+                "connectionName": "[variables('API_Connection_StorageAccount_RW')]",
+                "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/', 'azureblob')]"
+              },
+              "azureloganalytics": {
+                "connectionId": "[resourceId('Microsoft.Web/connections', variables('API_Connection_LogAnalytics_Read'))]",
+                "connectionName": "[variables('API_Connection_LogAnalytics_Read')]",
+                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azureloganalytics')]"
+              },
+              "eventhubs": {
+                "connectionId": "[resourceId('Microsoft.Web/connections', variables('API_Connection_EventHub_Write'))]",
+                "connectionName": "[variables('API_Connection_EventHub_Write')]",
+                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/eventhubs')]"
+              }
+            }
+          }
+        }
+      },
+      "resources": [
+        {
+          "type": "providers/diagnosticSettings",
+          "name": "Microsoft.Insights/Diagnostic",
+          "dependsOn": [
+            "[resourceId('Microsoft.Logic/workflows', variables('LogicApp_Hourly_Name'))]"
+          ],
+          "apiVersion": "2017-05-01-preview",
+          "properties": {
+            "name": "DiagnosticSettings",
+            "workspaceId": "[resourceId(parameters('logAnalytics_ResourceGroupName'),'microsoft.operationalinsights/workspaces',parameters('logAnalytics_Name'))]",
+            "logs": [
+              {
+                "category": "WorkflowRuntime",
+                "enabled": true,
+                "retentionPolicy": {
+                  "days": 0,
+                  "enabled": false
+                }
+              }
+            ],
+            "metrics": [
+              {
+                "timeGrain": "PT1M",
+                "enabled": true,
+                "retentionPolicy": {
+                  "enabled": false,
+                  "days": 0
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[concat('Logic App ', variables('LogicApp_Name'), ' Alert - RunLatency greater than desired Threshold')]",
+      "type": "Microsoft.Insights/metricAlerts",
+      "location": "global",
+      "apiVersion": "2018-03-01",
+      "comments": "LogicApp - RunLatency Alert",
+      "tags": {},
+      "scale": null,
+      "properties": {
+        "description": "Logic App run latency is above the desired threshold",
+        "severity": 1,
+        "enabled": true,
+        "scopes": [
+          "[resourceId('Microsoft.Logic/workflows', variables('LogicApp_Name'))]"
+        ],
+        "evaluationFrequency": "PT1M",
+        "windowSize": "PT5M",
+        "criteria": {
+          "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
+          "allOf": [
+            {
+              "name": "Metric1",
+              "metricNamespace": "Microsoft.Logic/workflows",
+              "metricName": "RunLatency",
+              "dimensions": [],
+              "operator": "GreaterThan",
+              "threshold": "[parameters('logicApp_RunLatencyThreshold')]",
+              "timeAggregation": "Total",
+              "monitorTemplateType": 8
+            }
+          ]
+        },
+        "actions": [
+          {
+            "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('ActionGroup_MetricAlert_Name'))]",
+            "webHookProperties": {}
+          }
+        ]
+      },
+      "dependsOn": []
+    },
+    {
+      "name": "[concat('Logic App ', variables('LogicApp_Name'), ' Alert - RunsFailed greater than desired Threshold')]",
+      "type": "Microsoft.Insights/metricAlerts",
+      "location": "global",
+      "apiVersion": "2018-03-01",
+      "comments": "LogicApp - RunsFailed Alert",
+      "tags": {},
+      "scale": null,
+      "properties": {
+        "description": "Logic App run latency is above the desired threshold",
+        "severity": 1,
+        "enabled": true,
+        "scopes": [
+          "[resourceId('Microsoft.Logic/workflows', variables('LogicApp_Name'))]"
+        ],
+        "evaluationFrequency": "PT1M",
+        "windowSize": "PT5M",
+        "criteria": {
+          "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
+          "allOf": [
+            {
+              "name": "Metric1",
+              "metricNamespace": "Microsoft.Logic/workflows",
+              "metricName": "RunsFailed",
+              "dimensions": [],
+              "operator": "GreaterThan",
+              "threshold": "[parameters('logicApp_RunsFailedThreshold')]",
+              "timeAggregation": "Total",
+              "monitorTemplateType": 8
+            }
+          ]
+        },
+        "actions": [
+          {
+            "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('ActionGroup_SendErrorsOnFailedLogicAppRuns_Name'))]",
+            "webHookProperties": {}
+          },
+          {
+            "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('ActionGroup_MetricAlert_Name'))]",
+            "webHookProperties": {}
+          }
+        ]
+      },
+      "dependsOn": []
+    },
+    {
+      "name": "[concat('Logic App ', variables('LogicApp_Hourly_Name'), ' Alert - RunLatency greater than desired Threshold')]",
+      "type": "Microsoft.Insights/metricAlerts",
+      "location": "global",
+      "apiVersion": "2018-03-01",
+      "comments": "LogicApp Hourly - RunLatency Alert",
+      "tags": {},
+      "scale": null,
+      "properties": {
+        "description": "Logic App run latency is above the desired threshold",
+        "severity": 1,
+        "enabled": true,
+        "scopes": [
+          "[resourceId('Microsoft.Logic/workflows', variables('LogicApp_Hourly_Name'))]"
+        ],
+        "evaluationFrequency": "PT1M",
+        "windowSize": "PT5M",
+        "criteria": {
+          "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
+          "allOf": [
+            {
+              "name": "Metric1",
+              "metricNamespace": "Microsoft.Logic/workflows",
+              "metricName": "RunLatency",
+              "dimensions": [],
+              "operator": "GreaterThan",
+              "threshold": "[parameters('logicApp_Hourly_RunLatencyThreshold')]",
+              "timeAggregation": "Total",
+              "monitorTemplateType": 8
+            }
+          ]
+        },
+        "actions": [
+          {
+            "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('ActionGroup_MetricAlert_Name'))]",
+            "webHookProperties": {}
+          }
+        ]
+      },
+      "dependsOn": []
+    },
+    {
+      "name": "[concat('Logic App ', variables('LogicApp_Hourly_Name'), ' Alert - RunsFailed greater than desired Threshold')]",
+      "type": "Microsoft.Insights/metricAlerts",
+      "location": "global",
+      "apiVersion": "2018-03-01",
+      "comments": "LogicApp - RunsFailed Alert",
+      "tags": {},
+      "scale": null,
+      "properties": {
+        "description": "Logic App run latency is above the desired threshold",
+        "severity": 1,
+        "enabled": true,
+        "scopes": [
+          "[resourceId('Microsoft.Logic/workflows', variables('LogicApp_Hourly_Name'))]"
+        ],
+        "evaluationFrequency": "PT1M",
+        "windowSize": "PT5M",
+        "criteria": {
+          "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
+          "allOf": [
+            {
+              "name": "Metric1",
+              "metricNamespace": "Microsoft.Logic/workflows",
+              "metricName": "RunsFailed",
+              "dimensions": [],
+              "operator": "GreaterThan",
+              "threshold": "[parameters('logicApp_Hourly_RunsFailedThreshold')]",
+              "timeAggregation": "Total",
+              "monitorTemplateType": 8
+            }
+          ]
+        },
+        "actions": [
+          {
+            "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('ActionGroup_SendErrorsOnFailedLogicAppRuns_Name'))]",
+            "webHookProperties": {}
+          },
+          {
+            "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('ActionGroup_MetricAlert_Name'))]",
+            "webHookProperties": {}
+          }
+        ]
+      },
+      "dependsOn": []
+    }
+  ],
+  "outputs": {
+  }
+}

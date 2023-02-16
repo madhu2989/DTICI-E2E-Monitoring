@@ -1,0 +1,30 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnet_name": {
+      "type": "String"
+    },
+    "Location": {
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2022-01-01",
+      "name": "[parameters('vnet_name')]",
+      "location": "[parameters('Location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/16"
+          ]
+        },
+        "subnets": [],
+        "virtualNetworkPeerings": [],
+        "enableDdosProtection": false
+      }
+    }
+  ]
+}

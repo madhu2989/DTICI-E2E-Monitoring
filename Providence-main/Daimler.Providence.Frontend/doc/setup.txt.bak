@@ -1,0 +1,56 @@
+AdminUI
+
+
+####################### Setup project
+
+ng new Daimler.Providence.Frontend  f�hrt auch npm install aus
+
+
+cd Daimler.Providence.Frontend
+
+###################### Setup material
+
+npm install --save @angular/material @angular/cdk
+
+? npm install --save @angular/material @angular/cdk
+
+> node-sass@4.5.3 install C:\Projekte\FTS\SRC\VisualStudio\Providence\Daimler.Providence.Frontend\node_modules\@angular\cli\node_modules\node-sass
+> node scripts/install.js
+
+Cached binary found at C:\Users\MKASSAY\AppData\Roaming\npm-cache\node-sass\4.5.3\win32-x64-51_binding.node
+
+> node-sass@4.5.3 postinstall C:\Projekte\FTS\SRC\VisualStudio\Providence\Daimler.Providence.Frontend\node_modules\@angular\cli\node_modules\node-sass
+> node scripts/build.js
+
+Binary found at C:\Projekte\FTS\SRC\VisualStudio\Providence\Daimler.Providence.Frontend\node_modules\@angular\cli\node_modules\node-sass\vendor\win32-x64-51\binding.node
+Testing binary
+Binary is fine
+daimler.providence.frontend@0.0.0 C:\Projekte\FTS\SRC\VisualStudio\Providence\Daimler.Providence.Frontend
++-- @angular/cdk@2.0.0-beta.12
+`-- @angular/material@2.0.0-beta.12
+
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@^1.0.0 (node_modules\chokidar\node_modules\fsevents):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@1.1.2: wanted {"os":"darwin","arch":"any"} (current: {"os":"win32","arch":"x64"})
+npm WARN enoent ENOENT: no such file or directory, open 'C:\Projekte\FTS\SRC\VisualStudio\Providence\Daimler.Providence.Frontend\node_modules\node-gyp\package.json'
+npm WARN enoent ENOENT: no such file or directory, open 'C:\Projekte\FTS\SRC\VisualStudio\Providence\Daimler.Providence.Frontend\node_modules\node-sass\package.json'
+npm WARN sass-loader@6.0.6 requires a peer of node-sass@^4.0.0 but none was installed.
+
+C:\Projekte\FTS\SRC\VisualStudio\Providence\Daimler.Providence.Frontend (feature/US9163/AdminUI)
+? npm install --save @angular/animations
+daimler.providence.frontend@0.0.0 C:\Projekte\FTS\SRC\VisualStudio\Providence\Daimler.Providence.Frontend
+`-- @angular/animations@4.4.6
+
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@^1.0.0 (node_modules\chokidar\node_modules\fsevents):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@1.1.2: wanted {"os":"darwin","arch":"any"} (current: {"os":"win32","arch":"x64"})
+npm WARN enoent ENOENT: no such file or directory, open 'C:\Projekte\FTS\SRC\VisualStudio\Providence\Daimler.Providence.Frontend\node_modules\node-gyp\package.json'
+npm WARN enoent ENOENT: no such file or directory, open 'C:\Projekte\FTS\SRC\VisualStudio\Providence\Daimler.Providence.Frontend\node_modules\node-sass\package.json'
+npm WARN sass-loader@6.0.6 requires a peer of node-sass@^4.0.0 but none was installed.
+
+
+
+npm install --save @angular/animations
+
+#####################################################################################
+
+add to index.css
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";

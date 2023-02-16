@@ -1,0 +1,14 @@
+{
+  "aadTenant": "0471b588-7419-4f7e-8333-7ad2726afc86", 
+  "aadClientId": "4cab2c07-0b42-4778-9562-24c711957006",
+  "configEndpoint": "https://e2emonitoringservice.eu.dev.csg.daimler-truck.com/api/config", 
+  "dataEndpoint": "https://e2emonitoringservice.eu.dev.csg.daimler-truck.com/api", 
+  "signalREndpoint": "https://e2emonitoringservice.eu.dev.csg.daimler-truck.com", 
+  "versionReleaseName": "Release-1", 
+  "versionBuildNumber": "10.0.1",
+  "instrumentationKey": "e3ec21a6-f3e6-4658-bdfc-201bb623539c",
+  "appInsightConnectionString": "InstrumentationKey=37cbc263-7791-c2ce-a315-648c69ddf0b1;EndpointSuffix=applicationinsights.azure.cn;IngestionEndpoint=https://chinaeast2-0.in.applicationinsights.azure.cn/;AADAudience=https://monitor.azure.cn/",
+  "houseKeepingInterval": 60000,
+  "historyDuration": 259200000,
+  "instance": "https://login.partner.microsoftonline.cn"
+}

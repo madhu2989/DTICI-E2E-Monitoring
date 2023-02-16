@@ -1,0 +1,54 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "AlertName": {
+      "value": ""
+    },
+    "AlertDescription": {
+      "value": ""
+    },
+    "Scope": {
+      "value": ""
+    },
+    "ActionGroup": {
+      "value": ""
+    },
+    "Location": {
+      "value": ""
+    },
+    "Frequency": {
+      "value": ""
+    },
+    "Severity": {
+      "value": ""
+    },
+    "ResourceType": {
+      "value": ""
+    },
+    "WindowSize": {
+      "value": ""
+    },
+    "Operator": {
+      "value": ""
+    },
+    "TimeAggregation": {
+      "value": ""
+    },
+    "Threshold": {
+      "value": ""
+    },
+    "Environment": {
+      "value": ""
+    },
+    "ComponentId": {
+      "value": ""
+    },
+    "CheckId": {
+      "value": ""
+    },
+    "MetricName": {
+      "value": ""
+    }
+  }
+}

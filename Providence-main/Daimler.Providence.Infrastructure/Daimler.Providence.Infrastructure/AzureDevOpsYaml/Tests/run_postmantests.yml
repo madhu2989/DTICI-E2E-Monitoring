@@ -1,0 +1,36 @@
+parameters:
+- name: AzureSubscription
+
+steps:
+  - task: replacetokens@3
+    displayName: '[Replace Tokens] Set secrets in Postman environment'
+    inputs:
+      rootDirectory: '$(System.ArtifactsDirectory)/drop/projectartifacts/PostmanTests/'
+      targetFiles: '**/*.environment.json'
+      encoding: 'auto'
+      writeBOM: true
+      actionOnMissing: 'fail'
+      keepToken: false
+      tokenPrefix: '#{'
+      tokenSuffix: '}#'
+      useLegacyPattern: false
+      enableTelemetry: false
+
+  - task: Npm@1
+    displayName: '[NPM] Install newman'
+    inputs:
+      command: custom
+      verbose: false
+      customCommand: 'install newman -g'
+
+  - script: 'newman run $(System.ArtifactsDirectory)/drop/projectartifacts/PostmanTests/Providence_SmokeTest.postman_collection.json -e  $(System.ArtifactsDirectory)/drop/projectartifacts/PostmanTests/Providence_Test.environment.json --delay-request 1000 --color off'
+    displayName: '[Postman] Providence - API SmokeTests'
+
+  - script: 'newman run $(System.ArtifactsDirectory)/drop/projectartifacts/PostmanTests/Providence_ErrorCleanup.postman_collection.json -e  $(System.ArtifactsDirectory)/drop/projectartifacts/PostmanTests/Providence_Test.environment.json --delay-request 1000 --color off'  
+    displayName: '[Postman] Providence - Cleanup before API Tests'
+
+  - script: 'newman run $(System.ArtifactsDirectory)/drop/projectartifacts/PostmanTests/Providence_Test.postman_collection.json -e  $(System.ArtifactsDirectory)/drop/projectartifacts/PostmanTests/Providence_Test.environment.json --delay-request 1000 --color off'  
+    displayName: '[Postman] Providence - API Tests'
+
+  - script: 'newman run $(System.ArtifactsDirectory)/drop/projectartifacts/PostmanTests/Providence_ErrorCleanup.postman_collection.json -e  $(System.ArtifactsDirectory)/drop/projectartifacts/PostmanTests/Providence_Test.environment.json --delay-request 1000 --color off'  
+    displayName: '[Postman] Providence - Cleanup after API Tests'

@@ -1,0 +1,27 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "Location": {
+      "value": ""
+    },
+    "App_Service_Plan_Name": {
+      "value": ""
+    },
+    "Sku_Name": {
+      "value": "P1v2"
+    },
+    "Sku_Tier": {
+      "value": "PremiumV2"
+    },
+    "Sku_Size": {
+      "value": "P1v2"
+    },
+    "Sku_Family": {
+      "value": "Pv2"
+    },
+    "Sku_Capacity": {
+      "value": 1
+    }
+  }
+}
